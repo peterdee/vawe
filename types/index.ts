@@ -13,8 +13,10 @@ export type ExtendedWindow = BaseWindow & {
   backend: {
     handleDrop: (files: string[]) => Promise<ParsedFile[]>;
     onAddFile: (callback: (entry: ParsedFile) => void) => void;
-    onReceiveMetadata: (callback: (metadata: Metadata) => void) => void;
-    requestMetadata: (path: string) => void;
+    onReceiveMetadata: (
+      callback: ({ id, metadata }: { id: string, metadata: Metadata | null }) => void,
+    ) => void;
+    requestMetadata: (payload: RequestMetadataPayload) => void;
   },
 }
 
@@ -33,4 +35,9 @@ export interface ParsedFile {
   name: string;
   path: string;
   sizeBytes: number;
+}
+
+export interface RequestMetadataPayload {
+  id: string;
+  path: string;
 }

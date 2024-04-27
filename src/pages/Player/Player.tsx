@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type {
   ChangeTrackTo,
   ExtendedWindow,
-  Metadata,
   ParsedFile,
 } from '../../../types';
 import PlaybackControls from './components/PlaybackControls';
@@ -19,13 +18,27 @@ function Player(): React.JSX.Element {
       (window as ExtendedWindow).backend.onAddFile((value) => {
         setList((state: ParsedFile[]): ParsedFile[] => {
           return [
-            ...state.filter((item: ParsedFile): boolean => item.id != value.id),
+            ...state.filter((item: ParsedFile): boolean => item.id !== value.id),
             value,
           ];
         });
       });
-      (window as ExtendedWindow).backend.onReceiveMetadata((metadata: Metadata | null) => {
-        console.log('received metadata', metadata);
+      (window as ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
+        console.log('received metadata', id, metadata);
+        // TODO: handle error (if metadata is null)
+        setList((state: ParsedFile[]): ParsedFile[] => {
+          return state.reduce(
+            (array: ParsedFile[], value: ParsedFile): ParsedFile[] => {
+              const copy = { ...value };
+              if (copy.id === id) {
+                copy.metadata = metadata;
+              }
+              array.push(copy);
+              return array;
+            },
+            [],
+          );
+        });
       });
     },
     [],
@@ -57,10 +70,15 @@ function Player(): React.JSX.Element {
 
   const handlePlaylistEntryContextMenu = useCallback(
     (id: string) => {
-      console.log('context menu id', id);
-      (window as ExtendedWindow).backend.requestMetadata(
-        list.filter((file: ParsedFile): boolean => file.id === id)[0].path,
-      );
+      // check if metadata is already loaded for the track
+      const [track] = list.filter((item: ParsedFile): boolean => item.id === id);
+      if (track.metadata) {
+        return console.log('metadata already loaded:', track.metadata);
+      }
+      return (window as ExtendedWindow).backend.requestMetadata({
+        id,
+        path: list.filter((file: ParsedFile): boolean => file.id === id)[0].path,
+      });
     },
     [list],
   );

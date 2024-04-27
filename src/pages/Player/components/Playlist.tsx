@@ -32,7 +32,6 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     return handleFileDrop(event);
   }
 
-  console.log(list);
   return (
     <div
       className={`f d-col m-1 drop-zone ${isDragging ? 'dragging' : ''}`}
