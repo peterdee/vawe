@@ -4,7 +4,7 @@ import type {
   ChangeTrackTo,
   ExtendedWindow,
   ParsedFile,
-} from '../../models';
+} from '../../../types';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import './styles.css';

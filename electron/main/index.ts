@@ -9,23 +9,14 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
 
-import { IPC_EVENTS } from '../common';
-import parser from './parser-single';
+import getMetadata from './handlers/get-metadata';
+import { IPC_EVENTS } from '../constants';
+import parseFiles from './handlers/parse-files';
 import { update } from './update'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.mjs   > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
 process.env.APP_ROOT = path.join(__dirname, '../..')
 
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
@@ -89,12 +80,15 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
-  // handle file drop
+  // parse dropped files
   ipcMain.handle(
     IPC_EVENTS.handleDrop,
-    (_, fileList: string[]) => {
-      return parser(fileList, win as BrowserWindow);
-    },
+    (_, fileList: string[]) => parseFiles(fileList, win as BrowserWindow),
+  );
+  // get audio file metadata
+  ipcMain.handle(
+    IPC_EVENTS.handleRequestMetadata,
+    (_, path: string) => getMetadata(path, win as BrowserWindow),
   );
 
   createWindow();

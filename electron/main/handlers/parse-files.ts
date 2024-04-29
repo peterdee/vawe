@@ -6,17 +6,12 @@ import {
 import type { BrowserWindow } from 'electron';
 import { createId } from '@paralleldrive/cuid2';
 import ffmpeg from 'fluent-ffmpeg';
-import os from 'node:os';
 import { readdir, stat } from 'node:fs/promises';
 
-import { FORMATS, IPC_EVENTS } from '../common';
+import { ffprobePath } from '../../utilities/ffprobe-path';
+import { FORMATS, IPC_EVENTS } from '../../constants';
 
-// ffprobe path for development
-const binaryName = `ffprobe${os.platform() === 'win32' ? '.exe' : ''}`;
-ffmpeg.setFfprobePath(join(
-  process.cwd(),
-  `./bin/${os.platform()}/${binaryName}`,
-));
+ffmpeg.setFfprobePath(ffprobePath);
 
 function handleFile(
   filePath: string,
@@ -62,7 +57,7 @@ async function handlePath(
   }
 }
 
-export default function parser(
+export default function parseFiles(
   paths: string[],
   browserWindow: BrowserWindow,
 ) {

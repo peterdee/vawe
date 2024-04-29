@@ -5,6 +5,19 @@ export interface AudioStream {
   sampleRate: number;
 }
 
+export type ChangeTrackTo = 'next' | 'previous';
+
+type BaseWindow = Window & typeof globalThis;
+
+export type ExtendedWindow = BaseWindow & {
+  backend: {
+    handleDrop: (files: string[]) => Promise<ParsedFile[]>;
+    onAddFile: (callback: (entry: ParsedFile) => void) => void;
+    onReceiveMetadata: (callback: (metadata: Metadata) => void) => void;
+    requestMetadata: (path: string) => void;
+  },
+}
+
 export interface Metadata {
   bitrate: number;
   durationSeconds: number;

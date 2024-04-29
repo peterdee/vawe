@@ -1,28 +1,33 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-import { IPC_EVENTS } from '../common';
-import type { ParsedFile } from 'electron/common/types';
+import { IPC_EVENTS } from '../constants';
+import type { Metadata, ParsedFile } from '../../types';
 
 // VAWE
 contextBridge.exposeInMainWorld(
   'backend',
   {
-    // handle context menu
-    handleContextMenu(path: string): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.handleGetDetails, path);
-    },
-    // handle file drop
+    // handle file drop: parse dropped items
     handleDrop(filePaths: string[]): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.handleDrop, filePaths);
     },
-    // handle add file to the playlist
-    async onAddFile(callback: ((entry: ParsedFile) => void)): Promise<void> {
+    // handle adding file to the playlist
+    onAddFile(callback: ((entry: ParsedFile) => void)) {
       ipcRenderer.on(
         IPC_EVENTS.handleAddFile,
-        (_, value: ParsedFile) => {
-          callback(value);
-        },
+        (_, value: ParsedFile) => callback(value),
       );
+    },
+    // receive audio file metadata
+    onReceiveMetadata(callback: ((metadata: Metadata) => void)) {
+      ipcRenderer.on(
+        IPC_EVENTS.handleReceiveMetadata,
+        (_, value: Metadata) => callback(value),
+      );
+    },
+    // request audio file metadata
+    requestMetadata(path: string): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, path);
     },
   },
 );
