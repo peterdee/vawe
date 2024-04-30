@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { rmSync } from 'node:fs';
+import babel from 'vite-plugin-babel';
 
 import pkg from './package.json';
 
@@ -45,6 +46,11 @@ export default defineConfig(({ command }) => {
                 external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
               },
             },
+            plugins: [babel({
+              babelConfig: {
+                plugins: [['babel-plugin-cjs-esm-interop', { format: 'mjs' }]],
+              },
+            })],
           },
         },
         preload: {
