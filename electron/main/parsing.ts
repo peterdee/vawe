@@ -1,7 +1,8 @@
 import { availableParallelism } from 'node:os';
 import type { BrowserWindow } from 'electron';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { fork, type ChildProcess } from 'node:child_process';
-import { join } from 'path';
 
 import { EVENT_NAMES, RENDERER_EVENTS } from '../common';
 import type {
@@ -24,7 +25,7 @@ export default async function parseDroppedFiles(
 ): Promise<void> {
   const spawnWorkers: Promise<boolean>[] = new Array(NUMBER_OF_WORKERS);
   for (let i = 0; i < NUMBER_OF_WORKERS; i += 1) {
-    const worker = fork(join(__dirname, 'worker.js'));
+    const worker = fork(join(dirname(fileURLToPath(import.meta.url)), 'worker.js'));
 
     spawnWorkers[i] = new Promise<boolean>((resolve) => {
       worker.on(
