@@ -24,11 +24,5 @@ release
 *.sln
 *.sw?
 
-#lockfile
-pnpm-lock.yaml
-yarn.lock
-/test-results/
-/playwright-report/
-/playwright/.cache/
-
+# Environment
 .env
