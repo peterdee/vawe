@@ -1,4 +1,15 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { ipcRenderer, contextBridge } from 'electron';
+import { HandleFileDropParameters } from './types';
+
+// VAWE
+contextBridge.exposeInMainWorld(
+  'backend',
+  {
+    async handleFileDrop(parameters: HandleFileDropParameters) {
+      return 
+    },
+  },
+);
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -18,10 +29,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     const [channel, ...omit] = args
     return ipcRenderer.invoke(channel, ...omit)
   },
-
-  // You can expose other APTs you need here.
-  // ...
-})
+});
 
 // --------- Preload scripts loading ---------
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {

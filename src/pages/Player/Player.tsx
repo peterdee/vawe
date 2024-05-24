@@ -24,6 +24,7 @@ function Player(): React.JSX.Element {
           type: file.type,
         },
       ]);
+      console.log(file);
     }
   };
 

@@ -1,3 +1,8 @@
+export interface HandleFileDropParameters {
+  directories: string[];
+  files: string[];
+}
+
 export interface ParsedFile {
   id: string;
   lengthSeconds: number;
