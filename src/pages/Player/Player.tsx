@@ -18,12 +18,15 @@ function Player(): React.JSX.Element {
     for (let item of event.dataTransfer.files) {
       filesArray.push(item);
     }
-    try {
-      const files = await (window as ExtendedWindow).backend.handleDrop(filesArray);
-      console.log('files:', files);
-    } catch (err) {
-      console.log(err);
-    }
+    // try {
+    //   const files = await (window as ExtendedWindow).backend.handleDrop(filesArray);
+    //   console.log('files:', files);
+    // } catch (err) {
+    //   console.log(err);
+    // }
+
+    const r = await (window as ExtendedWindow).ipcRenderer.testInvoke(['a', 'b', 'c']);
+    console.log(r);
 
     for (let file of event.dataTransfer.files) {
       // TODO: only supported formats

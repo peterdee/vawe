@@ -33,6 +33,9 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     const [channel, ...omit] = args
     return ipcRenderer.invoke(channel, ...omit)
   },
+  async testInvoke(strings: string[]) {
+    return ipcRenderer.invoke('invoked', strings);
+  },
 });
 
 // --------- Preload scripts loading ---------

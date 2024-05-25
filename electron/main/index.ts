@@ -85,7 +85,14 @@ async function createWindow() {
   update(win)
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  ipcMain.handle('invoked', (event, args: string[]) => {
+    console.log('event', event);
+    console.log('args', args);
+    return args.join('');
+  });
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   win = null

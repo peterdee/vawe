@@ -6,6 +6,9 @@ export type ExtendedWindow = BaseWindow & {
   backend: {
     handleDrop: (files: File[]) => Promise<ParsedFile[]>;
   },
+  ipcRenderer: {
+    testInvoke: (strings: string[]) => Promise<void>;
+  }
 }
 
 export interface ParsedFile {
