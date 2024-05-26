@@ -17,9 +17,14 @@
     "lint": "eslint -- --init",
     "preview": "vite preview"
   },
+  "engines": {
+    "node": "22"
+  },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.2.5",
     "common-styles": "github:julyskies/common-styles",
     "electron-updater": "^6.1.8",
+    "react-redux": "^9.1.2",
     "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
@@ -33,11 +38,8 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.2",
     "globals": "^15.3.0",
-    "postcss": "^8.4.35",
-    "postcss-import": "^16.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwindcss": "^3.4.1",
     "typescript": "^5.4.2",
     "typescript-eslint": "^7.11.0",
     "vite": "^5.1.5",
