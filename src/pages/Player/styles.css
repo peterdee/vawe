@@ -1,0 +1,14 @@
+.drop-zone {
+  border: 1px dotted red;
+  flex-grow: 1;
+}
+.dragging {
+  background-color: rgba(255, 0, 0, .2);
+  border: 2px dotted red;
+}
+.playlist-entry-wrap {
+  height: calc(var(--spacer) * 2);
+}
+.playlist-entry-wrap:hover {
+  background-color: teal
+}

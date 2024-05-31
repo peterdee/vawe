@@ -18,7 +18,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "electron-updater": "^6.1.8"
+    "common-styles": "github:julyskies/common-styles",
+    "electron-updater": "^6.1.8",
+    "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",

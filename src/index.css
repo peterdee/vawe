@@ -13,13 +13,3 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
-
-.drop-zone {
-  border: 1px dotted red;
-  height: 500px;
-  width: 500px;
-}
-.dragging {
-  background-color: rgba(255, 0, 0, .2);
-  border: 2px dotted red;
-}
