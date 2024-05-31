@@ -1,38 +1,60 @@
-import { useState } from 'react'
-import UpdateElectron from '@/components/update'
-import logoVite from './assets/logo-vite.svg'
-import logoElectron from './assets/logo-electron.svg'
+import React, { useState } from 'react'
+
+import type { FileEntry } from './models';
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-  return (
-    <div className='App'>
-      <div className='logo-box'>
-        <a href='https://github.com/electron-vite/electron-vite-react' target='_blank'>
-          <img src={logoVite} className='logo vite' alt='Electron + Vite logo' />
-          <img src={logoElectron} className='logo electron' alt='Electron + Vite logo' />
-        </a>
-      </div>
-      <h1>Electron + Vite + React</h1>
-      <div className='card'>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className='read-the-docs'>
-        Click on the Electron + Vite logo to learn more
-      </p>
-      <div className='flex-center'>
-        Place static files into the<code>/public</code> folder <img style={{ width: '5em' }} src='./node.svg' alt='Node logo' />
-      </div>
+function App(): React.JSX.Element {
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [list, setList] = useState<FileEntry[]>([]);
 
-      <UpdateElectron />
+  const handleDragOver = (event: React.DragEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
+  const handleFileDrop = (event: React.DragEvent) => {
+    setIsDragging(false);
+
+    for (let file of event.dataTransfer.files) {
+      // TODO: only supported formats
+      // TODO: check for directories
+      // TODO: parse directories recursively
+      setList((items: FileEntry[]): FileEntry[] => [
+        ...items,
+        {
+          addedAt: Date.now(),
+          name: file.name,
+          path: file.path,
+          sizeBytes: file.size,
+          type: file.type,
+        },
+      ]);
+    }
+  };
+
+  const toggleDragging = () => setIsDragging((value: boolean) => !value);
+
+  return (
+    <div className="App">
+      <div
+        className={`drop-zone ${isDragging ? 'dragging' : ''}`}
+        onDragEnter={toggleDragging}
+        onDragOver={handleDragOver}
+        onDragLeave={toggleDragging}
+        onDrop={handleFileDrop}
+      >
+        { list.length > 0 && list.map((item: FileEntry) => (
+          <div key={`${item.addedAt}${item.path}`}>
+            { `${item.name} (added: ${item.addedAt})` }
+          </div>
+        )) }
+      </div>
+      <input
+        onChange={console.log}
+        type="file"
+      />
     </div>
   )
 }
 
-export default App
+export default React.memo(App)
