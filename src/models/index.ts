@@ -7,3 +7,9 @@ export interface FileEntry {
   sizeBytes: number;
   type: string;
 }
+
+export interface PlaylistEntry extends FileEntry {
+  fileIsAccessible: boolean;
+  id: string;
+  lengthSeconds: number;
+}
