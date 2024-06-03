@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
+    "@paralleldrive/cuid2": "^2.2.2",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.2.1",
