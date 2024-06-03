@@ -5,21 +5,18 @@ import ffmpegPath from 'ffmpeg-static-electron';
 import ffprobePath from 'ffprobe-static-electron';
 import { readdir } from 'node:fs/promises';
 
+import { EVENT_NAMES, FORMATS } from './common';
+
 ffmpeg.setFfprobePath(ffprobePath.path);
 ffmpeg.setFfmpegPath(ffmpegPath.path);
 
-const EVENT_NAMES = {
-  foundFile: 'found-file',
-  queuePath: 'queue-path',
-  workerFinished: 'worker-finished',
-};
-
-const FORMATS = ['.flac', '.mp3', '.wav'];
-
 process.on(
   'message',
-  async (path = '') => {
-    /** @type {import('fs').Dirent[]} */
+  async (path: string) => {
+    if (!process.send) {
+      return null;
+    }
+
     try {
       const contents = await readdir(path, { withFileTypes: true });
       if (contents.length === 0) {
@@ -34,31 +31,30 @@ process.on(
             continue;
           }
 
-          /** @type {import('fluent-ffmpeg').FfprobeData} */
-          const fileMetadata = await new Promise((resolve, reject) => {
-            ffmpeg.ffprobe(
-              filePath,
-              (error, metadata) => {
-                if (error) {
-                  return reject(error);
-                }
-                return resolve(metadata);
-              },
-            );
-          });
-
-          console.log(fileMetadata.format);
+          const fileMetadata = await new Promise<ffmpeg.FfprobeData>(
+            (resolve, reject) => {
+              ffmpeg.ffprobe(
+                filePath,
+                (error: Error, metadata: ffmpeg.FfprobeData) => {
+                  if (error) {
+                    return reject(error);
+                  }
+                  return resolve(metadata);
+                },
+              );
+            },
+          );
  
           process.send({
             event: EVENT_NAMES.foundFile,
             value: {
               id: createId(),
-              lengthSeconds: fileMetadata.format.duration,
+              lengthSeconds: fileMetadata.format.duration || 0,
               name: item.name,
               path: join(path, item.name),
-              sizeBytes: fileMetadata.format.size,
+              sizeBytes: fileMetadata.format.size || 0,
             },
-          })
+          });
         }
         if (item.isDirectory()) {
           process.send({

@@ -1,71 +1,64 @@
 import { availableParallelism } from 'node:os';
-import { fork } from 'node:child_process';
+import { fork, type ChildProcess } from 'node:child_process';
 
-const EVENT_NAMES = {
-  foundFile: 'found-file',
-  queuePath: 'queue-path',
-  workerFinished: 'worker-finished',
-};
+import { EVENT_NAMES } from './common';
+import type { ParsedFile, WorkerMessage } from './types';
 
 const NUMBER_OF_WORKERS = availableParallelism();
 
-// queue
-const queue = [];
+const queue: string[] = [];
 
-// files
-const files = [];
+const files: ParsedFile[] = [];
 
-// workers pool
-const isFree = new Array(NUMBER_OF_WORKERS);
-/** @type {import('child_process').ChildProcess[]} */
-const workers = new Array(NUMBER_OF_WORKERS);
+const isFree: boolean[] = new Array(NUMBER_OF_WORKERS);
+const workers: ChildProcess[] = new Array(NUMBER_OF_WORKERS);
 
-async function startParsing(initialPath = '') {
-  const now = Date.now();
-  const spawnWorkers = new Array(NUMBER_OF_WORKERS);
+async function parseDirectory(initialPath = '') {
+  const spawnWorkers: Promise<boolean>[] = new Array(NUMBER_OF_WORKERS);
   for (let i = 0; i < NUMBER_OF_WORKERS; i += 1) {
-    const worker = fork('./dev.worker.js');
+    const worker = fork('./parsing-worker.js');
 
-    spawnWorkers[i] = new Promise((resolve) => {
+    spawnWorkers[i] = new Promise<boolean>((resolve) => {
       worker.on(
         'spawn',
         () => {
           isFree[i] = true;
           workers[i] = worker;
-          return resolve();
+          resolve(true);
         },
       );
     });
 
     worker.on(
       'message',
-      (data) => {
+      (data: WorkerMessage<unknown>) => {
         if (data.event) {
           switch (data.event) {
             case EVENT_NAMES.foundFile: {
-              files.push(data.value);
+              const typedData = data as WorkerMessage<ParsedFile>;
+              files.push(typedData.value);
               break;
             };
             case EVENT_NAMES.queuePath: {
               const freeWorker = isFree.indexOf(true);
+              const typedData = data as WorkerMessage<string>;
               if (freeWorker >= 0) {
                 isFree[freeWorker] = false;
-                workers[freeWorker].send(data.value);
+                workers[freeWorker].send(typedData.value);
               } else {
-                queue.push(data.value);
+                queue.push(typedData.value);
               }
               break;
             };
             default: {
               if (queue.length > 0) {
-                workers[i].send(queue.shift());
+                workers[i].send(queue.shift() as string);
               } else {
                 isFree[i] = true;
                 if (isFree.every((free) => free)) {
-                  console.log('files found:', files.length);
-                  console.log('time spent:', Date.now() - now);
+                  // TODO: return array of files
                   workers.forEach((worker) => {
-                    worker.kill('SIGTERM');
+                    worker.kill();
                   });
                 }
               }
@@ -81,4 +74,4 @@ async function startParsing(initialPath = '') {
   workers[0].send(initialPath);
 }
 
-startParsing('/Users/peter/Music');
+parseDirectory('/Users/peter/Music');
