@@ -1,28 +1,43 @@
 import React, { useState } from 'react';
 
-import type { ChangeTrackTo, FileEntry } from '../../models';
+import type {
+  ChangeTrackTo,
+  ExtendedWindow,
+  ParsedFile,
+} from '../../models';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import './styles.css';
 
 function Player(): React.JSX.Element {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [list, setList] = useState<FileEntry[]>([]);
+  const [list, setList] = useState<ParsedFile[]>([]);
 
-  const handleFileDrop = (event: React.DragEvent) => {
+  const handleFileDrop = async (event: React.DragEvent) => {
+    const filesArray: File[] = [];
+    for (let item of event.dataTransfer.files) {
+      filesArray.push(item);
+    }
+    try {
+      const files = await (window as ExtendedWindow).backend.handleDrop(filesArray);
+      console.log('files:', files);
+    } catch (err) {
+      console.log(err);
+    }
+
     for (let file of event.dataTransfer.files) {
       // TODO: only supported formats
       // TODO: check for directories
       // TODO: parse directories recursively
-      setList((items: FileEntry[]): FileEntry[] => [
+      setList((items: ParsedFile[]): ParsedFile[] => [
         ...items,
         {
-          addedAt: Date.now(),
+          id: file.name,
+          lengthSeconds: 0,
           name: file.name,
           path: file.path,
           sizeBytes: file.size,
-          type: file.type,
-        },
+        }
       ]);
       console.log(file);
     }

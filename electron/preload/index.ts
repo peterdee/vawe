@@ -1,15 +1,19 @@
 import { ipcRenderer, contextBridge } from 'electron';
-import { HandleFileDropParameters } from './types';
+
+import type { ParsedFile } from './types';
+import parseDroppedFiles from './parsing';
 
 // VAWE
 contextBridge.exposeInMainWorld(
   'backend',
   {
-    async handleFileDrop(parameters: HandleFileDropParameters) {
-      return 
+    // TODO: return value
+    async handleDrop(fileList: File[]): Promise<void> {
+      return parseDroppedFiles(fileList);
     },
   },
 );
+
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {

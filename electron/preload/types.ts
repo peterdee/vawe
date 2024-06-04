@@ -1,9 +1,5 @@
-export interface HandleFileDropParameters {
-  directories: string[];
-  files: string[];
-}
-
 export interface ParsedFile {
+  fileIsAccessible: boolean;
   id: string;
   lengthSeconds: number;
   name: string;

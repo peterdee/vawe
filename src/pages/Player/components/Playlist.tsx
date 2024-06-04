@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
-import { FileEntry } from '@/models';
+import type { ParsedFile } from '@/models';
 
 interface PlaylistProps {
   handleFileDrop: (event: React.DragEvent) => void;
-  list: FileEntry[];
+  list: ParsedFile[];
 }
 
 function Playlist(props: PlaylistProps): React.JSX.Element {
@@ -35,24 +35,26 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
       onDragLeave={toggleDragging}
       onDrop={handleDrop}
     >
-      { list.length > 0 && list.map((item: FileEntry, index: number) => (
-        <div
-          className="f j-space-between ai-center ph-half playlist-entry-wrap"
-          key={`${item.addedAt}${item.path}`}
-        >
-          <div className="f">
-            <div className="mr-1">
-              { index }
+      { list.length > 0 && list.map(
+        (item: ParsedFile, index: number): React.JSX.Element => (
+          <div
+            className="f j-space-between ai-center ph-half playlist-entry-wrap"
+            key={item.path}
+          >
+            <div className="f">
+              <div className="mr-1">
+                { index }
+              </div>
+              <div>
+                { item.name }
+              </div>
             </div>
             <div>
-              { item.name }
+              Duration
             </div>
           </div>
-          <div>
-            Duration
-          </div>
-        </div>
-      )) }
+        )
+      ) }
     </div>
   );
 }
