@@ -2,7 +2,7 @@ import { availableParallelism } from 'node:os';
 import { fork, type ChildProcess } from 'node:child_process';
 import { join } from 'path';
 
-import { EVENT_NAMES } from './common';
+import { EVENT_NAMES } from '../common';
 import type {
   ParsedFile,
   WorkerMessage,

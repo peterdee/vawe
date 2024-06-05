@@ -1,19 +1,17 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
-import type { ParsedFile } from './types';
-import parseDroppedFiles from './parsing';
+import { RENDERER_EVENTS } from '../common';
 
 // VAWE
 contextBridge.exposeInMainWorld(
   'backend',
   {
-    // TODO: return value
+    // handle file drop
     async handleDrop(fileList: File[]): Promise<void> {
-      return parseDroppedFiles(fileList);
+      return ipcRenderer.invoke(RENDERER_EVENTS.handleDrop, fileList);
     },
   },
 );
-
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -32,9 +30,6 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   invoke(...args: Parameters<typeof ipcRenderer.invoke>) {
     const [channel, ...omit] = args
     return ipcRenderer.invoke(channel, ...omit)
-  },
-  async testInvoke(strings: string[]) {
-    return ipcRenderer.invoke('invoked', strings);
   },
 });
 

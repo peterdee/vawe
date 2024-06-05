@@ -5,7 +5,7 @@ import ffmpegPath from 'ffmpeg-static-electron';
 import ffprobePath from 'ffprobe-static-electron';
 import { readdir, stat } from 'node:fs/promises';
 
-import { EVENT_NAMES, FORMATS } from './common';
+import { EVENT_NAMES, FORMATS } from '../common';
 
 ffmpeg.setFfprobePath(ffprobePath.path);
 ffmpeg.setFfmpegPath(ffmpegPath.path);

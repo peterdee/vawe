@@ -1,9 +1,10 @@
-import { rmSync } from 'node:fs'
-import path from 'node:path'
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import electron from 'vite-plugin-electron/simple'
-import pkg from './package.json'
+import electron from 'vite-plugin-electron/simple';
+import { defineConfig } from 'vite';
+import path from 'node:path';
+import react from '@vitejs/plugin-react';
+import { rmSync } from 'node:fs';
+
+import pkg from './package.json';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
@@ -24,7 +25,10 @@ export default defineConfig(({ command }) => {
       electron({
         main: {
           // Shortcut of `build.lib.entry`
-          entry: 'electron/main/index.ts',
+          entry: [
+            'electron/main/index.ts',
+            'electron/main/worker.ts',
+          ],
           onstart(args) {
             if (process.env.VSCODE_DEBUG) {
               console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Electron App')
@@ -73,4 +77,4 @@ export default defineConfig(({ command }) => {
     })(),
     clearScreen: false,
   }
-})
+});

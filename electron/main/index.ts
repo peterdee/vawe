@@ -1,8 +1,16 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
-import os from 'node:os'
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  shell,
+} from 'electron';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { fork } from 'node:child_process';
+import path from 'node:path';
+import os from 'node:os';
+
+import { RENDERER_EVENTS } from '../common';
 import { update } from './update'
 
 const require = createRequire(import.meta.url)
@@ -86,11 +94,13 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
-  ipcMain.handle('invoked', (event, args: string[]) => {
-    console.log('event', event);
-    console.log('args', args);
-    return args.join('');
-  });
+  ipcMain.handle(
+    RENDERER_EVENTS.handleDrop,
+    async (_, fileList: File[]): Promise<void> => {
+      
+    },
+  );
+
   createWindow();
 });
 

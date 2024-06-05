@@ -5,3 +5,7 @@ export const EVENT_NAMES = {
 };
 
 export const FORMATS = ['.flac', '.mp3', '.wav'];
+
+export const RENDERER_EVENTS = {
+  handleDrop: 'handle:drop',
+};
