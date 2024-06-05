@@ -4,11 +4,9 @@ type BaseWindow = Window & typeof globalThis;
 
 export type ExtendedWindow = BaseWindow & {
   backend: {
-    handleDrop: (files: File[]) => Promise<ParsedFile[]>;
+    handleDrop: (files: string[]) => Promise<ParsedFile[]>;
+    onAddFile: (callback: (entry: ParsedFile) => void) => void;
   },
-  ipcRenderer: {
-    testInvoke: (strings: string[]) => Promise<void>;
-  }
 }
 
 export interface ParsedFile {

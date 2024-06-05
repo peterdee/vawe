@@ -1,5 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
+import type { ParsedFile } from 'electron/common/types';
 import { RENDERER_EVENTS } from '../common';
 
 // VAWE
@@ -7,8 +8,15 @@ contextBridge.exposeInMainWorld(
   'backend',
   {
     // handle file drop
-    async handleDrop(fileList: File[]): Promise<void> {
-      return ipcRenderer.invoke(RENDERER_EVENTS.handleDrop, fileList);
+    handleDrop(filePaths: string[]): Promise<void> {
+      return ipcRenderer.invoke(RENDERER_EVENTS.handleDrop, filePaths);
+    },
+    // handle add file to the playlist
+    onAddFile(callback: ((entry: ParsedFile) => void)) {
+      ipcRenderer.on(
+        RENDERER_EVENTS.handleAddFile,
+        (_, value: ParsedFile) => callback(value),
+      );
     },
   },
 );

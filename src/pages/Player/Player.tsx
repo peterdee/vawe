@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import type {
   ChangeTrackTo,
@@ -13,32 +13,27 @@ function Player(): React.JSX.Element {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [list, setList] = useState<ParsedFile[]>([]);
 
-  const handleFileDrop = async (event: React.DragEvent) => {
-    const filesArray: File[] = [];
+  useEffect(
+    () => {
+      (window as ExtendedWindow).backend.onAddFile((value) => {
+        setList((state: ParsedFile[]): ParsedFile[] => [
+          ...state,
+          value,
+        ]);
+      });
+    },
+    [list],
+  );
+
+  const handleFileDrop = (event: React.DragEvent) => {
+    const filesArray: string[] = [];
     for (let item of event.dataTransfer.files) {
-      filesArray.push(item);
+      filesArray.push(item.path);
     }
     try {
-      await (window as ExtendedWindow).backend.handleDrop(filesArray);
+      (window as ExtendedWindow).backend.handleDrop(filesArray);
     } catch (err) {
       console.log(err);
-    }
-
-    for (let file of event.dataTransfer.files) {
-      // TODO: only supported formats
-      // TODO: check for directories
-      // TODO: parse directories recursively
-      setList((items: ParsedFile[]): ParsedFile[] => [
-        ...items,
-        {
-          id: file.name,
-          lengthSeconds: 0,
-          name: file.name,
-          path: file.path,
-          sizeBytes: file.size,
-        }
-      ]);
-      console.log(file);
     }
   };
 

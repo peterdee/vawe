@@ -10,6 +10,7 @@ import { fork } from 'node:child_process';
 import path from 'node:path';
 import os from 'node:os';
 
+import parseDroppedFiles from './parsing';
 import { RENDERER_EVENTS } from '../common';
 import { update } from './update'
 
@@ -94,10 +95,11 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // handle file drop
   ipcMain.handle(
     RENDERER_EVENTS.handleDrop,
-    async (_, fileList: File[]): Promise<void> => {
-      
+    (_, fileList: string[]): Promise<void> => {
+      return parseDroppedFiles(fileList, win as BrowserWindow);
     },
   );
 
