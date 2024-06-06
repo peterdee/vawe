@@ -1,14 +1,14 @@
 import { createId } from '@paralleldrive/cuid2';
 import { extname, join } from 'node:path';
 import ffmpeg from 'fluent-ffmpeg';
-import ffmpegPath from 'ffmpeg-static-electron';
-import ffprobePath from 'ffprobe-static-electron';
+import ffmpegPath from 'ffmpeg-static-electron-esm';
+import ffprobePath from 'ffprobe-static-electron-esm';
 import { readdir, stat } from 'node:fs/promises';
 
 import { EVENT_NAMES, FORMATS } from '../common';
 
-ffmpeg.setFfprobePath(ffprobePath.path);
-ffmpeg.setFfmpegPath(ffmpegPath.path);
+ffmpeg.setFfprobePath(ffprobePath);
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 async function handleFile(filePath: string): Promise<null | void> {
   if (!process.send) {

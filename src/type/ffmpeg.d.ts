@@ -1,13 +1,7 @@
-type Path = string;
-
-declare module 'ffmpeg-static-electron' {
-  export default {
-    path: '',
-  };
+declare module 'ffmpeg-static-electron-esm' {
+  export default '';
 }
 
-declare module 'ffprobe-static-electron' {
-  export default {
-    path: '',
-  };
+declare module 'ffprobe-static-electron-esm' {
+  export default '';
 }
