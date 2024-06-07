@@ -6,11 +6,10 @@ import {
 } from 'electron';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { fork } from 'node:child_process';
 import path from 'node:path';
 import os from 'node:os';
 
-import parseDroppedFiles from './parsing';
+import parser from './parser-single';
 import { RENDERER_EVENTS } from '../common';
 import { update } from './update'
 
@@ -93,8 +92,8 @@ app.whenReady().then(() => {
   // handle file drop
   ipcMain.handle(
     RENDERER_EVENTS.handleDrop,
-    (_, fileList: string[]): Promise<void> => {
-      return parseDroppedFiles(fileList, win as BrowserWindow);
+    (_, fileList: string[]) => {
+      return parser(fileList, win as BrowserWindow);
     },
   );
 

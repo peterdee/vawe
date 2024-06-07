@@ -16,13 +16,15 @@ function Player(): React.JSX.Element {
   useEffect(
     () => {
       (window as ExtendedWindow).backend.onAddFile((value) => {
-        setList((state: ParsedFile[]): ParsedFile[] => [
-          ...state,
-          value,
-        ]);
+        setList((state: ParsedFile[]): ParsedFile[] => {
+          return [
+            ...state.filter((item: ParsedFile): boolean => item.id != value.id),
+            value,
+          ];
+        });
       });
     },
-    [list],
+    [],
   );
 
   const handleFileDrop = (event: React.DragEvent) => {

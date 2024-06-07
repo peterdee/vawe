@@ -3,7 +3,6 @@ import { defineConfig } from 'vite';
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { rmSync } from 'node:fs';
-import babel from 'vite-plugin-babel';
 
 import pkg from './package.json';
 
@@ -26,10 +25,7 @@ export default defineConfig(({ command }) => {
       electron({
         main: {
           // Shortcut of `build.lib.entry`
-          entry: [
-            'electron/main/index.ts',
-            'electron/main/worker.ts',
-          ],
+          entry: ['electron/main/index.ts'],
           onstart(args) {
             if (process.env.VSCODE_DEBUG) {
               console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Electron App')
@@ -46,11 +42,6 @@ export default defineConfig(({ command }) => {
                 external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
               },
             },
-            plugins: [babel({
-              babelConfig: {
-                plugins: [['babel-plugin-cjs-esm-interop', { format: 'mjs' }]],
-              },
-            })],
           },
         },
         preload: {

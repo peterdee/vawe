@@ -1,4 +1,4 @@
-import { ipcRenderer, contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
 import type { ParsedFile } from 'electron/common/types';
 import { RENDERER_EVENTS } from '../common';
@@ -12,10 +12,12 @@ contextBridge.exposeInMainWorld(
       return ipcRenderer.invoke(RENDERER_EVENTS.handleDrop, filePaths);
     },
     // handle add file to the playlist
-    onAddFile(callback: ((entry: ParsedFile) => void)) {
+    async onAddFile(callback: ((entry: ParsedFile) => void)): Promise<void> {
       ipcRenderer.on(
         RENDERER_EVENTS.handleAddFile,
-        (_, value: ParsedFile) => callback(value),
+        (_, value: ParsedFile) => {
+          callback(value);
+        },
       );
     },
   },

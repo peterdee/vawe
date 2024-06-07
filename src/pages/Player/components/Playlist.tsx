@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import type { ParsedFile } from '@/models';
+import formatDuration from '@/utilities/format-duration';
 
 interface PlaylistProps {
   handleFileDrop: (event: React.DragEvent) => void;
@@ -42,15 +43,15 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
             key={item.path}
           >
             <div className="f">
-              <div className="mr-1">
+              <div className="mr-1 track-index">
                 { index }
               </div>
-              <div>
+              <div className="track-name">
                 { item.name }
               </div>
             </div>
-            <div>
-              Duration
+            <div className="track-duration t-right">
+              { formatDuration(item.lengthSeconds) }
             </div>
           </div>
         )

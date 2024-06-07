@@ -1,6 +1,7 @@
 .drop-zone {
   border: 1px dotted red;
-  flex-grow: 1;
+  height: calc(100vh - var(--spacer) * 10);
+  overflow-y: scroll;
 }
 .dragging {
   background-color: rgba(255, 0, 0, .2);
@@ -10,5 +11,15 @@
   height: calc(var(--spacer) * 2);
 }
 .playlist-entry-wrap:hover {
-  background-color: teal
+  background-color: lightgreen;
+}
+.track-duration {
+  width: calc(var(--spacer-half) + var(--spacer) * 4);
+}
+.track-index {
+  min-width: calc(var(--spacer-half) * 3);
+}
+.track-name {
+  overflow-x: hidden;
+  text-wrap: nowrap;
 }
