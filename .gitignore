@@ -26,3 +26,6 @@ release
 
 # Environment
 .env
+
+# FFPROBE binaries
+bin/
