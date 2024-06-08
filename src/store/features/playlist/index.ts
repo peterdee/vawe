@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import type { PlaylistEntry } from '@/models';
+
+import type { ParsedFile} from '@/models';
 
 export interface PlaylistState {
-  tracks: PlaylistEntry[];
+  tracks: ParsedFile[];
 }
 
 const initialState: PlaylistState = {
@@ -14,7 +15,7 @@ export const playlistSlice = createSlice({
   initialState,
   name: 'playlist',
   reducers: {
-    addTrack: (state, action: PayloadAction<PlaylistEntry>) => {
+    addTrack: (state, action: PayloadAction<ParsedFile>) => {
       state.tracks = [
         ...state.tracks,
         action.payload,
@@ -22,7 +23,7 @@ export const playlistSlice = createSlice({
     },
     removeTrack: (state, action: PayloadAction<string>) => {
       state.tracks = state.tracks.filter(
-        (track: PlaylistEntry): boolean => track.id != action.payload,
+        (track: ParsedFile): boolean => track.id != action.payload,
       );
     },
   },

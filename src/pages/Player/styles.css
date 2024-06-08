@@ -8,9 +8,15 @@
   border: 2px dotted red;
 }
 .playlist-entry-wrap {
+  background-color: transparent;
+  border: none;
+  color: var(--text);
   height: calc(var(--spacer) * 2);
 }
 .playlist-entry-wrap:hover {
+  background-color: rgb(181, 255, 181);
+}
+.playlist-entry-wrap:focus {
   background-color: lightgreen;
 }
 .track-duration {

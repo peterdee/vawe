@@ -9,14 +9,13 @@ import ffmpeg from 'fluent-ffmpeg';
 import os from 'node:os';
 import { readdir, stat } from 'node:fs/promises';
 
-import { FORMATS, RENDERER_EVENTS } from '../common';
+import { FORMATS, IPC_EVENTS } from '../common';
 
 // ffprobe path for development
-const platformDirectory = os.platform() === 'darwin' ? 'mac' : os.platform();
-const binaryName = `ffprobe${platformDirectory === 'win32' ? '.exe' : ''}`;
+const binaryName = `ffprobe${os.platform() === 'win32' ? '.exe' : ''}`;
 ffmpeg.setFfprobePath(join(
   process.cwd(),
-  `./ffprobe/${platformDirectory}/${binaryName}`,
+  `./bin/${os.platform()}/${binaryName}`,
 ));
 
 function handleFile(
@@ -24,12 +23,12 @@ function handleFile(
   name: string,
   browserWindow: BrowserWindow,
 ) {
-  return ffmpeg.ffprobe(
+  ffmpeg.ffprobe(
     filePath,
     (error: Error, metadata: ffmpeg.FfprobeData) => {
     if (!error) {
       browserWindow.webContents.send(
-        RENDERER_EVENTS.handleAddFile,
+        IPC_EVENTS.handleAddFile,
         {
           fileIsAccessible: true,
           id: createId(),

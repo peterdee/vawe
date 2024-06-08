@@ -9,8 +9,8 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
 
+import { IPC_EVENTS } from '../common';
 import parser from './parser-single';
-import { RENDERER_EVENTS } from '../common';
 import { update } from './update'
 
 const require = createRequire(import.meta.url)
@@ -91,7 +91,7 @@ async function createWindow() {
 app.whenReady().then(() => {
   // handle file drop
   ipcMain.handle(
-    RENDERER_EVENTS.handleDrop,
+    IPC_EVENTS.handleDrop,
     (_, fileList: string[]) => {
       return parser(fileList, win as BrowserWindow);
     },

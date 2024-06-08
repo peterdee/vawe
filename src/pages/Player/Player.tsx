@@ -47,6 +47,14 @@ function Player(): React.JSX.Element {
     setIsPlaying((state: boolean): boolean => !state);
   };
 
+  const handlePlaylistEntryClick = (id: string) => {
+    console.log('clicked id', id);
+  };
+
+  const handlePlaylistEntryContextMenu = (id: string) => {
+    console.log('context menu id', id);
+  };
+
   const handleStopPlayback = () => {
     setIsPlaying(false);
     console.log('Stop playback');
@@ -68,6 +76,8 @@ function Player(): React.JSX.Element {
       />
       <Playlist
         handleFileDrop={handleFileDrop}
+        handlePlaylistEntryClick={handlePlaylistEntryClick}
+        handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}
         list={list}
       />
       <input

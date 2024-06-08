@@ -5,12 +5,16 @@ import formatDuration from '@/utilities/format-duration';
 
 interface PlaylistProps {
   handleFileDrop: (event: React.DragEvent) => void;
+  handlePlaylistEntryClick: (id: string) => void;
+  handlePlaylistEntryContextMenu: (id: string) => void;
   list: ParsedFile[];
 }
 
 function Playlist(props: PlaylistProps): React.JSX.Element {
   const {
     handleFileDrop,
+    handlePlaylistEntryClick,
+    handlePlaylistEntryContextMenu,
     list,
   } = props;
 
@@ -38,9 +42,12 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     >
       { list.length > 0 && list.map(
         (item: ParsedFile, index: number): React.JSX.Element => (
-          <div
-            className="f j-space-between ai-center ph-half playlist-entry-wrap"
+          <button
+            className="f j-space-between ai-center ph-half ns playlist-entry-wrap"
             key={item.path}
+            onClick={() => handlePlaylistEntryClick(item.id)}
+            onContextMenu={() => handlePlaylistEntryContextMenu(item.id)}
+            type="button"
           >
             <div className="f">
               <div className="mr-1 track-index">
@@ -53,8 +60,8 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
             <div className="track-duration t-right">
               { formatDuration(item.lengthSeconds) }
             </div>
-          </div>
-        )
+          </button>
+        ),
       ) }
     </div>
   );

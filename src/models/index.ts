@@ -10,13 +10,10 @@ export type ExtendedWindow = BaseWindow & {
 }
 
 export interface ParsedFile {
+  fileIsAvailable: boolean;
   id: string;
   lengthSeconds: number;
   name: string;
   path: string;
   sizeBytes: number;
-}
-
-export interface PlaylistEntry extends ParsedFile {
-  fileIsAccessible: boolean;
 }
