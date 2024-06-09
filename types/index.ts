@@ -29,6 +29,7 @@ export interface ParsedFile {
   durationSeconds: number;
   fileIsAccessible: boolean;
   id: string;
+  metadata: Metadata | null;
   name: string;
   path: string;
   sizeBytes: number;

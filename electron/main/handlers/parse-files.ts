@@ -27,7 +27,7 @@ function handleFile(
         {
           fileIsAccessible: true,
           id: createId(),
-          lengthSeconds: metadata.format.duration || 0,
+          durationSeconds: metadata.format.duration || 0,
           name,
           path: filePath,
           sizeBytes: metadata.format.size || 0,

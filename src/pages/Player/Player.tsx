@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import type {
   ChangeTrackTo,
   ExtendedWindow,
+  Metadata,
   ParsedFile,
 } from '../../../types';
 import PlaybackControls from './components/PlaybackControls';
@@ -22,6 +23,9 @@ function Player(): React.JSX.Element {
             value,
           ];
         });
+      });
+      (window as ExtendedWindow).backend.onReceiveMetadata((metadata: Metadata | null) => {
+        console.log('received metadata', metadata);
       });
     },
     [],
@@ -51,9 +55,15 @@ function Player(): React.JSX.Element {
     console.log('clicked id', id);
   };
 
-  const handlePlaylistEntryContextMenu = (id: string) => {
-    console.log('context menu id', id);
-  };
+  const handlePlaylistEntryContextMenu = useCallback(
+    (id: string) => {
+      console.log('context menu id', id);
+      (window as ExtendedWindow).backend.requestMetadata(
+        list.filter((file: ParsedFile): boolean => file.id === id)[0].path,
+      );
+    },
+    [list],
+  );
 
   const handleStopPlayback = () => {
     setIsPlaying(false);

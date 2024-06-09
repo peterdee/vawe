@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import type { ParsedFile } from '@/models';
 import formatDuration from '@/utilities/format-duration';
+import type { ParsedFile } from '../../../../types';
 
 interface PlaylistProps {
   handleFileDrop: (event: React.DragEvent) => void;
@@ -32,6 +32,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     return handleFileDrop(event);
   }
 
+  console.log(list);
   return (
     <div
       className={`f d-col m-1 drop-zone ${isDragging ? 'dragging' : ''}`}
@@ -58,7 +59,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
               </div>
             </div>
             <div className="track-duration t-right">
-              { formatDuration(item.lengthSeconds) }
+              { formatDuration(item.durationSeconds) }
             </div>
           </button>
         ),

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { ChangeTrackTo } from '@/models';
+import type { ChangeTrackTo } from '../../../../types';
 
 interface PlaybackControlsProps {
   handleChangeTrack: (changeTo: ChangeTrackTo) => void;
