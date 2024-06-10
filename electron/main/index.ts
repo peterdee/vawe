@@ -11,6 +11,7 @@ import os from 'node:os';
 
 import getMetadata from './handlers/get-metadata';
 import { IPC_EVENTS } from '../constants';
+import loadFile from './handlers/load-file';
 import parseFiles from './handlers/parse-files';
 import * as types from 'types';
 import { update } from './update'
@@ -90,6 +91,14 @@ app.whenReady().then(() => {
   ipcMain.handle(
     IPC_EVENTS.handleRequestMetadata,
     (_, payload: types.RequestMetadataPayload) => getMetadata(
+      payload,
+      win as BrowserWindow,
+    ),
+  );
+  // get audio file metadata
+  ipcMain.handle(
+    IPC_EVENTS.loadFileRequest,
+    (_, payload: types.LoadFileRequestPayload) => loadFile(
       payload,
       win as BrowserWindow,
     ),

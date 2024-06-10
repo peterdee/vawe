@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import type {
   ChangeTrackTo,
@@ -13,8 +18,22 @@ function Player(): React.JSX.Element {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [list, setList] = useState<ParsedFile[]>([]);
 
+  const audioRef = useRef<HTMLAudioElement>(null);
+
   useEffect(
     () => {
+      if (audioRef.current) {
+        audioRef.current.ontimeupdate = (event: Event) => {
+          console.log('on time update', event);
+        };
+      }
+
+      (window as ExtendedWindow).backend.loadFileResponse(({ blob }) => {
+        if (audioRef.current && blob !== null) {
+          audioRef.current.src = URL.createObjectURL(blob);
+          return audioRef.current.play();
+        }
+      });
       (window as ExtendedWindow).backend.onAddFile((value) => {
         setList((state: ParsedFile[]): ParsedFile[] => {
           return [
@@ -60,12 +79,24 @@ function Player(): React.JSX.Element {
     console.log('Change to', changeTo);
   };
 
-  const handlePlayPause = () => {
-    setIsPlaying((state: boolean): boolean => !state);
-  };
+  const handlePlayPause = useCallback(
+    async () => {
+      setIsPlaying(!isPlaying);
+      if (isPlaying) {
+        audioRef.current?.pause();
+      } else {
+        await audioRef.current?.play();
+      }
+    },
+    [isPlaying],
+  );
 
   const handlePlaylistEntryClick = (id: string) => {
     console.log('clicked id', id);
+    return (window as ExtendedWindow).backend.loadFileRequest({
+      id,
+      path: list.filter((file: ParsedFile): boolean => file.id === id)[0].path,
+    });
   };
 
   const handlePlaylistEntryContextMenu = useCallback(
@@ -96,6 +127,10 @@ function Player(): React.JSX.Element {
       <div>
         Track progress
       </div>
+      <audio
+        controls={false}
+        ref={audioRef}
+      />
       <PlaybackControls
         handleChangeTrack={handleChangeTrack}
         handlePlayPause={handlePlayPause}

@@ -12,12 +12,24 @@ type BaseWindow = Window & typeof globalThis;
 export type ExtendedWindow = BaseWindow & {
   backend: {
     handleDrop: (files: string[]) => Promise<ParsedFile[]>;
+    loadFileRequest: (payload: LoadFileRequestPayload) => void;
+    loadFileResponse: (callback: (payload: LoadFileResponsePayload) => void) => void;
     onAddFile: (callback: (entry: ParsedFile) => void) => void;
     onReceiveMetadata: (
       callback: ({ id, metadata }: { id: string, metadata: Metadata | null }) => void,
     ) => void;
     requestMetadata: (payload: RequestMetadataPayload) => void;
   },
+}
+
+export interface LoadFileRequestPayload {
+  id: string;
+  path: string;
+}
+
+export interface LoadFileResponsePayload {
+  blob: Blob;
+  id: string;
 }
 
 export interface Metadata {

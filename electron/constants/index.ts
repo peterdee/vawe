@@ -5,4 +5,6 @@ export const IPC_EVENTS = {
   handleDrop: 'handle:drop',
   handleRequestMetadata: 'handle:requestMetadata',
   handleReceiveMetadata: 'handle:receiveMetadata',
+  loadFileRequest: 'loadFileRequest',
+  loadFileResponse: 'loadFileResponse',
 };

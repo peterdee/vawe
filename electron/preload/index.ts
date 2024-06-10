@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 import { IPC_EVENTS } from '../constants';
-import type { Metadata, ParsedFile } from '../../types';
+import * as types from '../../types';
 
 // VAWE
 contextBridge.exposeInMainWorld(
@@ -11,18 +11,29 @@ contextBridge.exposeInMainWorld(
     handleDrop(filePaths: string[]): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.handleDrop, filePaths);
     },
+    // request file data as Blob
+    loadFileRequest(payload: types.LoadFileRequestPayload): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.loadFileRequest, payload);
+    },
+    // pass requested file data to renderer
+    loadFileResponse(callback: ((payload: types.LoadFileResponsePayload) => void)) {
+      ipcRenderer.on(
+        IPC_EVENTS.loadFileResponse,
+        (_, value: types.LoadFileResponsePayload) => callback(value),
+      );
+    },
     // handle adding file to the playlist
-    onAddFile(callback: ((entry: ParsedFile) => void)) {
+    onAddFile(callback: ((entry: types.ParsedFile) => void)) {
       ipcRenderer.on(
         IPC_EVENTS.handleAddFile,
-        (_, value: ParsedFile) => callback(value),
+        (_, value: types.ParsedFile) => callback(value),
       );
     },
     // receive audio file metadata
-    onReceiveMetadata(callback: ((metadata: Metadata) => void)) {
+    onReceiveMetadata(callback: ((metadata: types.Metadata) => void)) {
       ipcRenderer.on(
         IPC_EVENTS.handleReceiveMetadata,
-        (_, value: Metadata) => callback(value),
+        (_, value: types.Metadata) => callback(value),
       );
     },
     // request audio file metadata
