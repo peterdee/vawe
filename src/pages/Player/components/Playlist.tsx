@@ -51,7 +51,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
           >
             <div className="f">
               <div className="mr-1 track-index">
-                { index }
+                { index + 1 }
               </div>
               <div className="track-name">
                 { item.name }

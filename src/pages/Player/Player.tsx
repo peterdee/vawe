@@ -5,20 +5,39 @@ import React, {
   useState,
 } from 'react';
 
-import type {
-  ChangeTrackTo,
-  ExtendedWindow,
-  ParsedFile,
-} from '../../../types';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
+import * as types from '../../../types';
 import './styles.css';
 
 function Player(): React.JSX.Element {
+  const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [list, setList] = useState<ParsedFile[]>([]);
+  const [list, setList] = useState<types.ParsedFile[]>([]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  (window as types.ExtendedWindow).backend.loadFileResponse(({ buffer, id }) => {
+    if (audioRef.current && buffer !== null) {
+      // if (currentTrack && currentTrack.objectUrl) {
+      //   URL.revokeObjectURL(currentTrack.objectUrl);
+      // }
+      const objectUrl = URL.createObjectURL(new Blob([buffer]));
+      audioRef.current.src = URL.createObjectURL(new Blob([buffer]));
+      console.log('object URL', objectUrl);
+      // const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
+      // setCurrentTrack({
+      //   ...track,
+      //   objectUrl,
+      // });
+      setIsPlaying(true);
+      try {
+        audioRef.current.play();
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  });
 
   useEffect(
     () => {
@@ -28,26 +47,20 @@ function Player(): React.JSX.Element {
         };
       }
 
-      (window as ExtendedWindow).backend.loadFileResponse(({ blob }) => {
-        if (audioRef.current && blob !== null) {
-          audioRef.current.src = URL.createObjectURL(blob);
-          return audioRef.current.play();
-        }
-      });
-      (window as ExtendedWindow).backend.onAddFile((value) => {
-        setList((state: ParsedFile[]): ParsedFile[] => {
+      (window as types.ExtendedWindow).backend.onAddFile((value) => {
+        setList((state: types.ParsedFile[]): types.ParsedFile[] => {
           return [
-            ...state.filter((item: ParsedFile): boolean => item.id !== value.id),
+            ...state.filter((item: types.ParsedFile): boolean => item.id !== value.id),
             value,
           ];
         });
       });
-      (window as ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
+      (window as types.ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
         console.log('received metadata', id, metadata);
         // TODO: handle error (if metadata is null)
-        setList((state: ParsedFile[]): ParsedFile[] => {
+        setList((state: types.ParsedFile[]): types.ParsedFile[] => {
           return state.reduce(
-            (array: ParsedFile[], value: ParsedFile): ParsedFile[] => {
+            (array: types.ParsedFile[], value: types.ParsedFile): types.ParsedFile[] => {
               const copy = { ...value };
               if (copy.id === id) {
                 copy.metadata = metadata;
@@ -64,18 +77,14 @@ function Player(): React.JSX.Element {
   );
 
   const handleFileDrop = (event: React.DragEvent) => {
-    const filesArray: string[] = [];
+    const paths: string[] = [];
     for (let item of event.dataTransfer.files) {
-      filesArray.push(item.path);
+      paths.push(item.path);
     }
-    try {
-      (window as ExtendedWindow).backend.handleDrop(filesArray);
-    } catch (err) {
-      console.log(err);
-    }
+    return (window as types.ExtendedWindow).backend.handleDrop(paths);
   };
 
-  const handleChangeTrack = (changeTo: ChangeTrackTo) => {
+  const handleChangeTrack = (changeTo: types.ChangeTrackTo) => {
     console.log('Change to', changeTo);
   };
 
@@ -93,22 +102,22 @@ function Player(): React.JSX.Element {
 
   const handlePlaylistEntryClick = (id: string) => {
     console.log('clicked id', id);
-    return (window as ExtendedWindow).backend.loadFileRequest({
+    return (window as types.ExtendedWindow).backend.loadFileRequest({
       id,
-      path: list.filter((file: ParsedFile): boolean => file.id === id)[0].path,
+      path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
     });
   };
 
   const handlePlaylistEntryContextMenu = useCallback(
     (id: string) => {
       // check if metadata is already loaded for the track
-      const [track] = list.filter((item: ParsedFile): boolean => item.id === id);
+      const [track] = list.filter((item: types.ParsedFile): boolean => item.id === id);
       if (track.metadata) {
         return console.log('metadata already loaded:', track.metadata);
       }
-      return (window as ExtendedWindow).backend.requestMetadata({
+      return (window as types.ExtendedWindow).backend.requestMetadata({
         id,
-        path: list.filter((file: ParsedFile): boolean => file.id === id)[0].path,
+        path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
       });
     },
     [list],

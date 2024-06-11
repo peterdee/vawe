@@ -27,7 +27,7 @@ export default async function loadFile(
     return browserWindow.webContents.send(
       IPC_EVENTS.loadFileResponse,
       {
-        blob: new Blob([file]),
+        blob: file,
         id,
       },
     );

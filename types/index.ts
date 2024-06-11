@@ -7,11 +7,15 @@ export interface AudioStream {
 
 export type ChangeTrackTo = 'next' | 'previous';
 
+export interface CurrentTrack extends ParsedFile {
+  objectUrl: string;
+}
+
 type BaseWindow = Window & typeof globalThis;
 
 export type ExtendedWindow = BaseWindow & {
   backend: {
-    handleDrop: (files: string[]) => Promise<ParsedFile[]>;
+    handleDrop: (files: string[]) => void;
     loadFileRequest: (payload: LoadFileRequestPayload) => void;
     loadFileResponse: (callback: (payload: LoadFileResponsePayload) => void) => void;
     onAddFile: (callback: (entry: ParsedFile) => void) => void;
@@ -28,7 +32,7 @@ export interface LoadFileRequestPayload {
 }
 
 export interface LoadFileResponsePayload {
-  blob: Blob;
+  buffer: Buffer;
   id: string;
 }
 

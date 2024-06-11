@@ -8,16 +8,16 @@ contextBridge.exposeInMainWorld(
   'backend',
   {
     // handle file drop: parse dropped items
-    handleDrop(filePaths: string[]): Promise<void> {
+    handleDrop(filePaths: string[]): Promise<any> {
       return ipcRenderer.invoke(IPC_EVENTS.handleDrop, filePaths);
     },
     // request file data as Blob
-    loadFileRequest(payload: types.LoadFileRequestPayload): Promise<void> {
+    loadFileRequest(payload: types.LoadFileRequestPayload): Promise<any> {
       return ipcRenderer.invoke(IPC_EVENTS.loadFileRequest, payload);
     },
     // pass requested file data to renderer
     loadFileResponse(callback: ((payload: types.LoadFileResponsePayload) => void)) {
-      ipcRenderer.on(
+      ipcRenderer.once(
         IPC_EVENTS.loadFileResponse,
         (_, value: types.LoadFileResponsePayload) => callback(value),
       );
@@ -37,7 +37,7 @@ contextBridge.exposeInMainWorld(
       );
     },
     // request audio file metadata
-    requestMetadata(path: string): Promise<void> {
+    requestMetadata(path: string): Promise<any> {
       return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, path);
     },
   },
