@@ -8,36 +8,17 @@ import React, {
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import * as types from '../../../types';
+import VolumeControls from './components/VolumeControls';
 import './styles.css';
 
 function Player(): React.JSX.Element {
   const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [list, setList] = useState<types.ParsedFile[]>([]);
+  const [volume, setVolume] = useState<number>(0.5);
 
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  (window as types.ExtendedWindow).backend.loadFileResponse(({ buffer, id }) => {
-    if (audioRef.current && buffer !== null) {
-      // if (currentTrack && currentTrack.objectUrl) {
-      //   URL.revokeObjectURL(currentTrack.objectUrl);
-      // }
-      const objectUrl = URL.createObjectURL(new Blob([buffer]));
-      audioRef.current.src = URL.createObjectURL(new Blob([buffer]));
-      console.log('object URL', objectUrl);
-      // const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
-      // setCurrentTrack({
-      //   ...track,
-      //   objectUrl,
-      // });
-      setIsPlaying(true);
-      try {
-        audioRef.current.play();
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  });
 
   useEffect(
     () => {
@@ -46,6 +27,28 @@ function Player(): React.JSX.Element {
           console.log('on time update', event);
         };
       }
+
+      (window as types.ExtendedWindow).backend.loadFileResponse(({ buffer, id }) => {
+        if (audioRef.current && buffer !== null) {
+          // if (currentTrack && currentTrack.objectUrl) {
+          //   URL.revokeObjectURL(currentTrack.objectUrl);
+          // }
+          const objectUrl = URL.createObjectURL(new Blob([buffer]));
+          audioRef.current.src = URL.createObjectURL(new Blob([buffer]));
+          console.log('object URL', objectUrl);
+          // const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
+          // setCurrentTrack({
+          //   ...track,
+          //   objectUrl,
+          // });
+          setIsPlaying(true);
+          try {
+            audioRef.current.play();
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      });
 
       (window as types.ExtendedWindow).backend.onAddFile((value) => {
         setList((state: types.ParsedFile[]): types.ParsedFile[] => {
@@ -88,6 +91,20 @@ function Player(): React.JSX.Element {
     console.log('Change to', changeTo);
   };
 
+  const handleChangeVolume = useCallback(
+    (value: number) => {
+      if (audioRef && audioRef.current) {
+        const { current: element } = audioRef;
+        if (isMuted) {
+          setIsMuted(false);
+        }
+        setVolume(value);
+        element.volume = value;
+      }
+    },
+    [isMuted],
+  );
+
   const handlePlayPause = useCallback(
     async () => {
       setIsPlaying(!isPlaying);
@@ -128,6 +145,19 @@ function Player(): React.JSX.Element {
     console.log('Stop playback');
   };
 
+  const toggleMute = useCallback(
+    () => {
+      if (audioRef && audioRef.current) {
+        audioRef.current.volume = isMuted ? volume : 0;
+        setIsMuted(!isMuted);
+      }
+    },
+    [
+      isMuted,
+      volume,
+    ],
+  );
+
   return (
     <div className="f d-col j-start h-100vh">
       <div>
@@ -140,12 +170,20 @@ function Player(): React.JSX.Element {
         controls={false}
         ref={audioRef}
       />
-      <PlaybackControls
-        handleChangeTrack={handleChangeTrack}
-        handlePlayPause={handlePlayPause}
-        handleStopPlayback={handleStopPlayback}
-        isPlaying={isPlaying}
-      />
+      <div className="f j-space-between ai-center">
+        <PlaybackControls
+          handleChangeTrack={handleChangeTrack}
+          handlePlayPause={handlePlayPause}
+          handleStopPlayback={handleStopPlayback}
+          isPlaying={isPlaying}
+        />
+        <VolumeControls
+          handleVolumeChange={handleChangeVolume}
+          isMuted={isMuted}
+          toggleMute={toggleMute}
+          volume={volume}
+        />
+      </div>
       <Playlist
         handleFileDrop={handleFileDrop}
         handlePlaylistEntryClick={handlePlaylistEntryClick}

@@ -17,7 +17,8 @@ contextBridge.exposeInMainWorld(
     },
     // pass requested file data to renderer
     loadFileResponse(callback: ((payload: types.LoadFileResponsePayload) => void)) {
-      ipcRenderer.once(
+      console.log('called loadFileResponse');
+      ipcRenderer.on(
         IPC_EVENTS.loadFileResponse,
         (_, value: types.LoadFileResponsePayload) => callback(value),
       );
