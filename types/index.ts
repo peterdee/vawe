@@ -32,7 +32,7 @@ export interface LoadFileRequestPayload {
 }
 
 export interface LoadFileResponsePayload {
-  buffer: Buffer;
+  buffer: Buffer | null;
   id: string;
 }
 

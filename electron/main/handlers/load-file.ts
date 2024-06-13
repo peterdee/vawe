@@ -2,7 +2,10 @@ import type { BrowserWindow } from 'electron';
 import { readFile } from 'node:fs/promises';
 
 import { IPC_EVENTS } from '../../constants';
-import type { LoadFileRequestPayload } from 'types';
+import type {
+  LoadFileRequestPayload,
+  LoadFileResponsePayload,
+} from 'types';
 
 export default async function loadFile(
   payload: LoadFileRequestPayload,
@@ -12,32 +15,29 @@ export default async function loadFile(
     id = '',
     path = '',
   } = payload;
+
+  const responsePayload: LoadFileResponsePayload = {
+    buffer: null,
+    id,
+  };
+
   if (!(id && path)) {
     return browserWindow.webContents.send(
       IPC_EVENTS.loadFileResponse,
-      {
-        blob: null,
-        id,
-      },
+      responsePayload,
     );
   }
 
   try {
-    const file = await readFile(path);
+    responsePayload.buffer = await readFile(path);
     return browserWindow.webContents.send(
       IPC_EVENTS.loadFileResponse,
-      {
-        blob: file,
-        id,
-      },
+      responsePayload,
     );
   } catch {
     return browserWindow.webContents.send(
       IPC_EVENTS.loadFileResponse,
-      {
-        blob: null,
-        id,
-      },
+      responsePayload,
     );
   }
 }

@@ -20,6 +20,31 @@ function Player(): React.JSX.Element {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const ipcLoadFileResponse = useCallback(
+    ({ buffer, id }: types.LoadFileResponsePayload) => {
+      if (audioRef.current && buffer !== null) {
+        // if (currentTrack && currentTrack.objectUrl) {
+        //   URL.revokeObjectURL(currentTrack.objectUrl);
+        // }
+        const objectUrl = URL.createObjectURL(new Blob([buffer]));
+        audioRef.current.src = objectUrl;
+        const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
+        console.log(track);
+        setCurrentTrack({
+          ...track,
+          objectUrl,
+        });
+        setIsPlaying(true);
+        try {
+          audioRef.current.play();
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    },
+    [list],
+  );
+
   useEffect(
     () => {
       if (audioRef.current) {
@@ -28,27 +53,7 @@ function Player(): React.JSX.Element {
         };
       }
 
-      (window as types.ExtendedWindow).backend.loadFileResponse(({ buffer, id }) => {
-        if (audioRef.current && buffer !== null) {
-          // if (currentTrack && currentTrack.objectUrl) {
-          //   URL.revokeObjectURL(currentTrack.objectUrl);
-          // }
-          const objectUrl = URL.createObjectURL(new Blob([buffer]));
-          audioRef.current.src = URL.createObjectURL(new Blob([buffer]));
-          console.log('object URL', objectUrl);
-          // const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
-          // setCurrentTrack({
-          //   ...track,
-          //   objectUrl,
-          // });
-          setIsPlaying(true);
-          try {
-            audioRef.current.play();
-          } catch (err) {
-            console.log(err);
-          }
-        }
-      });
+      (window as types.ExtendedWindow).backend.loadFileResponse(ipcLoadFileResponse);
 
       (window as types.ExtendedWindow).backend.onAddFile((value) => {
         setList((state: types.ParsedFile[]): types.ParsedFile[] => {
@@ -161,7 +166,7 @@ function Player(): React.JSX.Element {
   return (
     <div className="f d-col j-start h-100vh">
       <div>
-        Track name
+        { currentTrack && currentTrack.name || 'VAWE' }
       </div>
       <div>
         Track progress
@@ -189,10 +194,6 @@ function Player(): React.JSX.Element {
         handlePlaylistEntryClick={handlePlaylistEntryClick}
         handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}
         list={list}
-      />
-      <input
-        onChange={console.log}
-        type="file"
       />
     </div>
   )
