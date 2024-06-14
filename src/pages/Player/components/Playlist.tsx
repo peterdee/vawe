@@ -7,7 +7,7 @@ interface PlaylistProps {
   handleFileDrop: (event: React.DragEvent) => void;
   handlePlaylistEntryClick: (id: string) => void;
   handlePlaylistEntryContextMenu: (id: string) => void;
-  list: ParsedFile[];
+  list: React.MutableRefObject<ParsedFile[]>;
 }
 
 function Playlist(props: PlaylistProps): React.JSX.Element {
@@ -17,6 +17,8 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     handlePlaylistEntryContextMenu,
     list,
   } = props;
+
+  console.log('list', list.current);
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -40,7 +42,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
       onDragLeave={toggleDragging}
       onDrop={handleDrop}
     >
-      { list.length > 0 && list.map(
+      { list.current.length > 0 && list.current.map(
         (item: ParsedFile, index: number): React.JSX.Element => (
           <button
             className="f j-space-between ai-center ph-half ns playlist-entry-wrap"
@@ -67,4 +69,4 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
   );
 }
 
-export default React.memo(Playlist);
+export default Playlist;

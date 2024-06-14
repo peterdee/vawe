@@ -8,6 +8,7 @@ import React, {
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import * as types from '../../../types';
+import useRefState from '@/hooks/use-ref-state';
 import VolumeControls from './components/VolumeControls';
 import './styles.css';
 
@@ -15,35 +16,10 @@ function Player(): React.JSX.Element {
   const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [list, setList] = useState<types.ParsedFile[]>([]);
+  const [list, setList] = useRefState<types.ParsedFile[]>([]);
   const [volume, setVolume] = useState<number>(0.5);
 
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  const ipcLoadFileResponse = useCallback(
-    ({ buffer, id }: types.LoadFileResponsePayload) => {
-      if (audioRef.current && buffer !== null) {
-        // if (currentTrack && currentTrack.objectUrl) {
-        //   URL.revokeObjectURL(currentTrack.objectUrl);
-        // }
-        const objectUrl = URL.createObjectURL(new Blob([buffer]));
-        audioRef.current.src = objectUrl;
-        const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
-        console.log(track);
-        setCurrentTrack({
-          ...track,
-          objectUrl,
-        });
-        setIsPlaying(true);
-        try {
-          audioRef.current.play();
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    },
-    [list],
-  );
 
   useEffect(
     () => {
@@ -53,20 +29,40 @@ function Player(): React.JSX.Element {
         };
       }
 
-      (window as types.ExtendedWindow).backend.loadFileResponse(ipcLoadFileResponse);
+      (window as types.ExtendedWindow).backend.loadFileResponse(
+        ({ buffer, id }: types.LoadFileResponsePayload) => {
+          if (audioRef.current && buffer !== null) {
+            // if (currentTrack && currentTrack.objectUrl) {
+            //   URL.revokeObjectURL(currentTrack.objectUrl);
+            // }
+            const objectUrl = URL.createObjectURL(new Blob([buffer]));
+            audioRef.current.src = objectUrl;
+            const [track] = list.current.filter((file: types.ParsedFile): boolean => file.id === id);
+            console.log(track);
+            setCurrentTrack({
+              ...track,
+              objectUrl,
+            });
+            setIsPlaying(true);
+            try {
+              audioRef.current.play();
+            } catch (err) {
+              console.log(err);
+            }
+          }
+        },
+      );
 
       (window as types.ExtendedWindow).backend.onAddFile((value) => {
-        setList((state: types.ParsedFile[]): types.ParsedFile[] => {
-          return [
-            ...state.filter((item: types.ParsedFile): boolean => item.id !== value.id),
-            value,
-          ];
-        });
+        setList([
+          ...list.current,
+          value,
+        ]);
       });
       (window as types.ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
         console.log('received metadata', id, metadata);
         // TODO: handle error (if metadata is null)
-        setList((state: types.ParsedFile[]): types.ParsedFile[] => {
+        setList((state) => {
           return state.reduce(
             (array: types.ParsedFile[], value: types.ParsedFile): types.ParsedFile[] => {
               const copy = { ...value };
@@ -123,27 +119,23 @@ function Player(): React.JSX.Element {
   );
 
   const handlePlaylistEntryClick = (id: string) => {
-    console.log('clicked id', id);
     return (window as types.ExtendedWindow).backend.loadFileRequest({
       id,
-      path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+      path: list.current.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
     });
   };
 
-  const handlePlaylistEntryContextMenu = useCallback(
-    (id: string) => {
+  const handlePlaylistEntryContextMenu = (id: string) => {
       // check if metadata is already loaded for the track
-      const [track] = list.filter((item: types.ParsedFile): boolean => item.id === id);
+      const [track] = list.current.filter((item: types.ParsedFile): boolean => item.id === id);
       if (track.metadata) {
         return console.log('metadata already loaded:', track.metadata);
       }
       return (window as types.ExtendedWindow).backend.requestMetadata({
         id,
-        path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+        path: list.current.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
       });
-    },
-    [list],
-  );
+    };
 
   const handleStopPlayback = () => {
     setIsPlaying(false);
