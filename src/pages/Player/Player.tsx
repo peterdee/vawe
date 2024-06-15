@@ -30,19 +30,22 @@ function Player(): React.JSX.Element {
 
       (window as types.ExtendedWindow).backend.loadFileResponse(
         ({ buffer, id }: types.LoadFileResponsePayload) => {
+          console.log('loadFile called');
           if (audioRef.current && buffer !== null) {
             const objectUrl = URL.createObjectURL(new Blob([buffer]));
             audioRef.current.src = objectUrl;
-            const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
-            console.log(track);
-            setCurrentTrack((state: types.CurrentTrack): types.CurrentTrack => {
-              if (state !== null && state.objectUrl) {
-                URL.revokeObjectURL(state.objectUrl);
-              }
-              return {
-                ...track,
-                objectUrl,
-              };
+            setList((state: types.ParsedFile[]): types.ParsedFile[] => {
+              const [track] = state.filter((file: types.ParsedFile): boolean => file.id === id);
+              setCurrentTrack((state: types.CurrentTrack): types.CurrentTrack => {
+                if (state !== null && state.objectUrl) {
+                  URL.revokeObjectURL(state.objectUrl);
+                }
+                return {
+                  ...track,
+                  objectUrl,
+                };
+              });
+              return state;
             });
             setIsPlaying(true);
             try {
@@ -91,7 +94,7 @@ function Player(): React.JSX.Element {
 
   // handle playback controls -> track change 
   const handleChangeTrack = useCallback(
-    (changeTo: types.ChangeTrackTo): null | void => {
+    (changeTo: types.ChangeTrackTo): null | Promise<void> | void => {
       if (list.length === 0) {
         return null;
       }
@@ -104,7 +107,35 @@ function Player(): React.JSX.Element {
           path: track.path,
         });
       }
-
+      if (list.length === 1) {
+        if (audioRef && audioRef.current) {
+          const { current: audio } = audioRef;
+          audio.src = currentTrack?.objectUrl || '';
+          setIsPlaying(true);
+          return audio.play();
+        }
+      } else {
+        let currentTrackIndex = 0;
+        for (let i = 0; i < list.length; i += 1) {
+          if (list[i].id === currentTrack.id) {
+            currentTrackIndex = i;
+            break;
+          }
+        }
+        let nextIndex = changeTo === 'next'
+          ? currentTrackIndex + 1
+          : currentTrackIndex - 1;
+        if (nextIndex < 0) {
+          nextIndex = list.length - 1;
+        }
+        if (nextIndex > list.length - 1) {
+          nextIndex = 0;
+        }
+        return (window as types.ExtendedWindow).backend.loadFileRequest({
+          id: list[nextIndex].id,
+          path: list[nextIndex].path,
+        });
+      }
     },
     [
       currentTrack,
@@ -133,9 +164,9 @@ function Player(): React.JSX.Element {
       if (audioRef && audioRef.current) {
         try {
           if (isPlaying) {
-            audioRef.current?.pause();
+            audioRef.current.pause();
           } else {
-            await audioRef.current?.play();
+            await audioRef.current.play();
           }
           setIsPlaying(!isPlaying);
         } catch (error) {
@@ -147,6 +178,7 @@ function Player(): React.JSX.Element {
     [isPlaying],
   );
 
+  // TODO: start playing on doubleclick, single click should be focus
   const handlePlaylistEntryClick = (id: string) => {
     return (window as types.ExtendedWindow).backend.loadFileRequest({
       id,
@@ -166,10 +198,19 @@ function Player(): React.JSX.Element {
       });
     };
 
-  const handleStopPlayback = () => {
-    setIsPlaying(false);
-    console.log('Stop playback');
-  };
+  const handleStopPlayback = useCallback(
+    () => {
+      if (audioRef && audioRef.current) {
+        const { current: audio } = audioRef;
+        if (!audio.paused) {
+          audio.pause();
+        }
+        audio.src = currentTrack?.objectUrl || '';
+        setIsPlaying(false);
+      }
+    },
+    [currentTrack],
+  );
 
   const toggleMute = useCallback(
     () => {
@@ -211,7 +252,7 @@ function Player(): React.JSX.Element {
         />
       </div>
       <Playlist
-        currentTrackId={currentTrack ? (() => { console.log(currentTrack); return currentTrack.id })() : ''}
+        currentTrackId={currentTrack ? currentTrack.id : ''}
         handleFileDrop={handleFileDrop}
         handlePlaylistEntryClick={handlePlaylistEntryClick}
         handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}

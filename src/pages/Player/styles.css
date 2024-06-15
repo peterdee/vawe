@@ -19,7 +19,7 @@
 .playlist-entry-wrap:focus {
   background-color: lightgreen;
 }
-.playlist-entry-wrap-highlight {
+.playlist-entry-highlight {
   background-color: lightgreen;
 }
 .track-duration {
