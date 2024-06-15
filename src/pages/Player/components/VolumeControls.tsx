@@ -15,6 +15,8 @@ function VolumeControls(props: VolumeControlsProps): React.JSX.Element {
     volume,
   } = props;
 
+  console.log('volume render');
+
   return (
     <div className="f">
       <button

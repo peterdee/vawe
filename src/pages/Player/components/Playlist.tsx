@@ -4,21 +4,23 @@ import formatDuration from '@/utilities/format-duration';
 import type { ParsedFile } from '../../../../types';
 
 interface PlaylistProps {
+  currentTrackId: string;
   handleFileDrop: (event: React.DragEvent) => void;
   handlePlaylistEntryClick: (id: string) => void;
   handlePlaylistEntryContextMenu: (id: string) => void;
-  list: React.MutableRefObject<ParsedFile[]>;
+  list: ParsedFile[];
 }
 
 function Playlist(props: PlaylistProps): React.JSX.Element {
   const {
+    currentTrackId = '',
     handleFileDrop,
     handlePlaylistEntryClick,
     handlePlaylistEntryContextMenu,
-    list,
+    list = [],
   } = props;
 
-  console.log('list', list.current);
+  console.log('playlist render', currentTrackId);
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -42,10 +44,15 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
       onDragLeave={toggleDragging}
       onDrop={handleDrop}
     >
-      { list.current.length > 0 && list.current.map(
+      { list.length > 0 && list.map(
         (item: ParsedFile, index: number): React.JSX.Element => (
           <button
-            className="f j-space-between ai-center ph-half ns playlist-entry-wrap"
+            className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
+              ${currentTrackId === item.id
+                ? 'playlist-entry-highlight'
+                : ''
+              }`
+            }
             key={item.path}
             onClick={() => handlePlaylistEntryClick(item.id)}
             onContextMenu={() => handlePlaylistEntryContextMenu(item.id)}
@@ -69,4 +76,4 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
   );
 }
 
-export default Playlist;
+export default React.memo(Playlist);

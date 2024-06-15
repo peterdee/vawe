@@ -7,9 +7,7 @@ export interface AudioStream {
 
 export type ChangeTrackTo = 'next' | 'previous';
 
-export interface CurrentTrack extends ParsedFile {
-  objectUrl: string;
-}
+export type CurrentTrack = (ParsedFile & { objectUrl: string }) | null;
 
 type BaseWindow = Window & typeof globalThis;
 

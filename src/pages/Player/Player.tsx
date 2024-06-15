@@ -8,7 +8,6 @@ import React, {
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import * as types from '../../../types';
-import useRefState from '@/hooks/use-ref-state';
 import VolumeControls from './components/VolumeControls';
 import './styles.css';
 
@@ -16,7 +15,7 @@ function Player(): React.JSX.Element {
   const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [list, setList] = useRefState<types.ParsedFile[]>([]);
+  const [list, setList] = useState<types.ParsedFile[]>([]);
   const [volume, setVolume] = useState<number>(0.5);
 
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -25,56 +24,58 @@ function Player(): React.JSX.Element {
     () => {
       if (audioRef.current) {
         audioRef.current.ontimeupdate = (event: Event) => {
-          console.log('on time update', event);
+          // console.log('on time update', event);
         };
       }
 
       (window as types.ExtendedWindow).backend.loadFileResponse(
         ({ buffer, id }: types.LoadFileResponsePayload) => {
           if (audioRef.current && buffer !== null) {
-            // if (currentTrack && currentTrack.objectUrl) {
-            //   URL.revokeObjectURL(currentTrack.objectUrl);
-            // }
             const objectUrl = URL.createObjectURL(new Blob([buffer]));
             audioRef.current.src = objectUrl;
-            const [track] = list.current.filter((file: types.ParsedFile): boolean => file.id === id);
+            const [track] = list.filter((file: types.ParsedFile): boolean => file.id === id);
             console.log(track);
-            setCurrentTrack({
-              ...track,
-              objectUrl,
+            setCurrentTrack((state: types.CurrentTrack): types.CurrentTrack => {
+              if (state !== null && state.objectUrl) {
+                URL.revokeObjectURL(state.objectUrl);
+              }
+              return {
+                ...track,
+                objectUrl,
+              };
             });
             setIsPlaying(true);
             try {
               audioRef.current.play();
-            } catch (err) {
-              console.log(err);
+            } catch (error) {
+              // TODO: error modal
+              console.log(error);
             }
           }
         },
       );
 
-      (window as types.ExtendedWindow).backend.onAddFile((value) => {
-        setList([
-          ...list.current,
+      (window as types.ExtendedWindow).backend.onAddFile(
+        (value) => setList((state: types.ParsedFile[]): types.ParsedFile[] => [
+          ...state,
           value,
-        ]);
-      });
+        ]),
+      );
+
       (window as types.ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
         console.log('received metadata', id, metadata);
         // TODO: handle error (if metadata is null)
-        setList((state) => {
-          return state.reduce(
-            (array: types.ParsedFile[], value: types.ParsedFile): types.ParsedFile[] => {
-              const copy = { ...value };
-              if (copy.id === id) {
-                copy.metadata = metadata;
-              }
-              array.push(copy);
-              return array;
-            },
-            [],
-          );
-        });
+        setList((state: types.ParsedFile[]): types.ParsedFile[] => state.map(
+          (element: types.ParsedFile): types.ParsedFile => {
+            if (element.id !== id) {
+              return element;
+            }
+            return {
+              ...element,
+              metadata,
+            };
+          },
+        ));
       });
     },
     [],
@@ -88,9 +89,29 @@ function Player(): React.JSX.Element {
     return (window as types.ExtendedWindow).backend.handleDrop(paths);
   };
 
-  const handleChangeTrack = (changeTo: types.ChangeTrackTo) => {
-    console.log('Change to', changeTo);
-  };
+  // handle playback controls -> track change 
+  const handleChangeTrack = useCallback(
+    (changeTo: types.ChangeTrackTo): null | void => {
+      if (list.length === 0) {
+        return null;
+      }
+      if (!currentTrack) {
+        const track = changeTo === 'previous'
+          ? list[list.length - 1]
+          : list[0];
+        return (window as types.ExtendedWindow).backend.loadFileRequest({
+          id: track.id,
+          path: track.path,
+        });
+      }
+
+    },
+    [
+      currentTrack,
+      isPlaying,
+      list,
+    ],
+  );
 
   const handleChangeVolume = useCallback(
     (value: number) => {
@@ -106,13 +127,21 @@ function Player(): React.JSX.Element {
     [isMuted],
   );
 
+  // handle playback controls -> play / pause 
   const handlePlayPause = useCallback(
     async () => {
-      setIsPlaying(!isPlaying);
-      if (isPlaying) {
-        audioRef.current?.pause();
-      } else {
-        await audioRef.current?.play();
+      if (audioRef && audioRef.current) {
+        try {
+          if (isPlaying) {
+            audioRef.current?.pause();
+          } else {
+            await audioRef.current?.play();
+          }
+          setIsPlaying(!isPlaying);
+        } catch (error) {
+          // TODO: handle error
+          console.log(error);
+        }
       }
     },
     [isPlaying],
@@ -121,19 +150,19 @@ function Player(): React.JSX.Element {
   const handlePlaylistEntryClick = (id: string) => {
     return (window as types.ExtendedWindow).backend.loadFileRequest({
       id,
-      path: list.current.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+      path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
     });
   };
 
   const handlePlaylistEntryContextMenu = (id: string) => {
       // check if metadata is already loaded for the track
-      const [track] = list.current.filter((item: types.ParsedFile): boolean => item.id === id);
+      const [track] = list.filter((item: types.ParsedFile): boolean => item.id === id);
       if (track.metadata) {
         return console.log('metadata already loaded:', track.metadata);
       }
       return (window as types.ExtendedWindow).backend.requestMetadata({
         id,
-        path: list.current.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+        path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
       });
     };
 
@@ -182,6 +211,7 @@ function Player(): React.JSX.Element {
         />
       </div>
       <Playlist
+        currentTrackId={currentTrack ? (() => { console.log(currentTrack); return currentTrack.id })() : ''}
         handleFileDrop={handleFileDrop}
         handlePlaylistEntryClick={handlePlaylistEntryClick}
         handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}

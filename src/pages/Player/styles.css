@@ -19,6 +19,9 @@
 .playlist-entry-wrap:focus {
   background-color: lightgreen;
 }
+.playlist-entry-wrap-highlight {
+  background-color: lightgreen;
+}
 .track-duration {
   width: calc(var(--spacer-half) + var(--spacer) * 4);
 }
