@@ -31,6 +31,7 @@
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.2.1",
+    "@wavesurfer/react": "^1.0.6",
     "autoprefixer": "^10.4.18",
     "common-styles": "github:julyskies/common-styles",
     "electron": "^29.1.1",
@@ -47,6 +48,7 @@
     "typescript-eslint": "^7.11.0",
     "vite": "^5.1.5",
     "vite-plugin-electron": "^0.28.4",
-    "vite-plugin-electron-renderer": "^0.14.5"
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "wavesurfer.js": "^7.7.15"
   }
 }

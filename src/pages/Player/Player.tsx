@@ -4,6 +4,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import type WaveSurfer from 'wavesurfer.js'; 
+import WaveSurferPlayer from '@wavesurfer/react';
 
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
@@ -17,6 +19,7 @@ function Player(): React.JSX.Element {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [list, setList] = useState<types.ParsedFile[]>([]);
   const [volume, setVolume] = useState<number>(0.5);
+  const [wavesurefer, setWavesurfer] = useState<WaveSurfer>();
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -236,6 +239,16 @@ function Player(): React.JSX.Element {
       <audio
         controls={false}
         ref={audioRef}
+      />
+      <WaveSurferPlayer
+        height={100}
+        waveColor="lightgreen"
+        barWidth={1}
+        barGap={1}
+        url={currentTrack?.objectUrl}
+        onReady={setWavesurfer}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
       />
       <div className="f j-space-between ai-center">
         <PlaybackControls
