@@ -1,7 +1,6 @@
 import React, {
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import WaveSurferPlayer from '@wavesurfer/react';
@@ -19,75 +18,74 @@ function Player(): React.JSX.Element {
   const [list, setList] = useState<types.ParsedFile[]>([]);
   const [selectedTrackId, setSelectedTrackId] = useState<string>('');
   const [volume, setVolume] = useState<number>(0.5);
-  const [wavesurefer, setWavesurfer] = useState<types.WaveSurferInstance>();
-
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [wavesurefer, setWavesurfer] = useState<types.WaveSurferInstance>(null);
 
   useEffect(
     () => {
-      if (audioRef.current) {
-        audioRef.current.ontimeupdate = (event: Event) => {
-          // console.log('on time update', event);
-        };
-      }
+      if (wavesurefer) {
+        (window as types.ExtendedWindow).backend.loadFileResponse(
+          ({ buffer, id }: types.LoadFileResponsePayload): null | void => {
+            if (buffer === null) {
+              return null;
+            }
 
-      (window as types.ExtendedWindow).backend.loadFileResponse(
-        ({ buffer, id }: types.LoadFileResponsePayload) => {
-          if (buffer !== null) {
             const objectUrl = URL.createObjectURL(new Blob([buffer]));
-            setList((state: types.ParsedFile[]): types.ParsedFile[] => {
-              const [track] = state.filter((file: types.ParsedFile): boolean => file.id === id);
-              setCurrentTrack((state: types.CurrentTrack): types.CurrentTrack => {
-                if (state !== null && state.objectUrl) {
-                  URL.revokeObjectURL(state.objectUrl);
+            console.log(objectUrl);
+            setList((listState: types.ParsedFile[]): types.ParsedFile[] => {
+              const [track] = listState.filter((file: types.ParsedFile): boolean => file.id === id);
+              setCurrentTrack((currentTrackState: types.CurrentTrack): types.CurrentTrack => {
+                if (currentTrackState !== null && currentTrackState.objectUrl) {
+                  URL.revokeObjectURL(currentTrackState.objectUrl);
                 }
                 return {
                   ...track,
                   objectUrl,
                 };
               });
-              setWavesurfer(
-                (
-                  state: types.WaveSurferInstance | undefined,
-                ): types.WaveSurferInstance | undefined => {
-                  if (state) {
-                    console.log('here', state);
-                    state.load(objectUrl).then(state.playPause);
-                  }
-                  return state;
-                },
-              );
-              return state;
+              // setWavesurfer(
+              //   (
+              //     wavesureferState: types.WaveSurferInstance,
+              //   ): types.WaveSurferInstance => {
+              //     console.log('here', wavesureferState);
+              //     if (wavesureferState) {
+              //       wavesureferState.load(objectUrl).then(wavesureferState.playPause);
+              //     }
+              //     return wavesureferState;
+              //   },
+              // );
+              return listState;
             });
             setIsPlaying(true);
-          }
-        },
-      );
-
-      (window as types.ExtendedWindow).backend.onAddFile(
-        (value) => setList((state: types.ParsedFile[]): types.ParsedFile[] => [
-          ...state,
-          value,
-        ]),
-      );
-
-      (window as types.ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
-        console.log('received metadata', id, metadata);
-        // TODO: handle error (if metadata is null)
-        setList((state: types.ParsedFile[]): types.ParsedFile[] => state.map(
-          (element: types.ParsedFile): types.ParsedFile => {
-            if (element.id !== id) {
-              return element;
-            }
-            return {
-              ...element,
-              metadata,
-            };
+            wavesurefer.load(objectUrl).then(wavesurefer.playPause);
           },
-        ));
-      });
+        );
+
+        (window as types.ExtendedWindow).backend.onAddFile(
+          (value: types.ParsedFile) => setList(
+            (state: types.ParsedFile[]): types.ParsedFile[] => [
+              ...state,
+              value,
+            ],
+          ),
+        );
+
+        (window as types.ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
+          // TODO: handle error (if metadata is null)
+          setList((state: types.ParsedFile[]): types.ParsedFile[] => state.map(
+            (element: types.ParsedFile): types.ParsedFile => {
+              if (element.id !== id) {
+                return element;
+              }
+              return {
+                ...element,
+                metadata,
+              };
+            },
+          ));
+        });
+      }
     },
-    [],
+    [wavesurefer],
   );
 
   const handleFileDrop = (event: React.DragEvent) => {
@@ -114,12 +112,13 @@ function Player(): React.JSX.Element {
         });
       }
       if (list.length === 1) {
-        if (audioRef && audioRef.current) {
-          const { current: audio } = audioRef;
-          audio.src = currentTrack?.objectUrl || '';
-          setIsPlaying(true);
-          return audio.play();
-        }
+        // TODO: fix
+        // if (audioRef && audioRef.current) {
+        //   const { current: audio } = audioRef;
+        //   audio.src = currentTrack?.objectUrl || '';
+        //   setIsPlaying(true);
+        //   return audio.play();
+        // }
       } else {
         let currentTrackIndex = 0;
         for (let i = 0; i < list.length; i += 1) {
@@ -147,21 +146,26 @@ function Player(): React.JSX.Element {
       currentTrack,
       isPlaying,
       list,
+      wavesurefer,
     ],
   );
 
   const handleChangeVolume = useCallback(
-    (value: number) => {
-      if (audioRef && audioRef.current) {
-        const { current: element } = audioRef;
-        if (isMuted) {
-          setIsMuted(false);
-        }
-        setVolume(value);
-        element.volume = value;
+    (value: number): null | void => {
+      if (!wavesurefer) {
+        return null;
       }
+
+      if (isMuted) {
+        setIsMuted(false);
+      }
+      setVolume(value);
+      wavesurefer.setVolume(value);
     },
-    [isMuted],
+    [
+      isMuted,
+      wavesurefer,
+    ],
   );
 
   // handle playback controls -> play / pause 
@@ -202,29 +206,32 @@ function Player(): React.JSX.Element {
   };
 
   const handleStopPlayback = useCallback(
-    () => {
-      if (audioRef && audioRef.current) {
-        const { current: audio } = audioRef;
-        if (!audio.paused) {
-          audio.pause();
-        }
-        audio.src = currentTrack?.objectUrl || '';
-        setIsPlaying(false);
+    (): null | void => {
+      if (!wavesurefer) {
+        return null;
       }
+      wavesurefer.stop();
+      setIsPlaying(false);
     },
-    [currentTrack],
+    [
+      currentTrack,
+      wavesurefer,
+    ],
   );
 
   const toggleMute = useCallback(
     () => {
-      if (audioRef && audioRef.current) {
-        audioRef.current.volume = isMuted ? volume : 0;
-        setIsMuted(!isMuted);
+      if (!wavesurefer) {
+        console.log('here');
+        return null;
       }
+      wavesurefer.setVolume(isMuted? volume : 0);
+      setIsMuted(!isMuted);
     },
     [
       isMuted,
       volume,
+      wavesurefer,
     ],
   );
 
@@ -238,8 +245,8 @@ function Player(): React.JSX.Element {
         waveColor="lightgreen"
         barWidth={1}
         barGap={1}
+        onReady={(ws) => { console.log('ready'); setWavesurfer(ws); }}
         url={currentTrack?.objectUrl}
-        onReady={setWavesurfer}
       />
       <div className="f j-space-between ai-center">
         <PlaybackControls

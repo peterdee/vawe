@@ -1,6 +1,6 @@
 import type WaveSurfer from 'wavesurfer.js';
 
-export type WaveSurferInstance = WaveSurfer;
+export type WaveSurferInstance = WaveSurfer | null;
 
 export interface AudioStream {
   bitsPerSample: string | number;
