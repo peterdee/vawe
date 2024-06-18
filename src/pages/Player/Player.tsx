@@ -4,7 +4,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type WaveSurfer from 'wavesurfer.js'; 
 import WaveSurferPlayer from '@wavesurfer/react';
 
 import PlaybackControls from './components/PlaybackControls';
@@ -18,8 +17,9 @@ function Player(): React.JSX.Element {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [list, setList] = useState<types.ParsedFile[]>([]);
+  const [selectedTrackId, setSelectedTrackId] = useState<string>('');
   const [volume, setVolume] = useState<number>(0.5);
-  const [wavesurefer, setWavesurfer] = useState<WaveSurfer>();
+  const [wavesurefer, setWavesurfer] = useState<types.WaveSurferInstance>();
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -33,10 +33,8 @@ function Player(): React.JSX.Element {
 
       (window as types.ExtendedWindow).backend.loadFileResponse(
         ({ buffer, id }: types.LoadFileResponsePayload) => {
-          console.log('loadFile called');
-          if (audioRef.current && buffer !== null) {
+          if (buffer !== null) {
             const objectUrl = URL.createObjectURL(new Blob([buffer]));
-            audioRef.current.src = objectUrl;
             setList((state: types.ParsedFile[]): types.ParsedFile[] => {
               const [track] = state.filter((file: types.ParsedFile): boolean => file.id === id);
               setCurrentTrack((state: types.CurrentTrack): types.CurrentTrack => {
@@ -48,15 +46,20 @@ function Player(): React.JSX.Element {
                   objectUrl,
                 };
               });
+              setWavesurfer(
+                (
+                  state: types.WaveSurferInstance | undefined,
+                ): types.WaveSurferInstance | undefined => {
+                  if (state) {
+                    console.log('here', state);
+                    state.load(objectUrl).then(state.playPause);
+                  }
+                  return state;
+                },
+              );
               return state;
             });
             setIsPlaying(true);
-            try {
-              audioRef.current.play();
-            } catch (error) {
-              // TODO: error modal
-              console.log(error);
-            }
           }
         },
       );
@@ -164,42 +167,39 @@ function Player(): React.JSX.Element {
   // handle playback controls -> play / pause 
   const handlePlayPause = useCallback(
     async () => {
-      if (audioRef && audioRef.current) {
+      if (wavesurefer) {
         try {
-          if (isPlaying) {
-            audioRef.current.pause();
-          } else {
-            await audioRef.current.play();
-          }
-          setIsPlaying(!isPlaying);
+          await wavesurefer.playPause();
+          setIsPlaying((state: boolean): boolean => !state);
         } catch (error) {
           // TODO: handle error
           console.log(error);
         }
       }
     },
-    [isPlaying],
+    [wavesurefer],
   );
 
-  // TODO: start playing on doubleclick, single click should be focus
-  const handlePlaylistEntryClick = (id: string) => {
-    return (window as types.ExtendedWindow).backend.loadFileRequest({
+  const handlePlaylistEntryClick = (id: string) => setSelectedTrackId(id);
+
+  const handlePlaylistEntryDoubleClick = (id: string) => {
+    (window as types.ExtendedWindow).backend.loadFileRequest({
       id,
       path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
     });
   };
 
   const handlePlaylistEntryContextMenu = (id: string) => {
-      // check if metadata is already loaded for the track
-      const [track] = list.filter((item: types.ParsedFile): boolean => item.id === id);
-      if (track.metadata) {
-        return console.log('metadata already loaded:', track.metadata);
-      }
-      return (window as types.ExtendedWindow).backend.requestMetadata({
-        id,
-        path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
-      });
-    };
+    // check if metadata is already loaded for the track
+    const [track] = list.filter((item: types.ParsedFile): boolean => item.id === id);
+    if (track.metadata) {
+      return console.log('metadata already loaded:', track.metadata);
+    }
+    return (window as types.ExtendedWindow).backend.requestMetadata({
+      id,
+      path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+    });
+  };
 
   const handleStopPlayback = useCallback(
     () => {
@@ -233,13 +233,6 @@ function Player(): React.JSX.Element {
       <div>
         { currentTrack && currentTrack.name || 'VAWE' }
       </div>
-      <div>
-        Track progress
-      </div>
-      <audio
-        controls={false}
-        ref={audioRef}
-      />
       <WaveSurferPlayer
         height={100}
         waveColor="lightgreen"
@@ -247,8 +240,6 @@ function Player(): React.JSX.Element {
         barGap={1}
         url={currentTrack?.objectUrl}
         onReady={setWavesurfer}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
       />
       <div className="f j-space-between ai-center">
         <PlaybackControls
@@ -268,8 +259,10 @@ function Player(): React.JSX.Element {
         currentTrackId={currentTrack ? currentTrack.id : ''}
         handleFileDrop={handleFileDrop}
         handlePlaylistEntryClick={handlePlaylistEntryClick}
+        handlePlaylistEntryDoubleClick={handlePlaylistEntryDoubleClick}
         handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}
         list={list}
+        selectedTrackId={selectedTrackId}
       />
     </div>
   )

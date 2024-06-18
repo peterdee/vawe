@@ -7,8 +7,10 @@ interface PlaylistProps {
   currentTrackId: string;
   handleFileDrop: (event: React.DragEvent) => void;
   handlePlaylistEntryClick: (id: string) => void;
+  handlePlaylistEntryDoubleClick: (id: string) => void;
   handlePlaylistEntryContextMenu: (id: string) => void;
   list: ParsedFile[];
+  selectedTrackId: string;
 }
 
 function Playlist(props: PlaylistProps): React.JSX.Element {
@@ -16,8 +18,10 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     currentTrackId = '',
     handleFileDrop,
     handlePlaylistEntryClick,
+    handlePlaylistEntryDoubleClick,
     handlePlaylistEntryContextMenu,
     list = [],
+    selectedTrackId = '',
   } = props;
 
   console.log('playlist render', currentTrackId);
@@ -48,7 +52,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
         (item: ParsedFile, index: number): React.JSX.Element => (
           <button
             className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
-              ${currentTrackId === item.id
+              ${currentTrackId === item.id || selectedTrackId === item.id
                 ? 'playlist-entry-highlight'
                 : ''
               }`
@@ -56,6 +60,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
             key={item.path}
             onClick={() => handlePlaylistEntryClick(item.id)}
             onContextMenu={() => handlePlaylistEntryContextMenu(item.id)}
+            onDoubleClick={() => handlePlaylistEntryDoubleClick(item.id)}
             type="button"
           >
             <div className="f">

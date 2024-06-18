@@ -1,3 +1,7 @@
+import type WaveSurfer from 'wavesurfer.js';
+
+export type WaveSurferInstance = WaveSurfer;
+
 export interface AudioStream {
   bitsPerSample: string | number;
   channelLayout: string;
