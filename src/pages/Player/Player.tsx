@@ -5,16 +5,22 @@ import React, {
 } from 'react';
 import WaveSurferPlayer from '@wavesurfer/react';
 
+import formatTrackName from '@/utilities/format-track-name';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
-import * as types from '../../../types';
+import * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import './styles.css';
+import PlaylistSettings from './components/PlaylistSettings';
+
+const extendedWindow = window as types.ExtendedWindow;
 
 function Player(): React.JSX.Element {
   const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
+  const [isLooped, setIsLooped] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isShuffled, setIsShuffled] = useState<boolean>(false);
   const [list, setList] = useState<types.ParsedFile[]>([]);
   const [objectURL, setObjectURL] = useState<string>('');
   const [selectedTrackId, setSelectedTrackId] = useState<string>('');
@@ -23,51 +29,61 @@ function Player(): React.JSX.Element {
 
   useEffect(
     () => {
-        (window as types.ExtendedWindow).backend.loadFileResponse(
-          ({ buffer, id }: types.LoadFileResponsePayload): null | void => {
-            if (buffer === null) {
-              return null;
+      let title = 'VAWE';
+      if (currentTrack && currentTrack.name) {
+        title = `VAWE: ${formatTrackName(currentTrack.name)}`;
+      }
+      window.document.title = title;
+    },
+    [currentTrack],
+  );
+
+  useEffect(
+    () => {
+      extendedWindow.backend.loadFileResponse(
+        ({ buffer, id }: types.LoadFileResponsePayload): null | void => {
+          if (buffer === null) {
+            return null;
+          }
+          const newObjectURL = URL.createObjectURL(new Blob([buffer]));
+          setObjectURL((objectURLState: string): string => {
+            if (objectURLState) {
+              URL.revokeObjectURL(objectURLState);
             }
+            return newObjectURL;
+          });
+          setList((listState: types.ParsedFile[]): types.ParsedFile[] => {
+            const [track] = listState.filter((file: types.ParsedFile): boolean => file.id === id);
+            setCurrentTrack(track);
+            return listState;
+          });
+        },
+      );
 
-            const newObjectURL = URL.createObjectURL(new Blob([buffer]));
-            setObjectURL((objectURLState: string): string => {
-              if (objectURLState) {
-                URL.revokeObjectURL(objectURLState);
-              }
-              return newObjectURL;
-            });
-            setList((listState: types.ParsedFile[]): types.ParsedFile[] => {
-              const [track] = listState.filter((file: types.ParsedFile): boolean => file.id === id);
-              setCurrentTrack(track);
-              return listState;
-            });
+      extendedWindow.backend.onAddFile(
+        (value: types.ParsedFile) => setList(
+          (state: types.ParsedFile[]): types.ParsedFile[] => [
+            ...state,
+            value,
+          ],
+        ),
+      );
+
+      extendedWindow.backend.onReceiveMetadata(({ id, metadata }) => {
+        // TODO: handle error (if metadata is null)
+        setList((state: types.ParsedFile[]): types.ParsedFile[] => state.map(
+          (element: types.ParsedFile): types.ParsedFile => {
+            if (element.id !== id) {
+              return element;
+            }
+            return {
+              ...element,
+              metadata,
+            };
           },
-        );
-
-        (window as types.ExtendedWindow).backend.onAddFile(
-          (value: types.ParsedFile) => setList(
-            (state: types.ParsedFile[]): types.ParsedFile[] => [
-              ...state,
-              value,
-            ],
-          ),
-        );
-
-        (window as types.ExtendedWindow).backend.onReceiveMetadata(({ id, metadata }) => {
-          // TODO: handle error (if metadata is null)
-          setList((state: types.ParsedFile[]): types.ParsedFile[] => state.map(
-            (element: types.ParsedFile): types.ParsedFile => {
-              if (element.id !== id) {
-                return element;
-              }
-              return {
-                ...element,
-                metadata,
-              };
-            },
-          ));
-        });
-      },
+        ));
+      });
+    },
     [],
   );
 
@@ -116,7 +132,7 @@ function Player(): React.JSX.Element {
         if (nextIndex < 0) {
           nextIndex = list.length - 1;
         }
-        if (nextIndex > list.length - 1) {
+        if (nextIndex > list.length - 1 && isLooped) {
           nextIndex = 0;
         }
         return (window as types.ExtendedWindow).backend.loadFileRequest({
@@ -202,11 +218,20 @@ function Player(): React.JSX.Element {
     ],
   );
 
-  const onWavesurferReady = (wavesureferInstance: types.WaveSurferInstance) =>  {
-    setIsPlaying(true);
-    setWavesurfer(wavesureferInstance);
-    return wavesureferInstance?.play();
-  };
+  const onWavesurferReady = useCallback(
+    (wavesureferInstance: types.WaveSurferInstance) =>  {
+      if (wavesureferInstance) {
+        setIsPlaying(true);
+        setWavesurfer(wavesureferInstance);
+        wavesureferInstance.setVolume(isMuted ? 0 : volume);
+        return wavesureferInstance.play();
+      }
+    },
+    [
+      isMuted,
+      volume,
+    ],
+  );
 
   const toggleMute = useCallback(
     () => {
@@ -226,7 +251,7 @@ function Player(): React.JSX.Element {
   return (
     <div className="f d-col j-start h-100vh">
       <div className="f j-center mt-1">
-        { currentTrack && currentTrack.name || 'VAWE' }
+        { currentTrack && formatTrackName(currentTrack.name) || 'VAWE' }
       </div>
       <div className="m-1">
         <WaveSurferPlayer
@@ -249,6 +274,14 @@ function Player(): React.JSX.Element {
           isMuted={isMuted}
           toggleMute={toggleMute}
           volume={volume}
+        />
+      </div>
+      <div className="f j-end mh-1">
+        <PlaylistSettings
+          isLooped={isLooped}
+          isShuffled={isShuffled}
+          toggleLoop={() => setIsLooped((state: boolean): boolean => !state)}
+          toggleShuffle={() => setIsShuffled((state: boolean): boolean => !state)}
         />
       </div>
       <Playlist

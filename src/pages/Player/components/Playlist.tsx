@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
 import formatDuration from '@/utilities/format-duration';
-import type { ParsedFile } from '../../../../types';
+import formatTrackName from '@/utilities/format-track-name';
+import type { ParsedFile } from 'types';
 
 interface PlaylistProps {
   currentTrackId: string;
@@ -24,7 +25,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     selectedTrackId = '',
   } = props;
 
-  console.log('playlist render', currentTrackId);
+  console.log('playlist render');
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -71,7 +72,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
                 { index + 1 }
               </div>
               <div className="track-name">
-                { item.name }
+                { formatTrackName(item.name) }
               </div>
             </div>
             <div className="track-duration t-right">

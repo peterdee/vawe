@@ -1,11 +1,11 @@
 .drop-zone {
-  border: 1px dotted red;
+  border: 2px dotted lightgreen;
   height: calc(100vh - var(--spacer) * 10);
   overflow-y: scroll;
 }
 .dragging {
-  background-color: rgba(255, 0, 0, .2);
-  border: 2px dotted red;
+  background-color: rgba(0, 255, 0, .2);
+  border: 2px dotted greenyellow;
 }
 .playlist-entry-wrap {
   background-color: transparent;
