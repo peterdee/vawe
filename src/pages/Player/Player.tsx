@@ -16,47 +16,31 @@ function Player(): React.JSX.Element {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [list, setList] = useState<types.ParsedFile[]>([]);
+  const [objectURL, setObjectURL] = useState<string>('');
   const [selectedTrackId, setSelectedTrackId] = useState<string>('');
   const [volume, setVolume] = useState<number>(0.5);
   const [wavesurefer, setWavesurfer] = useState<types.WaveSurferInstance>(null);
 
   useEffect(
     () => {
-      if (wavesurefer) {
         (window as types.ExtendedWindow).backend.loadFileResponse(
           ({ buffer, id }: types.LoadFileResponsePayload): null | void => {
             if (buffer === null) {
               return null;
             }
 
-            const objectUrl = URL.createObjectURL(new Blob([buffer]));
-            console.log(objectUrl);
+            const newObjectURL = URL.createObjectURL(new Blob([buffer]));
+            setObjectURL((objectURLState: string): string => {
+              if (objectURLState) {
+                URL.revokeObjectURL(objectURLState);
+              }
+              return newObjectURL;
+            });
             setList((listState: types.ParsedFile[]): types.ParsedFile[] => {
               const [track] = listState.filter((file: types.ParsedFile): boolean => file.id === id);
-              setCurrentTrack((currentTrackState: types.CurrentTrack): types.CurrentTrack => {
-                if (currentTrackState !== null && currentTrackState.objectUrl) {
-                  URL.revokeObjectURL(currentTrackState.objectUrl);
-                }
-                return {
-                  ...track,
-                  objectUrl,
-                };
-              });
-              // setWavesurfer(
-              //   (
-              //     wavesureferState: types.WaveSurferInstance,
-              //   ): types.WaveSurferInstance => {
-              //     console.log('here', wavesureferState);
-              //     if (wavesureferState) {
-              //       wavesureferState.load(objectUrl).then(wavesureferState.playPause);
-              //     }
-              //     return wavesureferState;
-              //   },
-              // );
+              setCurrentTrack(track);
               return listState;
             });
-            setIsPlaying(true);
-            wavesurefer.load(objectUrl).then(wavesurefer.playPause);
           },
         );
 
@@ -83,9 +67,8 @@ function Player(): React.JSX.Element {
             },
           ));
         });
-      }
-    },
-    [wavesurefer],
+      },
+    [],
   );
 
   const handleFileDrop = (event: React.DragEvent) => {
@@ -219,13 +202,18 @@ function Player(): React.JSX.Element {
     ],
   );
 
+  const onWavesurferReady = (wavesureferInstance: types.WaveSurferInstance) =>  {
+    setIsPlaying(true);
+    setWavesurfer(wavesureferInstance);
+    return wavesureferInstance?.play();
+  };
+
   const toggleMute = useCallback(
     () => {
       if (!wavesurefer) {
-        console.log('here');
         return null;
       }
-      wavesurefer.setVolume(isMuted? volume : 0);
+      wavesurefer.setVolume(isMuted ? volume : 0);
       setIsMuted(!isMuted);
     },
     [
@@ -237,18 +225,19 @@ function Player(): React.JSX.Element {
 
   return (
     <div className="f d-col j-start h-100vh">
-      <div>
+      <div className="f j-center mt-1">
         { currentTrack && currentTrack.name || 'VAWE' }
       </div>
-      <WaveSurferPlayer
-        height={100}
-        waveColor="lightgreen"
-        barWidth={1}
-        barGap={1}
-        onReady={(ws) => { console.log('ready'); setWavesurfer(ws); }}
-        url={currentTrack?.objectUrl}
-      />
-      <div className="f j-space-between ai-center">
+      <div className="m-1">
+        <WaveSurferPlayer
+          height={100}
+          onReady={onWavesurferReady}
+          onFinish={() => handleChangeTrack('next')}
+          url={objectURL}
+          waveColor="lightgreen"
+        />
+      </div>
+      <div className="f j-space-between ai-center mh-1">
         <PlaybackControls
           handleChangeTrack={handleChangeTrack}
           handlePlayPause={handlePlayPause}

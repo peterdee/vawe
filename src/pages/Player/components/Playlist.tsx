@@ -52,8 +52,11 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
         (item: ParsedFile, index: number): React.JSX.Element => (
           <button
             className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
-              ${currentTrackId === item.id || selectedTrackId === item.id
+              ${currentTrackId === item.id
                 ? 'playlist-entry-highlight'
+                : ''
+              } ${selectedTrackId === item.id
+                ? 'playlist-entry-selected'
                 : ''
               }`
             }

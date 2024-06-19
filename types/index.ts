@@ -11,7 +11,7 @@ export interface AudioStream {
 
 export type ChangeTrackTo = 'next' | 'previous';
 
-export type CurrentTrack = (ParsedFile & { objectUrl: string }) | null;
+export type CurrentTrack = ParsedFile | null;
 
 type BaseWindow = Window & typeof globalThis;
 

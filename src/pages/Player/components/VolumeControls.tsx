@@ -27,6 +27,7 @@ function VolumeControls(props: VolumeControlsProps): React.JSX.Element {
         { isMuted ? 'Unmute' : 'Mute' }
       </button>
       <input
+        className="volume-slider"
         max={1}
         min={0}
         onChange={(event) => handleVolumeChange(Number(event.target.value))}

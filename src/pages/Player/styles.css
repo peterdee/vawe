@@ -9,15 +9,16 @@
 }
 .playlist-entry-wrap {
   background-color: transparent;
-  border: none;
+  border: 2px solid transparent;
   color: var(--text);
   height: calc(var(--spacer) * 2);
 }
 .playlist-entry-wrap:hover {
   background-color: rgb(181, 255, 181);
 }
-.playlist-entry-wrap:focus {
-  background-color: lightgreen;
+.playlist-entry-wrap:focus, .playlist-entry-selected {
+  border: calc(var(--spacer-quarter) / 2) solid rgb(181, 255, 181);
+  border-radius: calc(var(--spacer-quarter) / 2);
 }
 .playlist-entry-highlight {
   background-color: lightgreen;
@@ -31,4 +32,7 @@
 .track-name {
   overflow-x: hidden;
   text-wrap: nowrap;
+}
+.volume-slider {
+  width: calc(var(--spacer) * 8);
 }
