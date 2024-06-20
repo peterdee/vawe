@@ -43,27 +43,28 @@ function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
   return (
     <div className="flex pv-1">
       <button
+        className="button"
         onClick={() => handleChangeTrack('previous')}
         type="button"
       >
         Previous
       </button>
       <button
-        className="ml-1"
+        className="button ml-1"
         onClick={handlePlayPause}
         type="button"
       >
         { isPlaying ? 'Pause' : 'Play' }
       </button>
       <button
-        className="ml-1"
+        className="button ml-1"
         onClick={handleStopPlayback}
         type="button"
       >
         Stop
       </button>
       <button
-        className="ml-1"
+        className="button ml-1"
         onClick={() => handleChangeTrack('next')}
         type="button"
       >

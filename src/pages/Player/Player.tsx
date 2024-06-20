@@ -15,6 +15,7 @@ import * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import './styles.css';
 import { changeIsPlaying } from '@/store/features/playbackSettings';
+import { addTrack } from '@/store/features/tracklist';
 
 const extendedWindow = window as types.ExtendedWindow;
 
@@ -35,6 +36,9 @@ function Player(): React.JSX.Element {
   );
   const isPlaying = useSelector<RootState, boolean>(
     (state) => state.playbackSettings.isPlaying,
+  );
+  const tracks = useSelector<RootState, types.ParsedFile[]>(
+    (state) => state.tracklist.tracks,
   );
   const volume = useSelector<RootState, number>(
     (state) => state.volumeSettings.volume,
@@ -74,12 +78,15 @@ function Player(): React.JSX.Element {
       );
 
       extendedWindow.backend.onAddFile(
-        (value: types.ParsedFile) => setList(
-          (state: types.ParsedFile[]): types.ParsedFile[] => [
-            ...state,
-            value,
-          ],
-        ),
+        (value: types.ParsedFile) => {
+          dispatch(addTrack(value));
+          // setList(
+          //   (state: types.ParsedFile[]): types.ParsedFile[] => [
+          //     ...state,
+          //     value,
+          //   ],
+          // );
+        },
       );
 
       extendedWindow.backend.onReceiveMetadata(({ id, metadata }) => {
@@ -105,7 +112,7 @@ function Player(): React.JSX.Element {
     for (const item of event.dataTransfer.files) {
       paths.push(item.path);
     }
-    return (window as types.ExtendedWindow).backend.handleDrop(paths);
+    return extendedWindow.backend.handleDrop(paths);
   };
 
   const handleChangeTrack = useCallback(
@@ -186,7 +193,6 @@ function Player(): React.JSX.Element {
     wavesurferInstance: types.WaveSurferInstance,
   ): void | Promise<void> =>  {
     if (wavesurferInstance) {
-      console.log(isPlaying);
       dispatch(changeIsPlaying(true));
       wavesurferInstance.setVolume(isMuted ? 0 : volume);
       setWavesurfer(wavesurferInstance);

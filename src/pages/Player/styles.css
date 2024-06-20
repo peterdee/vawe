@@ -11,6 +11,7 @@
   background-color: transparent;
   border: 2px solid transparent;
   color: var(--text);
+  flex-shrink: 0;
   height: calc(var(--spacer) * 2);
 }
 .playlist-entry-wrap:hover {
