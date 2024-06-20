@@ -3,29 +3,42 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import WaveSurferPlayer from '@wavesurfer/react';
 
+import type { AppDispatch, RootState } from '@/store';
 import formatTrackName from '@/utilities/format-track-name';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
+import PlaylistSettings from './components/PlaylistSettings';
 import * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import './styles.css';
-import PlaylistSettings from './components/PlaylistSettings';
+import { changeIsPlaying } from '@/store/features/playbackSettings';
 
 const extendedWindow = window as types.ExtendedWindow;
 
 function Player(): React.JSX.Element {
   const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
-  const [isLooped, setIsLooped] = useState<boolean>(false);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [isShuffled, setIsShuffled] = useState<boolean>(false);
   const [list, setList] = useState<types.ParsedFile[]>([]);
   const [objectURL, setObjectURL] = useState<string>('');
   const [selectedTrackId, setSelectedTrackId] = useState<string>('');
-  const [volume, setVolume] = useState<number>(0.5);
-  const [wavesurefer, setWavesurfer] = useState<types.WaveSurferInstance>(null);
+  const [wavesurfer, setWavesurfer] = useState<types.WaveSurferInstance>(null);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const isLooped = useSelector<RootState, boolean>(
+    (state) => state.playlistSettings.isLooped,
+  );
+  const isMuted = useSelector<RootState, boolean>(
+    (state) => state.volumeSettings.isMuted,
+  );
+  const isPlaying = useSelector<RootState, boolean>(
+    (state) => state.playbackSettings.isPlaying,
+  );
+  const volume = useSelector<RootState, number>(
+    (state) => state.volumeSettings.volume,
+  );
 
   useEffect(
     () => {
@@ -89,13 +102,12 @@ function Player(): React.JSX.Element {
 
   const handleFileDrop = (event: React.DragEvent) => {
     const paths: string[] = [];
-    for (let item of event.dataTransfer.files) {
+    for (const item of event.dataTransfer.files) {
       paths.push(item.path);
     }
     return (window as types.ExtendedWindow).backend.handleDrop(paths);
   };
 
-  // handle playback controls -> track change 
   const handleChangeTrack = useCallback(
     (changeTo: types.ChangeTrackTo): null | Promise<void> | void => {
       if (list.length === 0) {
@@ -145,42 +157,8 @@ function Player(): React.JSX.Element {
       currentTrack,
       isPlaying,
       list,
-      wavesurefer,
+      wavesurfer,
     ],
-  );
-
-  const handleChangeVolume = useCallback(
-    (value: number): null | void => {
-      if (!wavesurefer) {
-        return null;
-      }
-
-      if (isMuted) {
-        setIsMuted(false);
-      }
-      setVolume(value);
-      wavesurefer.setVolume(value);
-    },
-    [
-      isMuted,
-      wavesurefer,
-    ],
-  );
-
-  // handle playback controls -> play / pause 
-  const handlePlayPause = useCallback(
-    async () => {
-      if (wavesurefer) {
-        try {
-          await wavesurefer.playPause();
-          setIsPlaying((state: boolean): boolean => !state);
-        } catch (error) {
-          // TODO: handle error
-          console.log(error);
-        }
-      }
-    },
-    [wavesurefer],
   );
 
   const handlePlaylistEntryClick = (id: string) => setSelectedTrackId(id);
@@ -204,50 +182,18 @@ function Player(): React.JSX.Element {
     });
   };
 
-  const handleStopPlayback = useCallback(
-    (): null | void => {
-      if (!wavesurefer) {
-        return null;
-      }
-      wavesurefer.stop();
-      setIsPlaying(false);
-    },
-    [
-      currentTrack,
-      wavesurefer,
-    ],
-  );
-
-  const onWavesurferReady = useCallback(
-    (wavesureferInstance: types.WaveSurferInstance) =>  {
-      if (wavesureferInstance) {
-        setIsPlaying(true);
-        setWavesurfer(wavesureferInstance);
-        wavesureferInstance.setVolume(isMuted ? 0 : volume);
-        return wavesureferInstance.play();
-      }
-    },
-    [
-      isMuted,
-      volume,
-    ],
-  );
-
-  const toggleMute = useCallback(
-    () => {
-      if (!wavesurefer) {
-        return null;
-      }
-      wavesurefer.setVolume(isMuted ? volume : 0);
-      setIsMuted(!isMuted);
-    },
-    [
-      isMuted,
-      volume,
-      wavesurefer,
-    ],
-  );
-
+  const onWavesurferReady = (
+    wavesurferInstance: types.WaveSurferInstance,
+  ): void | Promise<void> =>  {
+    if (wavesurferInstance) {
+      console.log(isPlaying);
+      dispatch(changeIsPlaying(true));
+      wavesurferInstance.setVolume(isMuted ? 0 : volume);
+      setWavesurfer(wavesurferInstance);
+      return wavesurferInstance.play();
+    }
+  };
+  
   return (
     <div className="f d-col j-start h-100vh">
       <div className="f j-center mt-1">
@@ -265,24 +211,12 @@ function Player(): React.JSX.Element {
       <div className="f j-space-between ai-center mh-1">
         <PlaybackControls
           handleChangeTrack={handleChangeTrack}
-          handlePlayPause={handlePlayPause}
-          handleStopPlayback={handleStopPlayback}
-          isPlaying={isPlaying}
+          wavesurfer={wavesurfer}
         />
-        <VolumeControls
-          handleVolumeChange={handleChangeVolume}
-          isMuted={isMuted}
-          toggleMute={toggleMute}
-          volume={volume}
-        />
+        <VolumeControls wavesurfer={wavesurfer} />
       </div>
       <div className="f j-end mh-1">
-        <PlaylistSettings
-          isLooped={isLooped}
-          isShuffled={isShuffled}
-          toggleLoop={() => setIsLooped((state: boolean): boolean => !state)}
-          toggleShuffle={() => setIsShuffled((state: boolean): boolean => !state)}
-        />
+        <PlaylistSettings />
       </div>
       <Playlist
         currentTrackId={currentTrack ? currentTrack.id : ''}

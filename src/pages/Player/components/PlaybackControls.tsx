@@ -1,21 +1,44 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import type { ChangeTrackTo } from '../../../../types';
+import type { AppDispatch, RootState } from '@/store';
+import * as types from 'types';
+import { changeIsPlaying } from '@/store/features/playbackSettings';
 
 interface PlaybackControlsProps {
-  handleChangeTrack: (changeTo: ChangeTrackTo) => void;
-  handlePlayPause: () => void;
-  handleStopPlayback: () => void;
-  isPlaying: boolean;
+  handleChangeTrack: (changeTo: types.ChangeTrackTo) => void;
+  wavesurfer: types.WaveSurferInstance;
 }
 
 function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
   const {
     handleChangeTrack,
-    handlePlayPause,
-    handleStopPlayback,
-    isPlaying,
+    wavesurfer,
   } = props;
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const isPlaying = useSelector<RootState, boolean>(
+    (state) => state.playbackSettings.isPlaying,
+  );
+
+  const handlePlayPause = async () => {
+    if (wavesurfer) {
+      if (isPlaying) {
+        wavesurfer.pause();
+      } else {
+        await wavesurfer.play();
+      }
+      dispatch(changeIsPlaying(!isPlaying));
+    }
+  };
+
+  const handleStopPlayback = () => {
+    dispatch(changeIsPlaying(false));
+    if (wavesurfer) {
+      wavesurfer.stop();
+    }
+  };
 
   return (
     <div className="flex pv-1">
