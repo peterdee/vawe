@@ -6,9 +6,10 @@ import formatTrackName from '@/utilities/format-track-name';
 import type { RootState } from '@/store';
 import * as types from 'types';
 
+const extendedWindow = window as types.ExtendedWindow;
+
 interface PlaylistProps {
   currentTrackId: string;
-  handleFileDrop: (event: React.DragEvent) => void;
   handlePlaylistEntryClick: (id: string) => void;
   handlePlaylistEntryDoubleClick: (id: string) => void;
   handlePlaylistEntryContextMenu: (id: string) => void;
@@ -18,7 +19,6 @@ interface PlaylistProps {
 function Playlist(props: PlaylistProps): React.JSX.Element {
   const {
     currentTrackId = '',
-    handleFileDrop,
     handlePlaylistEntryClick,
     handlePlaylistEntryDoubleClick,
     handlePlaylistEntryContextMenu,
@@ -37,12 +37,16 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     event.preventDefault();
   };
 
+  const toggleDragging = () => setIsDragging((value: boolean) => !value);
+  
   const handleDrop = (event: React.DragEvent) => {
     toggleDragging();
-    return handleFileDrop(event);
-  }
-
-  const toggleDragging = () => setIsDragging((value: boolean) => !value);
+    const paths: string[] = [];
+    for (const item of event.dataTransfer.files) {
+      paths.push(item.path);
+    }
+    return extendedWindow.backend.handleDrop(paths);
+  };
 
   return (
     <div

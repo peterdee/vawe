@@ -4,7 +4,6 @@ import React, {
   useState,
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import WaveSurferPlayer from '@wavesurfer/react';
 
 import { addTrack, addTrackMetadata, toggleQueueTrack } from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
@@ -15,6 +14,7 @@ import Playlist from './components/Playlist';
 import PlaylistSettings from './components/PlaylistSettings';
 import * as types from 'types';
 import VolumeControls from './components/VolumeControls';
+import WavesurferPlayer from './components/WavesurferPlayer';
 import './styles.css';
 
 const extendedWindow = window as types.ExtendedWindow;
@@ -86,14 +86,6 @@ function Player(): React.JSX.Element {
     },
     [],
   );
-
-  const handleFileDrop = (event: React.DragEvent) => {
-    const paths: string[] = [];
-    for (const item of event.dataTransfer.files) {
-      paths.push(item.path);
-    }
-    return extendedWindow.backend.handleDrop(paths);
-  };
 
   const handleChangeTrack = useCallback(
     (changeTo: types.ChangeTrackTo): null | Promise<void> | void => {
@@ -172,34 +164,6 @@ function Player(): React.JSX.Element {
     });
   };
 
-  const onTrackFinish = useCallback(
-    (wavesurferInstance: types.WaveSurferInstance) => {
-      dispatch(changeIsPlaying(false));
-      const trackIds = tracks.map((track: types.ParsedFile): string => track.id);
-      if (trackIds.indexOf(currentTrack?.id || '') === (trackIds.length - 1)
-        && !isLooped) {
-        return wavesurferInstance?.stop();
-      }
-      return handleChangeTrack('next');
-    },
-    [
-      currentTrack,
-      isLooped,
-      tracks,
-    ],
-  );
-
-  const onWavesurferReady = (
-    wavesurferInstance: types.WaveSurferInstance,
-  ): void | Promise<void> =>  {
-    if (wavesurferInstance) {
-      dispatch(changeIsPlaying(true));
-      wavesurferInstance.setVolume(isMuted ? 0 : volume);
-      setWavesurfer(wavesurferInstance);
-      return wavesurferInstance.play();
-    }
-  };
-
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'q' && selectedTrackId) {
@@ -219,24 +183,45 @@ function Player(): React.JSX.Element {
     },
     [selectedTrackId],
   );
+
+  const wavesurferOnFinish = useCallback(
+    (wavesurferInstance: types.WaveSurferInstance) => {
+      dispatch(changeIsPlaying(false));
+      const trackIds = tracks.map((track: types.ParsedFile): string => track.id);
+      if (trackIds.indexOf(currentTrack?.id || '') === (trackIds.length - 1)
+        && !isLooped) {
+        return wavesurferInstance?.stop();
+      }
+      return handleChangeTrack('next');
+    },
+    [
+      currentTrack,
+      isLooped,
+      tracks,
+    ],
+  );
+  
+  const wavesurferOnReady = (
+    wavesurferInstance: types.WaveSurferInstance,
+  ): void | Promise<void> =>  {
+    if (wavesurferInstance) {
+      dispatch(changeIsPlaying(true));
+      wavesurferInstance.setVolume(isMuted ? 0 : volume);
+      setWavesurfer(wavesurferInstance);
+      return wavesurferInstance.play();
+    }
+  };
   
   return (
     <div className="f d-col j-start h-100vh">
       <div className="f j-center mt-1">
         { currentTrack && formatTrackName(currentTrack.name) || 'VAWE' }
       </div>
-      <div className="m-1">
-        <WaveSurferPlayer
-          height={100}
-          onReady={onWavesurferReady}
-          onFinish={onTrackFinish}
-          url={objectURL}
-          waveColor="lightgreen"
-          progressColor="darkgreen"
-          cursorColor="black"
-          cursorWidth={2}
-        />
-      </div>
+      <WavesurferPlayer
+        objectURL={objectURL}
+        onFinish={wavesurferOnFinish}
+        onReady={wavesurferOnReady}
+      />
       <div className="f j-space-between ai-center mh-1">
         <PlaybackControls
           handleChangeTrack={handleChangeTrack}
@@ -249,7 +234,6 @@ function Player(): React.JSX.Element {
       </div>
       <Playlist
         currentTrackId={currentTrack ? currentTrack.id : ''}
-        handleFileDrop={handleFileDrop}
         handlePlaylistEntryClick={handlePlaylistEntryClick}
         handlePlaylistEntryDoubleClick={handlePlaylistEntryDoubleClick}
         handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}
