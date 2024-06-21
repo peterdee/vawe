@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import formatDuration from '@/utilities/format-duration';
 import formatTrackName from '@/utilities/format-track-name';
-import type { ParsedFile } from 'types';
+import type { RootState } from '@/store';
+import * as types from 'types';
 
 interface PlaylistProps {
   currentTrackId: string;
@@ -10,7 +12,6 @@ interface PlaylistProps {
   handlePlaylistEntryClick: (id: string) => void;
   handlePlaylistEntryDoubleClick: (id: string) => void;
   handlePlaylistEntryContextMenu: (id: string) => void;
-  list: ParsedFile[];
   selectedTrackId: string;
 }
 
@@ -21,9 +22,11 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     handlePlaylistEntryClick,
     handlePlaylistEntryDoubleClick,
     handlePlaylistEntryContextMenu,
-    list = [],
     selectedTrackId = '',
   } = props;
+
+  const queue = useSelector<RootState, string[]>((state) => state.tracklist.queue);
+  const tracks = useSelector<RootState, types.ParsedFile[]>((state) => state.tracklist.tracks);
 
   console.log('playlist render');
 
@@ -34,12 +37,12 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     event.preventDefault();
   };
 
-  const toggleDragging = () => setIsDragging((value: boolean) => !value);
-
   const handleDrop = (event: React.DragEvent) => {
     toggleDragging();
     return handleFileDrop(event);
   }
+
+  const toggleDragging = () => setIsDragging((value: boolean) => !value);
 
   return (
     <div
@@ -49,8 +52,8 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
       onDragLeave={toggleDragging}
       onDrop={handleDrop}
     >
-      { list.length > 0 && list.map(
-        (item: ParsedFile, index: number): React.JSX.Element => (
+      { tracks.length > 0 && tracks.map(
+        (item: types.ParsedFile, index: number): React.JSX.Element => (
           <button
             className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
               ${currentTrackId === item.id
@@ -59,12 +62,16 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
               } ${selectedTrackId === item.id
                 ? 'playlist-entry-selected'
                 : ''
+              } ${queue.includes(item.id)
+                ? 'playlist-entry-queued'
+                : ''
               }`
             }
             key={item.path}
             onClick={() => handlePlaylistEntryClick(item.id)}
             onContextMenu={() => handlePlaylistEntryContextMenu(item.id)}
             onDoubleClick={() => handlePlaylistEntryDoubleClick(item.id)}
+            title={`Queue position: ${queue.indexOf(item.id) + 1}`}
             type="button"
           >
             <div className="f">

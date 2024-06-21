@@ -24,6 +24,9 @@
 .playlist-entry-highlight {
   background-color: lightgreen;
 }
+.playlist-entry-queued {
+  background-color: aqua;
+}
 .track-duration {
   width: calc(var(--spacer-half) + var(--spacer) * 4);
 }

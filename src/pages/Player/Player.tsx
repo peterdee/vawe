@@ -6,7 +6,9 @@ import React, {
 import { useSelector, useDispatch } from 'react-redux';
 import WaveSurferPlayer from '@wavesurfer/react';
 
+import { addTrack, addTrackMetadata, toggleQueueTrack } from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
+import { changeIsPlaying } from '@/store/features/playbackSettings';
 import formatTrackName from '@/utilities/format-track-name';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
@@ -14,14 +16,11 @@ import PlaylistSettings from './components/PlaylistSettings';
 import * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import './styles.css';
-import { changeIsPlaying } from '@/store/features/playbackSettings';
-import { addTrack } from '@/store/features/tracklist';
 
 const extendedWindow = window as types.ExtendedWindow;
 
 function Player(): React.JSX.Element {
   const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
-  const [list, setList] = useState<types.ParsedFile[]>([]);
   const [objectURL, setObjectURL] = useState<string>('');
   const [selectedTrackId, setSelectedTrackId] = useState<string>('');
   const [wavesurfer, setWavesurfer] = useState<types.WaveSurferInstance>(null);
@@ -69,39 +68,20 @@ function Player(): React.JSX.Element {
             }
             return newObjectURL;
           });
-          setList((listState: types.ParsedFile[]): types.ParsedFile[] => {
-            const [track] = listState.filter((file: types.ParsedFile): boolean => file.id === id);
-            setCurrentTrack(track);
-            return listState;
-          });
+          const [track] = tracks.filter(
+            (file: types.ParsedFile): boolean => file.id === id,
+          );
+          setCurrentTrack(track);
         },
       );
 
-      extendedWindow.backend.onAddFile(
-        (value: types.ParsedFile) => {
-          dispatch(addTrack(value));
-          // setList(
-          //   (state: types.ParsedFile[]): types.ParsedFile[] => [
-          //     ...state,
-          //     value,
-          //   ],
-          // );
-        },
-      );
+      extendedWindow.backend.onAddFile((value: types.ParsedFile) => {
+        dispatch(addTrack(value));
+      });
 
       extendedWindow.backend.onReceiveMetadata(({ id, metadata }) => {
         // TODO: handle error (if metadata is null)
-        setList((state: types.ParsedFile[]): types.ParsedFile[] => state.map(
-          (element: types.ParsedFile): types.ParsedFile => {
-            if (element.id !== id) {
-              return element;
-            }
-            return {
-              ...element,
-              metadata,
-            };
-          },
-        ));
+        dispatch(addTrackMetadata({ id, metadata }));
       });
     },
     [],
@@ -117,19 +97,22 @@ function Player(): React.JSX.Element {
 
   const handleChangeTrack = useCallback(
     (changeTo: types.ChangeTrackTo): null | Promise<void> | void => {
-      if (list.length === 0) {
+      if (tracks.length === 0) {
         return null;
       }
+
+      // TODO: check queue
+
       if (!currentTrack) {
         const track = changeTo === 'previous'
-          ? list[list.length - 1]
-          : list[0];
+          ? tracks[tracks.length - 1]
+          : tracks[0];
         return (window as types.ExtendedWindow).backend.loadFileRequest({
           id: track.id,
           path: track.path,
         });
       }
-      if (list.length === 1) {
+      if (tracks.length === 1) {
         // TODO: fix
         // if (audioRef && audioRef.current) {
         //   const { current: audio } = audioRef;
@@ -139,8 +122,8 @@ function Player(): React.JSX.Element {
         // }
       } else {
         let currentTrackIndex = 0;
-        for (let i = 0; i < list.length; i += 1) {
-          if (list[i].id === currentTrack.id) {
+        for (let i = 0; i < tracks.length; i += 1) {
+          if (tracks[i].id === currentTrack.id) {
             currentTrackIndex = i;
             break;
           }
@@ -149,21 +132,22 @@ function Player(): React.JSX.Element {
           ? currentTrackIndex + 1
           : currentTrackIndex - 1;
         if (nextIndex < 0) {
-          nextIndex = list.length - 1;
+          nextIndex = tracks.length - 1;
         }
-        if (nextIndex > list.length - 1 && isLooped) {
+        if (nextIndex > tracks.length - 1) {
           nextIndex = 0;
         }
         return (window as types.ExtendedWindow).backend.loadFileRequest({
-          id: list[nextIndex].id,
-          path: list[nextIndex].path,
+          id: tracks[nextIndex].id,
+          path: tracks[nextIndex].path,
         });
       }
     },
     [
       currentTrack,
+      isLooped,
       isPlaying,
-      list,
+      tracks,
       wavesurfer,
     ],
   );
@@ -173,21 +157,37 @@ function Player(): React.JSX.Element {
   const handlePlaylistEntryDoubleClick = (id: string) => {
     (window as types.ExtendedWindow).backend.loadFileRequest({
       id,
-      path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+      path: tracks.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
     });
   };
 
   const handlePlaylistEntryContextMenu = (id: string) => {
-    // check if metadata is already loaded for the track
-    const [track] = list.filter((item: types.ParsedFile): boolean => item.id === id);
+    const [track] = tracks.filter((item: types.ParsedFile): boolean => item.id === id);
     if (track.metadata) {
       return console.log('metadata already loaded:', track.metadata);
     }
     return (window as types.ExtendedWindow).backend.requestMetadata({
       id,
-      path: list.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+      path: track.path,
     });
   };
+
+  const onTrackFinish = useCallback(
+    (wavesurferInstance: types.WaveSurferInstance) => {
+      dispatch(changeIsPlaying(false));
+      const trackIds = tracks.map((track: types.ParsedFile): string => track.id);
+      if (trackIds.indexOf(currentTrack?.id || '') === (trackIds.length - 1)
+        && !isLooped) {
+        return wavesurferInstance?.stop();
+      }
+      return handleChangeTrack('next');
+    },
+    [
+      currentTrack,
+      isLooped,
+      tracks,
+    ],
+  );
 
   const onWavesurferReady = (
     wavesurferInstance: types.WaveSurferInstance,
@@ -199,6 +199,26 @@ function Player(): React.JSX.Element {
       return wavesurferInstance.play();
     }
   };
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'q' && selectedTrackId) {
+        dispatch(toggleQueueTrack(selectedTrackId));
+      }
+    },
+    [selectedTrackId],
+  );
+
+  useEffect(
+    () => {
+      extendedWindow.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        extendedWindow.removeEventListener('keydown', handleKeyDown);
+      };
+    },
+    [selectedTrackId],
+  );
   
   return (
     <div className="f d-col j-start h-100vh">
@@ -209,9 +229,12 @@ function Player(): React.JSX.Element {
         <WaveSurferPlayer
           height={100}
           onReady={onWavesurferReady}
-          onFinish={() => handleChangeTrack('next')}
+          onFinish={onTrackFinish}
           url={objectURL}
           waveColor="lightgreen"
+          progressColor="darkgreen"
+          cursorColor="black"
+          cursorWidth={2}
         />
       </div>
       <div className="f j-space-between ai-center mh-1">
@@ -230,7 +253,6 @@ function Player(): React.JSX.Element {
         handlePlaylistEntryClick={handlePlaylistEntryClick}
         handlePlaylistEntryDoubleClick={handlePlaylistEntryDoubleClick}
         handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}
-        list={list}
         selectedTrackId={selectedTrackId}
       />
     </div>
