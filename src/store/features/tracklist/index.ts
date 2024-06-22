@@ -51,6 +51,9 @@ export const tracklistSlice = createSlice({
       }
     },
     removeTrack: (state, action: PayloadAction<string>) => {
+      state.queue = state.queue.filter(
+        (id: string): boolean => id !== action.payload, 
+      )
       state.tracks = state.tracks.filter(
         (track: types.ParsedFile): boolean => track.id !== action.payload,
       );

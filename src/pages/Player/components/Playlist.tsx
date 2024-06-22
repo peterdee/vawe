@@ -75,7 +75,10 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
             onClick={() => handlePlaylistEntryClick(item.id)}
             onContextMenu={() => handlePlaylistEntryContextMenu(item.id)}
             onDoubleClick={() => handlePlaylistEntryDoubleClick(item.id)}
-            title={`Queue position: ${queue.indexOf(item.id) + 1}`}
+            title={queue.indexOf(item.id) >= 0
+              ? `Queue position: ${queue.indexOf(item.id) + 1}`
+              : ''
+            }
             type="button"
           >
             <div className="f">

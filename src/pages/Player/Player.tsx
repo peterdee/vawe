@@ -5,7 +5,7 @@ import React, {
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { addTrack, addTrackMetadata, toggleQueueTrack } from '@/store/features/tracklist';
+import { addTrack, addTrackMetadata, removeTrack, toggleQueueTrack } from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
 import { changeIsPlaying } from '@/store/features/playbackSettings';
 import formatTrackName from '@/utilities/format-track-name';
@@ -71,6 +71,7 @@ function Player(): React.JSX.Element {
           const [track] = tracks.filter(
             (file: types.ParsedFile): boolean => file.id === id,
           );
+          console.log('set track', track, tracks);
           setCurrentTrack(track);
         },
       );
@@ -83,8 +84,14 @@ function Player(): React.JSX.Element {
         // TODO: handle error (if metadata is null)
         dispatch(addTrackMetadata({ id, metadata }));
       });
+
+      // TODO: unsubscribe from events on re-render in preload
+
+      return () => {
+        // ...
+      };
     },
-    [],
+    [tracks],
   );
 
   const handleChangeTrack = useCallback(
@@ -99,19 +106,15 @@ function Player(): React.JSX.Element {
         const track = changeTo === 'previous'
           ? tracks[tracks.length - 1]
           : tracks[0];
-        return (window as types.ExtendedWindow).backend.loadFileRequest({
+        return extendedWindow.backend.loadFileRequest({
           id: track.id,
           path: track.path,
         });
       }
       if (tracks.length === 1) {
-        // TODO: fix
-        // if (audioRef && audioRef.current) {
-        //   const { current: audio } = audioRef;
-        //   audio.src = currentTrack?.objectUrl || '';
-        //   setIsPlaying(true);
-        //   return audio.play();
-        // }
+        wavesurfer?.stop();
+        dispatch(changeIsPlaying(true));
+        wavesurfer?.play();
       } else {
         let currentTrackIndex = 0;
         for (let i = 0; i < tracks.length; i += 1) {
@@ -129,7 +132,7 @@ function Player(): React.JSX.Element {
         if (nextIndex > tracks.length - 1) {
           nextIndex = 0;
         }
-        return (window as types.ExtendedWindow).backend.loadFileRequest({
+        return extendedWindow.backend.loadFileRequest({
           id: tracks[nextIndex].id,
           path: tracks[nextIndex].path,
         });
@@ -166,11 +169,27 @@ function Player(): React.JSX.Element {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'q' && selectedTrackId) {
+      if (event.key.toLowerCase() === 'backspace' && selectedTrackId) {
+        console.log('del', currentTrack, selectedTrackId);
+        dispatch(removeTrack(selectedTrackId));
+        if (selectedTrackId === currentTrack?.id) {
+          console.log('hit');
+          dispatch(changeIsPlaying(false));
+          URL.revokeObjectURL(objectURL);
+          wavesurfer?.destroy();
+          return handleChangeTrack('next');
+        }
+      }
+      if (event.key.toLowerCase() === 'q' && selectedTrackId) {
         dispatch(toggleQueueTrack(selectedTrackId));
       }
     },
-    [selectedTrackId],
+    [
+      currentTrack,
+      objectURL,
+      selectedTrackId,
+      wavesurfer,
+    ],
   );
 
   useEffect(
