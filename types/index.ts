@@ -1,3 +1,4 @@
+import type { IpcRendererEvent } from 'electron';
 import type WaveSurfer from 'wavesurfer.js';
 
 export type WaveSurferInstance = WaveSurfer | null;
@@ -9,7 +10,7 @@ export interface AudioStream {
   sampleRate: number;
 }
 
-export type ChangeTrackTo = 'next' | 'previous';
+export type ChangeTrackTo = 'current' | 'next' | 'previous';
 
 export type CurrentTrack = ParsedFile | null;
 
@@ -20,7 +21,7 @@ export type ExtendedWindow = BaseWindow & {
     handleDrop: (files: string[]) => void;
     loadFileRequest: (payload: LoadFileRequestPayload) => void;
     loadFileResponse: (callback: (payload: LoadFileResponsePayload) => void) => void;
-    onAddFile: (callback: (entry: ParsedFile) => void) => void;
+    onAddFile: (callback: (event: IpcRendererEvent, entry: ParsedFile) => void) => void;
     onReceiveMetadata: (
       callback: ({ id, metadata }: { id: string, metadata: Metadata | null }) => void,
     ) => void;

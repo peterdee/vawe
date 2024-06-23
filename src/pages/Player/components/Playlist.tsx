@@ -1,32 +1,29 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { changeSelectedTrackId } from '@/store/features/tracklist';
 import formatDuration from '@/utilities/format-duration';
 import formatTrackName from '@/utilities/format-track-name';
-import type { RootState } from '@/store';
+import { AppDispatch, type RootState } from '@/store';
 import * as types from 'types';
 
 const extendedWindow = window as types.ExtendedWindow;
 
-interface PlaylistProps {
-  currentTrackId: string;
-  handlePlaylistEntryClick: (id: string) => void;
-  handlePlaylistEntryDoubleClick: (id: string) => void;
-  handlePlaylistEntryContextMenu: (id: string) => void;
-  selectedTrackId: string;
-}
+function Playlist(): React.JSX.Element {
+  const dispatch = useDispatch<AppDispatch>();
 
-function Playlist(props: PlaylistProps): React.JSX.Element {
-  const {
-    currentTrackId = '',
-    handlePlaylistEntryClick,
-    handlePlaylistEntryDoubleClick,
-    handlePlaylistEntryContextMenu,
-    selectedTrackId = '',
-  } = props;
-
-  const queue = useSelector<RootState, string[]>((state) => state.tracklist.queue);
-  const tracks = useSelector<RootState, types.ParsedFile[]>((state) => state.tracklist.tracks);
+  const currentTrack = useSelector<RootState, types.ParsedFile | null>(
+    (state) => state.tracklist.currentTrack,
+  );
+  const queue = useSelector<RootState, string[]>(
+    (state) => state.tracklist.queue,
+  );
+  const selectedTrackId = useSelector<RootState, string>(
+    (state) => state.tracklist.selectedTrackId,
+  );
+  const tracks = useSelector<RootState, types.ParsedFile[]>(
+    (state) => state.tracklist.tracks,
+  );
 
   console.log('playlist render');
 
@@ -36,8 +33,6 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     event.stopPropagation();
     event.preventDefault();
   };
-
-  const toggleDragging = () => setIsDragging((value: boolean) => !value);
   
   const handleDrop = (event: React.DragEvent) => {
     toggleDragging();
@@ -47,6 +42,24 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
     }
     return extendedWindow.backend.handleDrop(paths);
   };
+
+  const handleContextMenu = (id: string) => {
+    const [track] = tracks.filter((item: types.ParsedFile): boolean => item.id === id);
+    if (track.metadata) {
+      return console.log('metadata already loaded:', track.metadata);
+    }
+    return extendedWindow.backend.requestMetadata({
+      id,
+      path: track.path,
+    });
+  };
+
+  const handleDoubleClick = (id: string) => extendedWindow.backend.loadFileRequest({
+    id,
+    path: tracks.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+  });
+
+  const toggleDragging = () => setIsDragging((value: boolean): boolean => !value);
 
   return (
     <div
@@ -60,7 +73,7 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
         (item: types.ParsedFile, index: number): React.JSX.Element => (
           <button
             className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
-              ${currentTrackId === item.id
+              ${currentTrack && currentTrack.id === item.id
                 ? 'playlist-entry-highlight'
                 : ''
               } ${selectedTrackId === item.id
@@ -72,9 +85,9 @@ function Playlist(props: PlaylistProps): React.JSX.Element {
               }`
             }
             key={item.path}
-            onClick={() => handlePlaylistEntryClick(item.id)}
-            onContextMenu={() => handlePlaylistEntryContextMenu(item.id)}
-            onDoubleClick={() => handlePlaylistEntryDoubleClick(item.id)}
+            onClick={() => dispatch(changeSelectedTrackId(item.id))}
+            onContextMenu={() => handleContextMenu(item.id)}
+            onDoubleClick={() => handleDoubleClick(item.id)}
             title={queue.indexOf(item.id) >= 0
               ? `Queue position: ${queue.indexOf(item.id) + 1}`
               : ''

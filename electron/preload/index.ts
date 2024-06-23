@@ -1,7 +1,11 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import {
+  contextBridge,
+  ipcRenderer,
+  type IpcRendererEvent,
+} from 'electron';
 
 import { IPC_EVENTS } from '../constants';
-import * as types from '../../types';
+import * as types from 'types';
 
 // VAWE
 contextBridge.exposeInMainWorld(
@@ -23,11 +27,8 @@ contextBridge.exposeInMainWorld(
       );
     },
     // handle adding file to the playlist
-    onAddFile(callback: ((entry: types.ParsedFile) => void)) {
-      ipcRenderer.on(
-        IPC_EVENTS.handleAddFile,
-        (_, value: types.ParsedFile) => callback(value),
-      );
+    onAddFile(callback: ((event: IpcRendererEvent, entry: types.ParsedFile) => void)) {
+      ipcRenderer.on(IPC_EVENTS.handleAddFile, callback);
     },
     // receive audio file metadata
     onReceiveMetadata(callback: ((metadata: types.Metadata) => void)) {

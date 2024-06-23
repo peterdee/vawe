@@ -4,12 +4,18 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import * as types from 'types';
 
 export interface TracklistState {
+  currentTrack: types.ParsedFile | null;
+  currentTrackObjectURL: string;
   queue: string[];
+  selectedTrackId: string;
   tracks: types.ParsedFile[];
 }
 
 const initialState: TracklistState = {
+  currentTrack: null,
+  currentTrackObjectURL: '',
   queue: [],
+  selectedTrackId: '',
   tracks: [],
 };
 
@@ -34,8 +40,42 @@ export const tracklistSlice = createSlice({
         return track;
       });
     },
+    changeCurrentTrack: (state, action: PayloadAction<string>) => {
+      const [track] = state.tracks.filter(
+        (item: types.ParsedFile): boolean => item.id === action.payload,
+      );
+      state.currentTrack = track;
+    },
+    changeCurrentTrackObjectURL: (state, action: PayloadAction<string>) => {
+      if (state.currentTrackObjectURL) {
+        URL.revokeObjectURL(state.currentTrackObjectURL);
+      }
+      state.currentTrackObjectURL = action.payload;
+    },
+    changeSelectedTrackId: (state, action: PayloadAction<string>) => {
+      state.selectedTrackId = action.payload;
+    },
     clearTracklist: (state) => {
-      state.tracks = [];
+      if (state.currentTrackObjectURL) {
+        URL.revokeObjectURL(state.currentTrackObjectURL);
+      }
+      state = initialState;
+    },
+    removeTrack: (state, action: PayloadAction<string>) => {
+      if (state.currentTrack && state.currentTrack.id === action.payload) {
+        state.currentTrack = null;
+        if (state.currentTrackObjectURL) {
+          URL.revokeObjectURL(state.currentTrackObjectURL);
+        }
+        state.currentTrackObjectURL = '';
+      }
+      state.queue = state.queue.filter(
+        (id: string): boolean => id !== action.payload, 
+      );
+      state.selectedTrackId = '';
+      state.tracks = state.tracks.filter(
+        (track: types.ParsedFile): boolean => track.id !== action.payload,
+      );
     },
     toggleQueueTrack: (state, action: PayloadAction<string>) => {
       if (!state.queue) {
@@ -50,20 +90,15 @@ export const tracklistSlice = createSlice({
         ];
       }
     },
-    removeTrack: (state, action: PayloadAction<string>) => {
-      state.queue = state.queue.filter(
-        (id: string): boolean => id !== action.payload, 
-      )
-      state.tracks = state.tracks.filter(
-        (track: types.ParsedFile): boolean => track.id !== action.payload,
-      );
-    },
   },
 });
 
 export const {
   addTrack,
   addTrackMetadata,
+  changeCurrentTrack,
+  changeCurrentTrackObjectURL,
+  changeSelectedTrackId,
   clearTracklist,
   removeTrack,
   toggleQueueTrack,

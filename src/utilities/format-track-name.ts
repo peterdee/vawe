@@ -4,5 +4,5 @@ export default function formatTrackName(name: string): string {
     return name;
   }
   partials.pop();
-  return partials.join('');
+  return partials.join('.');
 }

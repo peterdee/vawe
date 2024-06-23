@@ -5,7 +5,14 @@ import React, {
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { addTrack, addTrackMetadata, removeTrack, toggleQueueTrack } from '@/store/features/tracklist';
+import {
+  addTrack,
+  addTrackMetadata,
+  changeCurrentTrack,
+  changeCurrentTrackObjectURL,
+  removeTrack,
+  toggleQueueTrack,
+} from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
 import { changeIsPlaying } from '@/store/features/playbackSettings';
 import formatTrackName from '@/utilities/format-track-name';
@@ -20,13 +27,19 @@ import './styles.css';
 const extendedWindow = window as types.ExtendedWindow;
 
 function Player(): React.JSX.Element {
-  const [currentTrack, setCurrentTrack] = useState<types.CurrentTrack | null>(null);
-  const [objectURL, setObjectURL] = useState<string>('');
-  const [selectedTrackId, setSelectedTrackId] = useState<string>('');
   const [wavesurfer, setWavesurfer] = useState<types.WaveSurferInstance>(null);
 
   const dispatch = useDispatch<AppDispatch>();
 
+  const currentTrack = useSelector<RootState, types.ParsedFile | null>(
+    (state) => state.tracklist.currentTrack,
+  );
+  const currentTrackObjectURL = useSelector<RootState, string>(
+    (state) => state.tracklist.currentTrackObjectURL,
+  );
+  const selectedTrackId = useSelector<RootState, string>(
+    (state) => state.tracklist.selectedTrackId,
+  );
   const isLooped = useSelector<RootState, boolean>(
     (state) => state.playlistSettings.isLooped,
   );
@@ -61,37 +74,22 @@ function Player(): React.JSX.Element {
           if (buffer === null) {
             return null;
           }
-          const newObjectURL = URL.createObjectURL(new Blob([buffer]));
-          setObjectURL((objectURLState: string): string => {
-            if (objectURLState) {
-              URL.revokeObjectURL(objectURLState);
-            }
-            return newObjectURL;
-          });
-          const [track] = tracks.filter(
-            (file: types.ParsedFile): boolean => file.id === id,
-          );
-          console.log('set track', track, tracks);
-          setCurrentTrack(track);
+          const objectURL = URL.createObjectURL(new Blob([buffer]));
+          dispatch(changeCurrentTrackObjectURL(objectURL));
+          dispatch(changeCurrentTrack(id));
         },
       );
 
-      extendedWindow.backend.onAddFile((value: types.ParsedFile) => {
-        dispatch(addTrack(value));
-      });
+      extendedWindow.backend.onAddFile(
+        (_, value: types.ParsedFile) => dispatch(addTrack(value)),
+      );
 
       extendedWindow.backend.onReceiveMetadata(({ id, metadata }) => {
         // TODO: handle error (if metadata is null)
         dispatch(addTrackMetadata({ id, metadata }));
       });
-
-      // TODO: unsubscribe from events on re-render in preload
-
-      return () => {
-        // ...
-      };
     },
-    [tracks],
+    [],
   );
 
   const handleChangeTrack = useCallback(
@@ -123,9 +121,21 @@ function Player(): React.JSX.Element {
             break;
           }
         }
-        let nextIndex = changeTo === 'next'
-          ? currentTrackIndex + 1
-          : currentTrackIndex - 1;
+        
+        if (changeTo === 'current' && currentTrack && !wavesurfer) {
+          return extendedWindow.backend.loadFileRequest({
+            id: currentTrack.id,
+            path: currentTrack.path,
+          });
+        }
+
+        let nextIndex = 0;
+        if (changeTo === 'next') {
+          nextIndex = currentTrackIndex + 1;
+        }
+        if (changeTo === 'previous') {
+          nextIndex = currentTrackIndex - 1;
+        }
         if (nextIndex < 0) {
           nextIndex = tracks.length - 1;
         }
@@ -147,46 +157,25 @@ function Player(): React.JSX.Element {
     ],
   );
 
-  const handlePlaylistEntryClick = (id: string) => setSelectedTrackId(id);
-
-  const handlePlaylistEntryDoubleClick = (id: string) => {
-    (window as types.ExtendedWindow).backend.loadFileRequest({
-      id,
-      path: tracks.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
-    });
-  };
-
-  const handlePlaylistEntryContextMenu = (id: string) => {
-    const [track] = tracks.filter((item: types.ParsedFile): boolean => item.id === id);
-    if (track.metadata) {
-      return console.log('metadata already loaded:', track.metadata);
-    }
-    return (window as types.ExtendedWindow).backend.requestMetadata({
-      id,
-      path: track.path,
-    });
-  };
-
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
+      // backspace: delete track
       if (event.key.toLowerCase() === 'backspace' && selectedTrackId) {
-        console.log('del', currentTrack, selectedTrackId);
         dispatch(removeTrack(selectedTrackId));
         if (selectedTrackId === currentTrack?.id) {
-          console.log('hit');
           dispatch(changeIsPlaying(false));
-          URL.revokeObjectURL(objectURL);
+          wavesurfer?.stop();
           wavesurfer?.destroy();
           return handleChangeTrack('next');
         }
       }
+      // q: add track to queue 
       if (event.key.toLowerCase() === 'q' && selectedTrackId) {
         dispatch(toggleQueueTrack(selectedTrackId));
       }
     },
     [
       currentTrack,
-      objectURL,
       selectedTrackId,
       wavesurfer,
     ],
@@ -237,7 +226,7 @@ function Player(): React.JSX.Element {
         { currentTrack && formatTrackName(currentTrack.name) || 'VAWE' }
       </div>
       <WavesurferPlayer
-        objectURL={objectURL}
+        objectURL={currentTrackObjectURL}
         onFinish={wavesurferOnFinish}
         onReady={wavesurferOnReady}
       />
@@ -251,13 +240,7 @@ function Player(): React.JSX.Element {
       <div className="f j-end mh-1">
         <PlaylistSettings />
       </div>
-      <Playlist
-        currentTrackId={currentTrack ? currentTrack.id : ''}
-        handlePlaylistEntryClick={handlePlaylistEntryClick}
-        handlePlaylistEntryDoubleClick={handlePlaylistEntryDoubleClick}
-        handlePlaylistEntryContextMenu={handlePlaylistEntryContextMenu}
-        selectedTrackId={selectedTrackId}
-      />
+      <Playlist />
     </div>
   )
 }

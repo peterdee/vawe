@@ -2,8 +2,8 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
-import * as types from 'types';
 import { changeIsPlaying } from '@/store/features/playbackSettings';
+import * as types from 'types';
 
 interface PlaybackControlsProps {
   handleChangeTrack: (changeTo: types.ChangeTrackTo) => void;
@@ -30,6 +30,8 @@ function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
         await wavesurfer.play();
       }
       dispatch(changeIsPlaying(!isPlaying));
+    } else {
+      handleChangeTrack('next');
     }
   };
 
