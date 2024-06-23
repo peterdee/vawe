@@ -1,3 +1,5 @@
+export const DEFAULT_PLAYLIST_NAME = 'vawe-default.va';
+
 export const FORMATS = ['.flac', '.mp3', '.wav'];
 
 export const IPC_EVENTS = {
@@ -7,4 +9,6 @@ export const IPC_EVENTS = {
   handleReceiveMetadata: 'handle:receiveMetadata',
   loadFileRequest: 'loadFileRequest',
   loadFileResponse: 'loadFileResponse',
+  loadDefaultPlaylistRequest: 'loadDefaultPlaylistRequest',
+  loadDefaultPlaylistResponse: 'loadDefaultPlaylistResponse',
 };

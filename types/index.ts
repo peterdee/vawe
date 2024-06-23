@@ -19,6 +19,11 @@ type BaseWindow = Window & typeof globalThis;
 export type ExtendedWindow = BaseWindow & {
   backend: {
     handleDrop: (files: string[]) => void;
+    loadDefaultPlaylistRequest: () => void;
+    loadDefaultPlaylistResponse: (callback: (
+      event: IpcRendererEvent,
+      payload: LoadDefaultPlaylistResponsePayload,
+    ) => void) => void;
     loadFileRequest: (payload: LoadFileRequestPayload) => void;
     loadFileResponse: (callback: (payload: LoadFileResponsePayload) => void) => void;
     onAddFile: (callback: (event: IpcRendererEvent, entry: ParsedFile) => void) => void;
@@ -37,6 +42,10 @@ export interface LoadFileRequestPayload {
 export interface LoadFileResponsePayload {
   buffer: Buffer | null;
   id: string;
+}
+
+export interface LoadDefaultPlaylistResponsePayload {
+  playlist: string;
 }
 
 export interface Metadata {

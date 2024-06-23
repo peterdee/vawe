@@ -11,6 +11,7 @@ import os from 'node:os';
 
 import getMetadata from './handlers/get-metadata';
 import { IPC_EVENTS } from '../constants';
+import loadDefaultPlaylist from './handlers/load-default-playlist';
 import loadFile from './handlers/load-file';
 import parseFiles from './handlers/parse-files';
 import * as types from 'types';
@@ -95,7 +96,12 @@ app.whenReady().then(() => {
       win as BrowserWindow,
     ),
   );
-  // get audio file metadata
+  // get default playlist
+  ipcMain.handle(
+    IPC_EVENTS.loadDefaultPlaylistRequest,
+    () => loadDefaultPlaylist(win as BrowserWindow),
+  );
+  // get audio file
   ipcMain.handle(
     IPC_EVENTS.loadFileRequest,
     (_, payload: types.LoadFileRequestPayload) => loadFile(

@@ -15,6 +15,19 @@ contextBridge.exposeInMainWorld(
     handleDrop(filePaths: string[]): Promise<any> {
       return ipcRenderer.invoke(IPC_EVENTS.handleDrop, filePaths);
     },
+    // request default playlist loading
+    loadDefaultPlaylistRequest(): Promise<any> {
+      return ipcRenderer.invoke(IPC_EVENTS.loadDefaultPlaylistRequest);
+    },
+    // pass default playlist to renderer
+    loadDefaultPlaylistResponse(
+      callback: (
+        event: IpcRendererEvent,
+        payload: types.LoadDefaultPlaylistResponsePayload,
+      ) => void,
+    ) {
+      ipcRenderer.on(IPC_EVENTS.loadFileResponse, callback);
+    },
     // request file data as Blob
     loadFileRequest(payload: types.LoadFileRequestPayload): Promise<any> {
       return ipcRenderer.invoke(IPC_EVENTS.loadFileRequest, payload);
