@@ -84,7 +84,7 @@ function Playlist(): React.JSX.Element {
                 : ''
               }`
             }
-            key={item.path}
+            key={item.id}
             onClick={() => dispatch(changeSelectedTrackId(item.id))}
             onContextMenu={() => handleContextMenu(item.id)}
             onDoubleClick={() => handleDoubleClick(item.id)}

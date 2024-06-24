@@ -111,10 +111,7 @@ app.whenReady().then(() => {
   // update default playlist
   ipcMain.handle(
     IPC_EVENTS.updateDefaultPlaylistRequest,
-    (_, tracklist: types.ParsedFile[]) => updateDefaultPlaylist(
-      tracklist,
-      win as BrowserWindow,
-    ),
+    (_, tracklist: types.ParsedFile[]) => updateDefaultPlaylist(tracklist),
   );
 
   createWindow();

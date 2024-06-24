@@ -1,30 +1,15 @@
-import type { BrowserWindow } from 'electron';
-import { readFile } from 'node:fs/promises';
+import { encode } from 'strencojs';
+import { writeFile } from 'node:fs/promises';
 
-import {
-  DEFAULT_PLAYLIST_NAME,
-  IPC_EVENTS,
-} from '../../constants';
+import { DEFAULT_PLAYLIST_NAME } from '../../constants';
 import * as types from 'types';
 
-export default async function updateDefaultPlaylist(
-  tracklist: types.ParsedFile[],
-  browserWindow: BrowserWindow,
-) {
-  const tracklistString = JSON.stringify({ value: tracklist });
-
-  try {
-    await writeFile(defaultPlaylistPath, { encoding: 'utf8' });
-    return browserWindow.webContents.send(
-      IPC_EVENTS.loadDefaultPlaylistResponse,
-      { playlist },
-    );
-  } catch {
-    return browserWindow.webContents.send(
-      IPC_EVENTS.loadDefaultPlaylistResponse,
-      {
-        playlist: '',
-      },
-    );
-  }
+export default function updateDefaultPlaylist(tracklist: types.ParsedFile[]): Promise<void> {
+  return writeFile(
+    `${process.cwd()}/${DEFAULT_PLAYLIST_NAME}`,
+    encode(JSON.stringify({ value: tracklist })),
+    {
+      flush: true,
+    }
+  );
 }

@@ -54,8 +54,9 @@ contextBridge.exposeInMainWorld(
     requestMetadata(path: string): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, path);
     },
-    // request default update
+    // request default playlist update
     updateDefaultPlaylistRequest(tracklist: types.ParsedFile[]): Promise<void> {
+      console.log('update playlist -> preload');
       return ipcRenderer.invoke(
         IPC_EVENTS.updateDefaultPlaylistRequest,
         tracklist,

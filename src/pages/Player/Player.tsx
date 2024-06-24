@@ -67,9 +67,15 @@ function Player(): React.JSX.Element {
     [currentTrack],
   );
 
+  extendedWindow.backend.updateDefaultPlaylistRequest(tracks);
+
   useEffect(
     () => {
       extendedWindow.backend.loadDefaultPlaylistRequest();
+
+      extendedWindow.backend.loadDefaultPlaylistResponse(
+        (_, payload) => console.log(payload),
+      );
 
       extendedWindow.backend.loadFileResponse(
         ({ buffer, id }: types.LoadFileResponsePayload): null | void => {
@@ -84,11 +90,6 @@ function Player(): React.JSX.Element {
 
       extendedWindow.backend.onAddFile(
         (_, value: types.ParsedFile) => dispatch(addTrack(value)),
-      );
-
-      // load default playlist
-      extendedWindow.backend.loadDefaultPlaylistResponse(
-        (_, payload) => console.log(payload),
       );
 
       extendedWindow.backend.onReceiveMetadata(({ id, metadata }) => {
