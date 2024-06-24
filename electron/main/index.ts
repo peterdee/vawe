@@ -4,10 +4,9 @@ import {
   ipcMain,
   shell,
 } from 'electron';
-import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import os from 'node:os';
+import path from 'node:path';
 
 import getMetadata from './handlers/get-metadata';
 import { IPC_EVENTS } from '../constants';
@@ -16,8 +15,8 @@ import loadFile from './handlers/load-file';
 import parseFiles from './handlers/parse-files';
 import * as types from 'types';
 import { update } from './update'
+import updateDefaultPlaylist from './handlers/update-default-playlist';
 
-const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 process.env.APP_ROOT = path.join(__dirname, '../..')
@@ -106,6 +105,14 @@ app.whenReady().then(() => {
     IPC_EVENTS.loadFileRequest,
     (_, payload: types.LoadFileRequestPayload) => loadFile(
       payload,
+      win as BrowserWindow,
+    ),
+  );
+  // update default playlist
+  ipcMain.handle(
+    IPC_EVENTS.updateDefaultPlaylistRequest,
+    (_, tracklist: types.ParsedFile[]) => updateDefaultPlaylist(
+      tracklist,
       win as BrowserWindow,
     ),
   );

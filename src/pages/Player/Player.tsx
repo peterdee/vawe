@@ -69,6 +69,8 @@ function Player(): React.JSX.Element {
 
   useEffect(
     () => {
+      extendedWindow.backend.loadDefaultPlaylistRequest();
+
       extendedWindow.backend.loadFileResponse(
         ({ buffer, id }: types.LoadFileResponsePayload): null | void => {
           if (buffer === null) {
@@ -82,6 +84,11 @@ function Player(): React.JSX.Element {
 
       extendedWindow.backend.onAddFile(
         (_, value: types.ParsedFile) => dispatch(addTrack(value)),
+      );
+
+      // load default playlist
+      extendedWindow.backend.loadDefaultPlaylistResponse(
+        (_, payload) => console.log(payload),
       );
 
       extendedWindow.backend.onReceiveMetadata(({ id, metadata }) => {

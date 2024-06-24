@@ -12,11 +12,11 @@ contextBridge.exposeInMainWorld(
   'backend',
   {
     // handle file drop: parse dropped items
-    handleDrop(filePaths: string[]): Promise<any> {
+    handleDrop(filePaths: string[]): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.handleDrop, filePaths);
     },
     // request default playlist loading
-    loadDefaultPlaylistRequest(): Promise<any> {
+    loadDefaultPlaylistRequest(): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.loadDefaultPlaylistRequest);
     },
     // pass default playlist to renderer
@@ -26,10 +26,10 @@ contextBridge.exposeInMainWorld(
         payload: types.LoadDefaultPlaylistResponsePayload,
       ) => void,
     ) {
-      ipcRenderer.on(IPC_EVENTS.loadFileResponse, callback);
+      ipcRenderer.on(IPC_EVENTS.loadDefaultPlaylistResponse, callback);
     },
     // request file data as Blob
-    loadFileRequest(payload: types.LoadFileRequestPayload): Promise<any> {
+    loadFileRequest(payload: types.LoadFileRequestPayload): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.loadFileRequest, payload);
     },
     // pass requested file data to renderer
@@ -51,8 +51,15 @@ contextBridge.exposeInMainWorld(
       );
     },
     // request audio file metadata
-    requestMetadata(path: string): Promise<any> {
+    requestMetadata(path: string): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, path);
+    },
+    // request default update
+    updateDefaultPlaylistRequest(tracklist: types.ParsedFile[]): Promise<void> {
+      return ipcRenderer.invoke(
+        IPC_EVENTS.updateDefaultPlaylistRequest,
+        tracklist,
+      );
     },
   },
 );

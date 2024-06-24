@@ -29,3 +29,6 @@ release
 
 # FFPROBE binaries
 bin/
+
+# Files
+*.va
