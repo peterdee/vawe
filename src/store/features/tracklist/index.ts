@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
+import shuffleArray from '@/utilities/shuffle-array';
 import * as types from 'types';
 
 export interface TracklistState {
@@ -59,7 +60,11 @@ export const tracklistSlice = createSlice({
       if (state.currentTrackObjectURL) {
         URL.revokeObjectURL(state.currentTrackObjectURL);
       }
-      state = initialState;
+      state.currentTrack = initialState.currentTrack;
+      state.currentTrackObjectURL = '';
+      state.queue = [];
+      state.selectedTrackId = '';
+      state.tracks = [];
     },
     removeTrack: (state, action: PayloadAction<string>) => {
       if (state.currentTrack && state.currentTrack.id === action.payload) {
@@ -76,6 +81,17 @@ export const tracklistSlice = createSlice({
       state.tracks = state.tracks.filter(
         (track: types.ParsedFile): boolean => track.id !== action.payload,
       );
+    },
+    shuffleTracklist: (state) => {
+      const trackIds = state.tracks.map((track: types.ParsedFile): string => track.id);
+      const shuffledIds = shuffleArray(trackIds);
+      const shuffledTracks = new Array(shuffledIds.length);
+      shuffledIds.forEach((id: string) => {
+        shuffledTracks.push(
+          state.tracks.filter((track: types.ParsedFile): boolean => track.id === id)[0],
+        );
+      });
+      state.tracks = shuffledTracks;
     },
     toggleQueueTrack: (state, action: PayloadAction<string>) => {
       if (!state.queue) {
@@ -101,6 +117,7 @@ export const {
   changeSelectedTrackId,
   clearTracklist,
   removeTrack,
+  shuffleTracklist,
   toggleQueueTrack,
 } = tracklistSlice.actions;
 

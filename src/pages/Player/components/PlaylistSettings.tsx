@@ -3,6 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
 import { changeLoop, changeShuffle } from '@/store/features/playlistSettings';
+import {
+  clearTracklist,
+  shuffleTracklist,
+} from '@/store/features/tracklist';
 
 function PlaylistSettings(): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,6 +22,20 @@ function PlaylistSettings(): React.JSX.Element {
     <div className="f">
       <button
         className="button"
+        onClick={() => dispatch(clearTracklist())}
+        type="button"
+      >
+        Clear playlist
+      </button>
+      <button
+        className="button ml-1"
+        onClick={() => dispatch(shuffleTracklist())}
+        type="button"
+      >
+        Shuffle playlist
+      </button>
+      <button
+        className="button ml-1"
         onClick={() => dispatch(changeLoop(!isLooped))}
         type="button"
       >

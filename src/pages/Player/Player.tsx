@@ -10,6 +10,7 @@ import {
   addTrackMetadata,
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
+  clearTracklist,
   removeTrack,
   toggleQueueTrack,
 } from '@/store/features/tracklist';
@@ -71,6 +72,7 @@ function Player(): React.JSX.Element {
 
   useEffect(
     () => {
+      dispatch(clearTracklist());
       extendedWindow.backend.loadDefaultPlaylistRequest();
 
       extendedWindow.backend.loadDefaultPlaylistResponse(
