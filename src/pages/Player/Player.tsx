@@ -36,9 +36,6 @@ function Player(): React.JSX.Element {
   const currentTrack = useSelector<RootState, types.ParsedFile | null>(
     (state) => state.tracklist.currentTrack,
   );
-  const currentTrackObjectURL = useSelector<RootState, string>(
-    (state) => state.tracklist.currentTrackObjectURL,
-  );
   const isLooped = useSelector<RootState, boolean>(
     (state) => state.playlistSettings.isLooped,
   );
@@ -72,7 +69,12 @@ function Player(): React.JSX.Element {
     [currentTrack],
   );
 
-  extendedWindow.backend.updateDefaultPlaylistRequest(tracks);
+  useEffect(
+    () => {
+      extendedWindow.backend.updateDefaultPlaylistRequest(tracks);
+    },
+    [tracks],
+  );
 
   useEffect(
     () => {
@@ -183,8 +185,19 @@ function Player(): React.JSX.Element {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      // arrows
-      if ((event.key.toLowerCase() === 'arrowdown' || event.key.toLowerCase() === 'arrowup')
+      // arrows (horizontal)
+      if ((event.key.toLowerCase() === 'arrowleft'
+        || event.key.toLowerCase() === 'arrowright')
+        && wavesurfer) {
+        wavesurfer.setTime(
+          event.key.toLowerCase() === 'arrowleft'
+            ? wavesurfer.getCurrentTime() - 5
+            : wavesurfer.getCurrentTime() + 5,
+        );
+      }
+      // arrows (vertical)
+      if ((event.key.toLowerCase() === 'arrowdown'
+        || event.key.toLowerCase() === 'arrowup')
         && tracks.length > 0) {
         dispatch(changeSelectedTrackIdWithKeys(event.key.toLowerCase()));
       }
@@ -260,6 +273,8 @@ function Player(): React.JSX.Element {
       dispatch(changeIsPlaying(true));
       wavesurferInstance.setVolume(isMuted ? 0 : volume);
       setWavesurfer(wavesurferInstance);
+      // TODO: store peaks for currently loaded tracks to load tracks faster
+      // const peaks = wavesurferInstance.exportPeaks();
       return wavesurferInstance.play();
     }
   };
@@ -270,7 +285,6 @@ function Player(): React.JSX.Element {
         { currentTrack && formatTrackName(currentTrack.name) || 'VAWE' }
       </div>
       <WavesurferPlayer
-        objectURL={currentTrackObjectURL}
         onFinish={wavesurferOnFinish}
         onReady={wavesurferOnReady}
       />

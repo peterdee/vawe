@@ -17,7 +17,7 @@
 .playlist-entry-wrap:hover {
   background-color: rgb(181, 255, 181);
 }
-.playlist-entry-wrap:focus, .playlist-entry-selected {
+.playlist-entry-selected {
   border: calc(var(--spacer-quarter) / 2) solid rgb(181, 255, 181);
   border-radius: calc(var(--spacer-quarter) / 2);
 }

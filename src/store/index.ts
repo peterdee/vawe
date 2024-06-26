@@ -18,6 +18,7 @@ import playlistSettings from './features/playlistSettings';
 import tracklist from './features/tracklist';
 import volumeSettings from './features/volumeSettings';
 
+// TODO: fix tracklist reducer: should not be persistent
 const rootReducer = combineReducers({
   playbackSettings,
   playlistSettings,

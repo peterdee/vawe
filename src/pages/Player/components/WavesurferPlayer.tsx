@@ -1,20 +1,24 @@
 import React from 'react';
 import Player from '@wavesurfer/react';
+import { useSelector } from 'react-redux';
 
+import type { RootState } from '@/store';
 import * as types from 'types';
 
 interface WavesurferPlayerProps {
-  objectURL: string;
   onFinish: (instance: types.WaveSurferInstance) => void;
   onReady: (instance: types.WaveSurferInstance) => void;
 }
 
 function WavesurferPlayer(props: WavesurferPlayerProps): React.JSX.Element {
   const {
-    objectURL = '',
     onFinish,
     onReady,
   } = props;
+
+  const currentTrackObjectURL = useSelector<RootState, string>(
+    (state) => state.tracklist.currentTrackObjectURL,
+  );
 
   return (
     <div className="m-1">
@@ -25,7 +29,7 @@ function WavesurferPlayer(props: WavesurferPlayerProps): React.JSX.Element {
         onReady={onReady}
         onFinish={onFinish}
         progressColor="darkgreen"
-        url={objectURL}
+        url={currentTrackObjectURL}
         waveColor="lightgreen"
       />
     </div>
