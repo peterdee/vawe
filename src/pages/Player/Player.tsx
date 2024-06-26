@@ -71,7 +71,16 @@ function Player(): React.JSX.Element {
 
   useEffect(
     () => {
-      extendedWindow.backend.updateDefaultPlaylistRequest(tracks);
+      const timer = setTimeout(
+        () => {
+          extendedWindow.backend.updateDefaultPlaylistRequest(tracks);
+        },
+        5000,
+      );
+
+      return () => {
+        clearTimeout(timer);
+      }
     },
     [tracks],
   );
