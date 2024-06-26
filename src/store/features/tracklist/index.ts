@@ -56,6 +56,32 @@ export const tracklistSlice = createSlice({
     changeSelectedTrackId: (state, action: PayloadAction<string>) => {
       state.selectedTrackId = action.payload;
     },
+    changeSelectedTrackIdWithKeys: (state, action: PayloadAction<string>) => {
+      const { selectedTrackId } = state;
+      if (!selectedTrackId) {
+        state.selectedTrackId = action.payload === 'arrowup'
+          ? state.tracks[state.tracks.length - 1].id
+          : state.selectedTrackId = state.tracks[0].id;
+      } else {
+        let nextTrackIndex = 0;
+        for (let i = 0; i < state.tracks.length; i += 1) {
+          if (state.tracks[i].id === selectedTrackId) {
+            nextTrackIndex = i;
+            break;
+          }
+        }
+        nextTrackIndex = action.payload === 'arrowup'
+          ? nextTrackIndex - 1
+          : nextTrackIndex + 1;
+        if (!state.tracks[nextTrackIndex] && action.payload === 'arrowdown') {
+          nextTrackIndex = 0;
+        }
+        if (nextTrackIndex < 0 && action.payload === 'arrowup') {
+          nextTrackIndex = state.tracks.length - 1;
+        }
+        state.selectedTrackId = state.tracks[nextTrackIndex].id;
+      }
+    },
     clearTracklist: (state) => {
       if (state.currentTrackObjectURL) {
         URL.revokeObjectURL(state.currentTrackObjectURL);
@@ -65,6 +91,9 @@ export const tracklistSlice = createSlice({
       state.queue = [];
       state.selectedTrackId = '';
       state.tracks = [];
+    },
+    removeIdFromQueue: (state, action: PayloadAction<string>) => {
+      state.queue = state.queue.filter((id: string): boolean => id !== action.payload);
     },
     removeTrack: (state, action: PayloadAction<string>) => {
       if (state.currentTrack && state.currentTrack.id === action.payload) {
@@ -83,15 +112,7 @@ export const tracklistSlice = createSlice({
       );
     },
     shuffleTracklist: (state) => {
-      const trackIds = state.tracks.map((track: types.ParsedFile): string => track.id);
-      const shuffledIds = shuffleArray(trackIds);
-      const shuffledTracks = new Array(shuffledIds.length);
-      shuffledIds.forEach((id: string) => {
-        shuffledTracks.push(
-          state.tracks.filter((track: types.ParsedFile): boolean => track.id === id)[0],
-        );
-      });
-      state.tracks = shuffledTracks;
+      state.tracks = shuffleArray(state.tracks);
     },
     toggleQueueTrack: (state, action: PayloadAction<string>) => {
       if (!state.queue) {
@@ -115,7 +136,9 @@ export const {
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
   changeSelectedTrackId,
+  changeSelectedTrackIdWithKeys,
   clearTracklist,
+  removeIdFromQueue,
   removeTrack,
   shuffleTracklist,
   toggleQueueTrack,

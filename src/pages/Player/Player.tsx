@@ -10,7 +10,8 @@ import {
   addTrackMetadata,
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
-  clearTracklist,
+  changeSelectedTrackIdWithKeys,
+  removeIdFromQueue,
   removeTrack,
   toggleQueueTrack,
 } from '@/store/features/tracklist';
@@ -38,9 +39,6 @@ function Player(): React.JSX.Element {
   const currentTrackObjectURL = useSelector<RootState, string>(
     (state) => state.tracklist.currentTrackObjectURL,
   );
-  const selectedTrackId = useSelector<RootState, string>(
-    (state) => state.tracklist.selectedTrackId,
-  );
   const isLooped = useSelector<RootState, boolean>(
     (state) => state.playlistSettings.isLooped,
   );
@@ -49,6 +47,12 @@ function Player(): React.JSX.Element {
   );
   const isPlaying = useSelector<RootState, boolean>(
     (state) => state.playbackSettings.isPlaying,
+  );
+  const selectedTrackId = useSelector<RootState, string>(
+    (state) => state.tracklist.selectedTrackId,
+  );
+  const queue = useSelector<RootState, string[]>(
+    (state) => state.tracklist.queue,
   );
   const tracks = useSelector<RootState, types.ParsedFile[]>(
     (state) => state.tracklist.tracks,
@@ -72,7 +76,6 @@ function Player(): React.JSX.Element {
 
   useEffect(
     () => {
-      dispatch(clearTracklist());
       extendedWindow.backend.loadDefaultPlaylistRequest();
 
       extendedWindow.backend.loadDefaultPlaylistResponse(
@@ -108,7 +111,17 @@ function Player(): React.JSX.Element {
         return null;
       }
 
-      // TODO: check queue
+      if (queue.length > 0) {
+        const [nextTrack] = tracks.filter(
+          (track: types.ParsedFile): boolean => track.id === queue[0],
+        );
+        extendedWindow.backend.loadFileRequest({
+          id: nextTrack.id,
+          path: nextTrack.path,
+        });
+        dispatch(removeIdFromQueue(nextTrack.id));
+        return null;
+      }
 
       if (!currentTrack) {
         const track = changeTo === 'previous'
@@ -162,6 +175,7 @@ function Player(): React.JSX.Element {
       currentTrack,
       isLooped,
       isPlaying,
+      queue,
       tracks,
       wavesurfer,
     ],
@@ -169,6 +183,11 @@ function Player(): React.JSX.Element {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
+      // arrows
+      if ((event.key.toLowerCase() === 'arrowdown' || event.key.toLowerCase() === 'arrowup')
+        && tracks.length > 0) {
+        dispatch(changeSelectedTrackIdWithKeys(event.key.toLowerCase()));
+      }
       // backspace: delete track
       if (event.key.toLowerCase() === 'backspace' && selectedTrackId) {
         dispatch(removeTrack(selectedTrackId));
@@ -176,8 +195,17 @@ function Player(): React.JSX.Element {
           dispatch(changeIsPlaying(false));
           wavesurfer?.stop();
           wavesurfer?.destroy();
-          return handleChangeTrack('next');
+          handleChangeTrack('next');
         }
+      }
+      // enter
+      if (event.key.toLowerCase() === 'enter' && selectedTrackId) {
+        extendedWindow.backend.loadFileRequest({
+          id: selectedTrackId,
+          path: tracks.filter(
+            (track: types.ParsedFile): boolean => track.id === selectedTrackId,
+          )[0].path,
+        })
       }
       // q: add track to queue 
       if (event.key.toLowerCase() === 'q' && selectedTrackId) {
@@ -187,6 +215,7 @@ function Player(): React.JSX.Element {
     [
       currentTrack,
       selectedTrackId,
+      tracks,
       wavesurfer,
     ],
   );
@@ -199,7 +228,12 @@ function Player(): React.JSX.Element {
         extendedWindow.removeEventListener('keydown', handleKeyDown);
       };
     },
-    [selectedTrackId],
+    [
+      currentTrack,
+      selectedTrackId,
+      tracks,
+      wavesurfer,
+    ],
   );
 
   const wavesurferOnFinish = useCallback(
