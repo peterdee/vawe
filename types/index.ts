@@ -46,7 +46,7 @@ export interface LoadFileResponsePayload {
 }
 
 export interface LoadDefaultPlaylistResponsePayload {
-  playlist: string;
+  playlist: ParsedFile[];
 }
 
 export interface Metadata {

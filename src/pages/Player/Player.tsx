@@ -11,6 +11,7 @@ import {
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
   changeSelectedTrackIdWithKeys,
+  loadDefaultPlaylist,
   removeIdFromQueue,
   removeTrack,
   toggleQueueTrack,
@@ -90,7 +91,9 @@ function Player(): React.JSX.Element {
       extendedWindow.backend.loadDefaultPlaylistRequest();
 
       extendedWindow.backend.loadDefaultPlaylistResponse(
-        (_, payload) => console.log(payload),
+        (_, payload) => {
+          dispatch(loadDefaultPlaylist(payload.playlist));
+        },
       );
 
       extendedWindow.backend.loadFileResponse(

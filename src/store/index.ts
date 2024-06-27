@@ -18,10 +18,21 @@ import playlistSettings from './features/playlistSettings';
 import tracklist from './features/tracklist';
 import volumeSettings from './features/volumeSettings';
 
-// TODO: fix tracklist reducer: should not be persistent
 const rootReducer = combineReducers({
-  playbackSettings,
-  playlistSettings,
+  playbackSettings: persistReducer(
+    {
+      key: 'playbackSettings',
+      storage,
+    },
+    playbackSettings,
+  ),
+  playlistSettings: persistReducer(
+    {
+      key: 'playlistSettings',
+      storage,
+    },
+    playlistSettings,
+  ),
   tracklist: persistReducer(
     {
       key: 'tracklist',
@@ -29,16 +40,14 @@ const rootReducer = combineReducers({
     },
     tracklist,
   ),
-  volumeSettings,
+  volumeSettings: persistReducer(
+    {
+      key: 'volumeSettings',
+      storage,
+    },
+    volumeSettings,
+  ),
 });
-
-const persistedReducer = persistReducer(
-  {
-    key: 'root',
-    storage,
-  },
-  rootReducer,
-);
 
 export const store = configureStore({
   devTools: ENABLE_REDUX_DEVTOOLS,
@@ -54,7 +63,7 @@ export const store = configureStore({
       ],
     },
   }),
-  reducer: persistedReducer,
+  reducer: rootReducer,
 });
 
 export const persistor = persistStore(store);
