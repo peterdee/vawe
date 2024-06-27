@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
 import { changeLoop, changeShuffle } from '@/store/features/playlistSettings';
-import {
-  clearTracklist,
-  shuffleTracklist,
-} from '@/store/features/tracklist';
+import { clearTracklist, shuffleTracklist } from '@/store/features/tracklist';
+import type { ExtendedWindow } from 'types';
+
+const extendedWindow = window as ExtendedWindow;
 
 function PlaylistSettings(): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,6 +33,13 @@ function PlaylistSettings(): React.JSX.Element {
         type="button"
       >
         Shuffle playlist
+      </button>
+      <button
+        className="button ml-1"
+        onClick={extendedWindow.backend.savePlaylistRequest}
+        type="button"
+      >
+        Save playlist
       </button>
       <button
         className="button ml-1"

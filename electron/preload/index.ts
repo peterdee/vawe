@@ -54,6 +54,18 @@ contextBridge.exposeInMainWorld(
     requestMetadata(path: string): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, path);
     },
+    // save playlist via dialog window
+    savePlaylistRequest(): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.savePlaylistRequest);
+    },
+    savePlaylistResponse(
+      callback: (
+        event: IpcRendererEvent,
+        payload: boolean,
+      ) => void,
+    ) {
+      ipcRenderer.on(IPC_EVENTS.savePlaylistResponse, callback);
+    },
     // request default playlist update
     updateDefaultPlaylistRequest(tracklist: types.ParsedFile[]): Promise<void> {
       console.log('update playlist -> preload');

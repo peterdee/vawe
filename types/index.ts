@@ -31,6 +31,11 @@ export type ExtendedWindow = BaseWindow & {
       callback: ({ id, metadata }: { id: string, metadata: Metadata | null }) => void,
     ) => void;
     requestMetadata: (payload: RequestMetadataPayload) => void;
+    savePlaylistRequest: () => void;
+    savePlaylistResponse: (callback: (
+      event: IpcRendererEvent,
+      payload: boolean,
+    ) => void) => void;
     updateDefaultPlaylistRequest: (payload: ParsedFile[]) => void;
   },
 }
