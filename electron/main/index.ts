@@ -13,6 +13,7 @@ import { IPC_EVENTS } from '../constants';
 import loadDefaultPlaylist from './handlers/load-default-playlist';
 import loadFile from './handlers/load-file';
 import parseFiles from './handlers/parse-files';
+import savePlaylist from './handlers/save-playlist';
 import * as types from 'types';
 import { update } from './update'
 import updateDefaultPlaylist from './handlers/update-default-playlist';
@@ -85,7 +86,7 @@ app.whenReady().then(() => {
   // parse dropped files
   ipcMain.handle(
     IPC_EVENTS.handleDrop,
-    (_, fileList: string[]) => parseFiles(fileList, win as BrowserWindow),
+    (_, payload: string[]) => parseFiles(payload, win as BrowserWindow),
   );
   // get audio file metadata
   ipcMain.handle(
@@ -108,10 +109,15 @@ app.whenReady().then(() => {
       win as BrowserWindow,
     ),
   );
+  // save playlist
+  ipcMain.handle(
+    IPC_EVENTS.savePlaylistRequest,
+    (_, payload: types.ParsedFile[]) => savePlaylist(payload, win as BrowserWindow),
+  );
   // update default playlist
   ipcMain.handle(
     IPC_EVENTS.updateDefaultPlaylistRequest,
-    (_, tracklist: types.ParsedFile[]) => updateDefaultPlaylist(tracklist),
+    (_, payload: types.ParsedFile[]) => updateDefaultPlaylist(payload),
   );
 
   createWindow();

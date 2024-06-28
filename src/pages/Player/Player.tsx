@@ -115,6 +115,12 @@ function Player(): React.JSX.Element {
         // TODO: handle error (if metadata is null)
         dispatch(addTrackMetadata({ id, metadata }));
       });
+
+      extendedWindow.backend.savePlaylistResponse(
+        (_, payload) => {
+          console.log('playlist save response', payload);
+        },
+      );
     },
     [],
   );

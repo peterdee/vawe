@@ -12,8 +12,8 @@ contextBridge.exposeInMainWorld(
   'backend',
   {
     // handle file drop: parse dropped items
-    handleDrop(filePaths: string[]): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.handleDrop, filePaths);
+    handleDrop(payload: string[]): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.handleDrop, payload);
     },
     // request default playlist loading
     loadDefaultPlaylistRequest(): Promise<void> {
@@ -51,17 +51,17 @@ contextBridge.exposeInMainWorld(
       );
     },
     // request audio file metadata
-    requestMetadata(path: string): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, path);
+    requestMetadata(payload: string): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, payload);
     },
     // save playlist via dialog window
-    savePlaylistRequest(): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.savePlaylistRequest);
+    savePlaylistRequest(payload: types.ParsedFile[]): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.savePlaylistRequest, payload);
     },
     savePlaylistResponse(
       callback: (
         event: IpcRendererEvent,
-        payload: boolean,
+        payload: types.SavePlaylistResponsePayload,
       ) => void,
     ) {
       ipcRenderer.on(IPC_EVENTS.savePlaylistResponse, callback);

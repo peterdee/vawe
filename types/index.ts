@@ -31,10 +31,10 @@ export type ExtendedWindow = BaseWindow & {
       callback: ({ id, metadata }: { id: string, metadata: Metadata | null }) => void,
     ) => void;
     requestMetadata: (payload: RequestMetadataPayload) => void;
-    savePlaylistRequest: () => void;
+    savePlaylistRequest: (payload: ParsedFile[]) => void;
     savePlaylistResponse: (callback: (
       event: IpcRendererEvent,
-      payload: boolean,
+      payload: SavePlaylistResponsePayload,
     ) => void) => void;
     updateDefaultPlaylistRequest: (payload: ParsedFile[]) => void;
   },
@@ -75,3 +75,5 @@ export interface RequestMetadataPayload {
   id: string;
   path: string;
 }
+
+export type SavePlaylistResponsePayload = 'cancelled' | 'internalError' | 'ok';

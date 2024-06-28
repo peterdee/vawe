@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import { changeLoop, changeShuffle } from '@/store/features/playlistSettings';
 import { clearTracklist, shuffleTracklist } from '@/store/features/tracklist';
-import type { ExtendedWindow } from 'types';
+import * as types from 'types';
 
-const extendedWindow = window as ExtendedWindow;
+const extendedWindow = window as types.ExtendedWindow;
 
 function PlaylistSettings(): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,6 +17,13 @@ function PlaylistSettings(): React.JSX.Element {
   const isShuffled = useSelector<RootState, boolean>(
     (state) => state.playlistSettings.isShuffled,
   );
+  const tracks = useSelector<RootState, types.ParsedFile[]>(
+    (state) => state.tracklist.tracks,
+  );
+
+  const handleSavePlaylist = () => {
+    extendedWindow.backend.savePlaylistRequest(tracks);
+  };
 
   return (
     <div className="f">
@@ -36,7 +43,7 @@ function PlaylistSettings(): React.JSX.Element {
       </button>
       <button
         className="button ml-1"
-        onClick={extendedWindow.backend.savePlaylistRequest}
+        onClick={handleSavePlaylist}
         type="button"
       >
         Save playlist
