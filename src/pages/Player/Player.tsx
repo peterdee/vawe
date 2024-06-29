@@ -11,7 +11,7 @@ import {
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
   changeSelectedTrackIdWithKeys,
-  loadDefaultPlaylist,
+  loadPlaylist,
   removeIdFromQueue,
   removeTrack,
   toggleQueueTrack,
@@ -92,7 +92,7 @@ function Player(): React.JSX.Element {
 
       extendedWindow.backend.loadDefaultPlaylistResponse(
         (_, payload) => {
-          dispatch(loadDefaultPlaylist(payload.playlist));
+          dispatch(loadPlaylist(payload.playlist));
         },
       );
 
@@ -115,6 +115,14 @@ function Player(): React.JSX.Element {
         // TODO: handle error (if metadata is null)
         dispatch(addTrackMetadata({ id, metadata }));
       });
+
+      extendedWindow.backend.openPlaylistResponse(
+        (_, payload) => {
+          if (!payload.errorMessage && payload.playlist) {
+            dispatch(loadPlaylist(payload.playlist));
+          }
+        },
+      );
 
       extendedWindow.backend.savePlaylistResponse(
         (_, payload) => {

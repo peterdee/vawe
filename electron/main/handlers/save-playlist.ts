@@ -9,19 +9,20 @@ export default async function savePlaylist(
   payload: types.ParsedFile[],
   browserWindow: BrowserWindow,
 ): Promise<void> {
-  const encodedPlaylist = encode(JSON.stringify({ value: payload }));
-
   try {
-    const dialogResult = await dialog.showSaveDialog({
-      title: 'Save VAWE playlist',
-      buttonLabel: 'Save playlist',
-      filters: [{ name: '', extensions: ['va'] }],
-      properties: [
-        'createDirectory',
-        'dontAddToRecent',
-        'showOverwriteConfirmation',
-      ],
-    });
+    const dialogResult = await dialog.showSaveDialog(
+      browserWindow,
+      {
+        title: 'Save VAWE playlist',
+        buttonLabel: 'Save playlist',
+        filters: [{ name: '', extensions: ['va'] }],
+        properties: [
+          'createDirectory',
+          'dontAddToRecent',
+          'showOverwriteConfirmation',
+        ],
+      },
+    );
 
     if (dialogResult.canceled) {
       return browserWindow.webContents.send(
@@ -38,7 +39,7 @@ export default async function savePlaylist(
 
     await writeFile(
       dialogResult.filePath,
-      encodedPlaylist,
+      encode(JSON.stringify({ value: payload })),
       {
         flush: true,
       }

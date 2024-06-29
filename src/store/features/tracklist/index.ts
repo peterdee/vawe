@@ -92,7 +92,7 @@ export const tracklistSlice = createSlice({
       state.selectedTrackId = '';
       state.tracks = [];
     },
-    loadDefaultPlaylist: (state, action: PayloadAction<types.ParsedFile[]>) => {
+    loadPlaylist: (state, action: PayloadAction<types.ParsedFile[]>) => {
       state.tracks = action.payload;
     },
     removeIdFromQueue: (state, action: PayloadAction<string>) => {
@@ -141,7 +141,7 @@ export const {
   changeSelectedTrackId,
   changeSelectedTrackIdWithKeys,
   clearTracklist,
-  loadDefaultPlaylist,
+  loadPlaylist,
   removeIdFromQueue,
   removeTrack,
   shuffleTracklist,

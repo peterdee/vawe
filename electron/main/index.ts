@@ -12,6 +12,7 @@ import getMetadata from './handlers/get-metadata';
 import { IPC_EVENTS } from '../constants';
 import loadDefaultPlaylist from './handlers/load-default-playlist';
 import loadFile from './handlers/load-file';
+import openPlaylist from './handlers/open-playlist';
 import parseFiles from './handlers/parse-files';
 import savePlaylist from './handlers/save-playlist';
 import * as types from 'types';
@@ -109,6 +110,8 @@ app.whenReady().then(() => {
       win as BrowserWindow,
     ),
   );
+  // open playlist
+  ipcMain.handle(IPC_EVENTS.openPlaylistRequest, () => openPlaylist(win as BrowserWindow));
   // save playlist
   ipcMain.handle(
     IPC_EVENTS.savePlaylistRequest,

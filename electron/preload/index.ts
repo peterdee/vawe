@@ -50,6 +50,18 @@ contextBridge.exposeInMainWorld(
         (_, value: types.Metadata) => callback(value),
       );
     },
+    // save playlist via dialog window
+    openPlaylistRequest(): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.openPlaylistRequest);
+    },
+    openPlaylistResponse(
+      callback: (
+        event: IpcRendererEvent,
+        payload: types.OpenPlaylistResponsePayload,
+      ) => void,
+    ) {
+      ipcRenderer.on(IPC_EVENTS.openPlaylistResponse, callback);
+    },
     // request audio file metadata
     requestMetadata(payload: string): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, payload);
@@ -66,13 +78,9 @@ contextBridge.exposeInMainWorld(
     ) {
       ipcRenderer.on(IPC_EVENTS.savePlaylistResponse, callback);
     },
-    // request default playlist update
-    updateDefaultPlaylistRequest(tracklist: types.ParsedFile[]): Promise<void> {
-      console.log('update playlist -> preload');
-      return ipcRenderer.invoke(
-        IPC_EVENTS.updateDefaultPlaylistRequest,
-        tracklist,
-      );
+    // update default playlist
+    updateDefaultPlaylistRequest(payload: types.ParsedFile[]): Promise<void> {
+      return ipcRenderer.invoke(IPC_EVENTS.updateDefaultPlaylistRequest, payload);
     },
   },
 );

@@ -11,6 +11,8 @@ export const IPC_EVENTS = {
   loadFileResponse: 'loadFileResponse',
   loadDefaultPlaylistRequest: 'loadDefaultPlaylistRequest',
   loadDefaultPlaylistResponse: 'loadDefaultPlaylistResponse',
+  openPlaylistRequest: 'openPlaylistRequest',
+  openPlaylistResponse: 'openPlaylistResponse',
   savePlaylistRequest: 'savePlaylistRequest',
   savePlaylistResponse: 'savePlaylistResponse',
   updateDefaultPlaylistRequest: 'changeDefaultPlaylistRequest',

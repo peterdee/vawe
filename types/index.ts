@@ -30,6 +30,11 @@ export type ExtendedWindow = BaseWindow & {
     onReceiveMetadata: (
       callback: ({ id, metadata }: { id: string, metadata: Metadata | null }) => void,
     ) => void;
+    openPlaylistRequest: () => void;
+    openPlaylistResponse: (callback: (
+      event: IpcRendererEvent,
+      payload: OpenPlaylistResponsePayload,
+    ) => void) => void;
     requestMetadata: (payload: RequestMetadataPayload) => void;
     savePlaylistRequest: (payload: ParsedFile[]) => void;
     savePlaylistResponse: (callback: (
@@ -59,6 +64,11 @@ export interface Metadata {
   durationSeconds: number;
   sizeBytes: number;
   streams: AudioStream[];
+}
+
+export interface OpenPlaylistResponsePayload {
+  errorMessage: '' | 'cancelled' | 'internalError' | 'invalidFormat';
+  playlist: ParsedFile[] | null;
 }
 
 export interface ParsedFile {
