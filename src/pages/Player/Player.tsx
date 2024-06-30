@@ -10,6 +10,7 @@ import {
   addTrackMetadata,
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
+  changeSelectedTrackId,
   changeSelectedTrackIdWithKeys,
   loadPlaylist,
   removeIdFromQueue,
@@ -214,7 +215,7 @@ function Player(): React.JSX.Element {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      // arrows (horizontal)
+      // arrows (horizontal): scroll track forwards or backwards
       if ((event.key.toLowerCase() === 'arrowleft'
         || event.key.toLowerCase() === 'arrowright')
         && wavesurfer) {
@@ -224,7 +225,7 @@ function Player(): React.JSX.Element {
             : wavesurfer.getCurrentTime() + 5,
         );
       }
-      // arrows (vertical)
+      // arrows (vertical): change selected track
       if ((event.key.toLowerCase() === 'arrowdown'
         || event.key.toLowerCase() === 'arrowup')
         && tracks.length > 0) {
@@ -240,7 +241,7 @@ function Player(): React.JSX.Element {
           handleChangeTrack('next');
         }
       }
-      // enter
+      // enter: play selected track
       if (event.key.toLowerCase() === 'enter' && selectedTrackId) {
         extendedWindow.backend.loadFileRequest({
           id: selectedTrackId,
