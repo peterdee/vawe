@@ -12,38 +12,41 @@ export default async function openPlaylist(browserWindow: BrowserWindow): Promis
   };
 
   try {
-    const dialogResult = await dialog.showOpenDialog({
-      title: 'Open VAWE playlist',
-      buttonLabel: 'Open playlist',
-      filters: [{ name: '', extensions: ['va'] }],
-      properties: [
-        'createDirectory',
-        'dontAddToRecent',
-      ],
-    });
+    const dialogResult = await dialog.showOpenDialog(
+      browserWindow,
+      {
+        buttonLabel: 'Open selected playlist',
+        filters: [{ name: '', extensions: ['va'] }],
+        message: 'Select a playlist to open',
+        properties: [
+          'openFile',
+          'dontAddToRecent',
+        ],
+        title: 'Open VAWE playlist',
+      },
+    );
 
     if (dialogResult.canceled) {
-      return browserWindow.webContents.send(
-        IPC_EVENTS.openPlaylistResponse,
-        'cancelled',
-      );
+      responsePayload.errorMessage = 'cancelled';
+      return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
     }
-    if (!dialogResult.filePaths) {
-      return browserWindow.webContents.send(
-        IPC_EVENTS.openPlaylistResponse,
-        'internalError',
-      );
+    if (dialogResult.filePaths.length === 0) {
+      responsePayload.errorMessage = 'internalError';
+      return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
     }
 
-    const encodedString = await readFile(
-      '',
-      { encoding: 'utf8' },
-    );
+    const [path = ''] = dialogResult.filePaths;
+    const encodedString = await readFile(path, { encoding: 'utf8' });
+
     const playlist: { value: types.ParsedFile[] } = JSON.parse(decode(encodedString));
     responsePayload.playlist = playlist.value;
     return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
   } catch (error) {
-    // TODO: check error type
+    const typedError = error as Error;
+    if (typedError.message.toLowerCase().includes('invalid string format')) {
+      responsePayload.errorMessage = 'invalidFormat';
+      return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
+    }
     responsePayload.errorMessage = 'internalError';
     return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
   }

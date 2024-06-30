@@ -50,7 +50,7 @@ contextBridge.exposeInMainWorld(
         (_, value: types.Metadata) => callback(value),
       );
     },
-    // save playlist via dialog window
+    // open playlist via dialog window
     openPlaylistRequest(): Promise<void> {
       return ipcRenderer.invoke(IPC_EVENTS.openPlaylistRequest);
     },

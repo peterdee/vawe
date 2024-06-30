@@ -21,6 +21,10 @@ function PlaylistSettings(): React.JSX.Element {
     (state) => state.tracklist.tracks,
   );
 
+  const handleOpenPlaylist = () => {
+    extendedWindow.backend.openPlaylistRequest();
+  };
+
   const handleSavePlaylist = () => {
     extendedWindow.backend.savePlaylistRequest(tracks);
   };
@@ -40,6 +44,13 @@ function PlaylistSettings(): React.JSX.Element {
         type="button"
       >
         Shuffle playlist
+      </button>
+      <button
+        className="button ml-1"
+        onClick={handleOpenPlaylist}
+        type="button"
+      >
+        Open playlist
       </button>
       <button
         className="button ml-1"

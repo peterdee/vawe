@@ -120,6 +120,9 @@ function Player(): React.JSX.Element {
         (_, payload) => {
           if (!payload.errorMessage && payload.playlist) {
             dispatch(loadPlaylist(payload.playlist));
+          } else {
+            // TODO: handle error response
+            console.log(payload);
           }
         },
       );

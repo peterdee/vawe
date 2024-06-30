@@ -13,7 +13,6 @@ export default async function savePlaylist(
     const dialogResult = await dialog.showSaveDialog(
       browserWindow,
       {
-        title: 'Save VAWE playlist',
         buttonLabel: 'Save playlist',
         filters: [{ name: '', extensions: ['va'] }],
         properties: [
@@ -21,6 +20,7 @@ export default async function savePlaylist(
           'dontAddToRecent',
           'showOverwriteConfirmation',
         ],
+        title: 'Save VAWE playlist',
       },
     );
 
