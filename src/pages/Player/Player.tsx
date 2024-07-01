@@ -10,7 +10,6 @@ import {
   addTrackMetadata,
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
-  changeSelectedTrackId,
   changeSelectedTrackIdWithKeys,
   loadPlaylist,
   removeIdFromQueue,

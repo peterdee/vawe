@@ -109,24 +109,20 @@ export const tracklistSlice = createSlice({
       state.queue = state.queue.filter(
         (id: string): boolean => id !== action.payload, 
       );
-      // TODO: finalize
-      if (state.tracks.length > 1) {
-        const selectedIndex = state
-          .tracks
-          .map((track: types.ParsedFile): string => track.id)
-          .indexOf(action.payload);
-        const nextSelectedIndex = selectedIndex + 1 > state.tracks.length - 1
-          ? selectedIndex
-          : selectedIndex + 1;
-        console.log('current index', selectedIndex, action.payload, 'next', nextSelectedIndex, state.tracks[nextSelectedIndex].id);
-        state.selectedTrackId = state.tracks[nextSelectedIndex].id;
-      } else {
-        state.selectedTrackId = '';
-      }
+      const selectedTrackIdIndex = state
+        .tracks
+        .map((track: types.ParsedFile): string => track.id)
+        .indexOf(action.payload);
       state.tracks = state.tracks.filter(
         (track: types.ParsedFile): boolean => track.id !== action.payload,
       );
-      
+      if (state.tracks.length >= 1) {
+        state.selectedTrackId = selectedTrackIdIndex <= state.tracks.length - 1
+          ? state.tracks[selectedTrackIdIndex].id
+          : state.tracks[selectedTrackIdIndex - 1].id;
+      } else {
+        state.selectedTrackId = '';
+      }
     },
     shuffleTracklist: (state) => {
       state.tracks = shuffleArray(state.tracks);
