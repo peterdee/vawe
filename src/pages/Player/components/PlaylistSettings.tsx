@@ -30,7 +30,7 @@ function PlaylistSettings(): React.JSX.Element {
   };
 
   return (
-    <div className="f">
+    <div className="f mt-1 mh-1">
       <button
         className="button"
         onClick={() => dispatch(clearTracklist())}

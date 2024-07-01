@@ -17,6 +17,7 @@ import {
   toggleQueueTrack,
 } from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
+import BottomPanel from './components/BottomPanel';
 import { changeIsPlaying } from '@/store/features/playbackSettings';
 import formatTrackName from '@/utilities/format-track-name';
 import PlaybackControls from './components/PlaybackControls';
@@ -88,6 +89,9 @@ function Player(): React.JSX.Element {
 
   useEffect(
     () => {
+      dispatch(changeIsPlaying(false));
+      dispatch(changeCurrentTrackObjectURL(''));
+
       extendedWindow.backend.loadDefaultPlaylistRequest();
 
       extendedWindow.backend.loadDefaultPlaylistResponse(
@@ -324,10 +328,9 @@ function Player(): React.JSX.Element {
         />
         <VolumeControls wavesurfer={wavesurfer} />
       </div>
-      <div className="f j-end mh-1">
-        <PlaylistSettings />
-      </div>
+      <PlaylistSettings />
       <Playlist />
+      <BottomPanel />
     </div>
   )
 }

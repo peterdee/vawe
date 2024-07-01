@@ -1,3 +1,6 @@
+.bottom-panel, .playtime {
+  font-size: calc(var(--spacer-half) + var(--spacer-half) / 2);
+}
 .drop-zone {
   border: 2px dotted lightgreen;
   height: calc(100vh - var(--spacer) * 10);
@@ -26,6 +29,9 @@
 }
 .playlist-entry-queued {
   background-color: aqua;
+}
+.playtime {
+  height: calc(var(--spacer-half) * 3);
 }
 .track-duration {
   width: calc(var(--spacer-half) + var(--spacer) * 4);

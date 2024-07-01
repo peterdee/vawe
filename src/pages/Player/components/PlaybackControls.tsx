@@ -43,7 +43,7 @@ function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
   };
 
   return (
-    <div className="flex pv-1">
+    <div className="f">
       <button
         className="button"
         onClick={() => handleChangeTrack('previous')}
