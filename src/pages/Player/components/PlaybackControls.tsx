@@ -7,7 +7,10 @@ import { changeIsPlaying } from '@/store/features/playbackSettings';
 import IconNext from '@/components/IconNext';
 import IconPause from '@/components/IconPause';
 import IconPlay from '@/components/IconPlay';
+import IconPrevious from '@/components/IconPrevious';
+import IconStop from '@/components/IconStop';
 import * as types from 'types';
+import { COLORS, UNIT } from '@/constants';
 
 interface PlaybackControlsProps {
   handleChangeTrack: (changeTo: types.ChangeTrackTo) => void;
@@ -47,41 +50,64 @@ function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
   };
 
   return (
-    <div className="f">
-      <button
-        className="button"
+    <div className="f ai-center">
+      <ButtonWithIcon
         onClick={() => handleChangeTrack('previous')}
-        type="button"
+        title="Previous"
       >
-        Previous
-      </button>
+        <IconPrevious
+          height={UNIT * 2}
+          iconColorBase={COLORS.accent}
+          iconColorHover={COLORS.accentHighlight}
+          width={UNIT * 2}
+        />
+      </ButtonWithIcon>
       <ButtonWithIcon
         globalStyles="ml-1"
         onClick={handlePlayPause}
         title={isPlaying ? 'Pause' : 'Play'}
       >
         { isPlaying && (
-          <IconPause iconColorBase="lightgreen" />
+          <IconPause
+            height={UNIT * 1.5}
+            iconColorBase={COLORS.accent}
+            iconColorHover={COLORS.accentHighlight}
+            width={UNIT * 1.5}
+          />
         ) }
         { !isPlaying && (
-          <IconPlay iconColorBase="lightgreen" />
+          <IconPlay
+            height={UNIT * 1.5}
+            iconColorBase={COLORS.accent}
+            iconColorHover={COLORS.accentHighlight}
+            width={UNIT * 1.5}
+          />
         ) }
       </ButtonWithIcon>
-      <button
-        className="button ml-1"
+      <ButtonWithIcon
+        globalStyles="ml-1"
         onClick={handleStopPlayback}
-        type="button"
+        title="Stop"
       >
-        Stop
-      </button>
-      <IconNext height={42} />
-      <button
-        className="button ml-1"
+        <IconStop
+          height={UNIT * 2}
+          iconColorBase={COLORS.accent}
+          iconColorHover={COLORS.accentHighlight}
+          width={UNIT * 2}
+        />
+      </ButtonWithIcon>
+      <ButtonWithIcon
+        globalStyles="ml-1"
         onClick={() => handleChangeTrack('next')}
-        type="button"
+        title="Next"
       >
-        Next
-      </button>
+        <IconNext
+          height={UNIT * 2}
+          iconColorBase={COLORS.accent}
+          iconColorHover={COLORS.accentHighlight}
+          width={UNIT * 2}
+        />
+      </ButtonWithIcon>
     </div>
   );
 }

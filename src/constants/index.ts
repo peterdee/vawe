@@ -1,6 +1,6 @@
 export const COLORS = {
-  accent: '#89322a',
-  accentHighlight: '#b04533',
+  accent: '#307F30',
+  accentHighlight: 'lightgreen',
 };
 
 export const SUPPORTED_FORMATS = [

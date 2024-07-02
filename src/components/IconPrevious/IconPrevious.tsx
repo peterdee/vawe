@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { COLORS, UNIT } from '@/constants';
+import './styles.css';
 
-interface IconNextProps {
+interface IconPreviousProps {
   height?: number;
   iconColorBase?: string;
   iconColorHover?: string;
@@ -10,7 +11,7 @@ interface IconNextProps {
   width?: number;
 }
 
-function IconNext(props: IconNextProps): React.JSX.Element {
+function IconPrevious(props: IconPreviousProps): React.JSX.Element {
   const {
     height = UNIT * 2,
     iconColorBase = COLORS.accent,
@@ -21,7 +22,7 @@ function IconNext(props: IconNextProps): React.JSX.Element {
 
   return (
     <div
-      className="f ns j-center ai-center"
+      className="f ns j-center ai-center previous"
       style={{
         height,
         width,
@@ -54,4 +55,4 @@ function IconNext(props: IconNextProps): React.JSX.Element {
   );
 }
 
-export default React.memo(IconNext);
+export default React.memo(IconPrevious);
