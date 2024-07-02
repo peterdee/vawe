@@ -2,7 +2,11 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
+import ButtonWithIcon from '@/components/ButtonWithIcon';
 import { changeIsPlaying } from '@/store/features/playbackSettings';
+import IconNext from '@/components/IconNext';
+import IconPause from '@/components/IconPause';
+import IconPlay from '@/components/IconPlay';
 import * as types from 'types';
 
 interface PlaybackControlsProps {
@@ -51,13 +55,18 @@ function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
       >
         Previous
       </button>
-      <button
-        className="button ml-1"
+      <ButtonWithIcon
+        globalStyles="ml-1"
         onClick={handlePlayPause}
-        type="button"
+        title={isPlaying ? 'Pause' : 'Play'}
       >
-        { isPlaying ? 'Pause' : 'Play' }
-      </button>
+        { isPlaying && (
+          <IconPause iconColorBase="lightgreen" />
+        ) }
+        { !isPlaying && (
+          <IconPlay iconColorBase="lightgreen" />
+        ) }
+      </ButtonWithIcon>
       <button
         className="button ml-1"
         onClick={handleStopPlayback}
@@ -65,6 +74,7 @@ function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
       >
         Stop
       </button>
+      <IconNext height={42} />
       <button
         className="button ml-1"
         onClick={() => handleChangeTrack('next')}

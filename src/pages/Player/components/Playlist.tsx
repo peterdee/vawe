@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import type { AppDispatch, RootState } from '@/store';
 import { changeSelectedTrackId } from '@/store/features/tracklist';
 import formatDuration from '@/utilities/format-duration';
 import formatTrackName from '@/utilities/format-track-name';
-import { AppDispatch, type RootState } from '@/store';
+import IconPause from '@/components/IconPause';
+import IconPlay from '@/components/IconPlay';
 import * as types from 'types';
+import { UNIT } from '@/constants';
 
 const extendedWindow = window as types.ExtendedWindow;
 
@@ -14,6 +17,9 @@ function Playlist(): React.JSX.Element {
 
   const currentTrack = useSelector<RootState, types.ParsedFile | null>(
     (state) => state.tracklist.currentTrack,
+  );
+  const isPlaying = useSelector<RootState, boolean>(
+    (state) => state.playbackSettings.isPlaying,
   );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
@@ -24,8 +30,6 @@ function Playlist(): React.JSX.Element {
   const tracks = useSelector<RootState, types.ParsedFile[]>(
     (state) => state.tracklist.tracks,
   );
-
-  console.log('playlist render');
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -74,8 +78,6 @@ function Playlist(): React.JSX.Element {
           <button
             className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
               ${currentTrack && currentTrack.id === item.id
-                ? 'playlist-entry-highlight'
-                : ''
               } ${selectedTrackId === item.id
                 ? 'playlist-entry-selected'
                 : ''
@@ -94,9 +96,27 @@ function Playlist(): React.JSX.Element {
             }
             type="button"
           >
-            <div className="f">
-              <div className="mr-1 track-index">
-                { index + 1 }
+            <div className="f ai-center">
+              <div className="f j-center mr-1 track-index">
+                { currentTrack && currentTrack.id === item.id && (
+                  <>
+                    { isPlaying && (
+                      <IconPause
+                        height={UNIT}
+                        iconColorBase="lightgreen"
+                        width={UNIT}
+                      />
+                    ) }
+                    { !isPlaying && (
+                      <IconPlay
+                        height={UNIT}
+                        iconColorBase="lightgreen"
+                        width={UNIT}
+                      />
+                    ) }
+                  </>
+                ) }
+                { currentTrack && currentTrack.id !== item.id && index + 1 }
               </div>
               <div className="track-name">
                 { formatTrackName(item.name) }

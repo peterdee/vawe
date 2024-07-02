@@ -24,9 +24,6 @@
   border: calc(var(--spacer-quarter) / 2) solid rgb(181, 255, 181);
   border-radius: calc(var(--spacer-quarter) / 2);
 }
-.playlist-entry-highlight {
-  background-color: lightgreen;
-}
 .playlist-entry-queued {
   background-color: aqua;
 }
