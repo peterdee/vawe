@@ -48,7 +48,7 @@ async function handlePath(
     }
     if (stats.isDirectory()) {
       const contents = await readdir(path);
-      for (let item of contents) {
+      for (const item of contents) {
         setTimeout(() => handlePath(join(path, item), browserWindow));
       }
     }
@@ -61,7 +61,7 @@ export default function parseFiles(
   paths: string[],
   browserWindow: BrowserWindow,
 ) {
-  for (let path of paths) {
+  for (const path of paths) {
     handlePath(path, browserWindow);
   }
 }

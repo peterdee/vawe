@@ -306,8 +306,6 @@ function Player(): React.JSX.Element {
       dispatch(changeIsPlaying(true));
       wavesurferInstance.setVolume(isMuted ? 0 : volume);
       setWavesurfer(wavesurferInstance);
-      // TODO: store peaks for currently loaded tracks to load tracks faster
-      // const peaks = wavesurferInstance.exportPeaks();
       return wavesurferInstance.play();
     }
   };

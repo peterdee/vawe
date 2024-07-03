@@ -116,7 +116,10 @@ function Playlist(): React.JSX.Element {
                     ) }
                   </>
                 ) }
-                { currentTrack && currentTrack.id !== item.id && index + 1 }
+                {
+                  (!currentTrack || (currentTrack && currentTrack.id !== item.id))
+                    && index + 1
+                }
               </div>
               <div className="track-name">
                 { formatTrackName(item.name) }

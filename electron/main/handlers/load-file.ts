@@ -1,4 +1,5 @@
 import type { BrowserWindow } from 'electron';
+import { parseFile } from 'music-metadata';
 import { readFile } from 'node:fs/promises';
 
 import { IPC_EVENTS } from '../../constants';
@@ -30,6 +31,8 @@ export default async function loadFile(
 
   try {
     responsePayload.buffer = await readFile(path);
+    const res = await parseFile(path);
+    console.log(JSON.stringify(res));
     return browserWindow.webContents.send(
       IPC_EVENTS.loadFileResponse,
       responsePayload,

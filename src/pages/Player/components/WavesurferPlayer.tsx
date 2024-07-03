@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Player from '@wavesurfer/react';
 import { useSelector } from 'react-redux';
 
@@ -31,6 +31,13 @@ function WavesurferPlayer(props: WavesurferPlayerProps): React.JSX.Element {
       setElapsedTime(wavesurfer.getCurrentTime());
     }
   };
+
+  useEffect(
+    () => {
+      setElapsedTime(0);
+    },
+    [currentTrackObjectURL],
+  );
 
   return (
     <div className="f d-col m-1">

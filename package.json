@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "main": "dist-electron/main/index.js",
   "description": "VAWE",
+  "productName": "VAWE",
   "license": "MIT",
   "private": true,
+  "author": {
+    "name": "Peter Dyumin",
+    "url": "https://github.com/peterdee"
+  },
   "debug": {
     "env": {
       "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
@@ -19,6 +24,10 @@
   },
   "engines": {
     "node": "22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterdee/vawe"
   },
   "dependencies": {
     "electron-updater": "^6.1.8"
@@ -40,6 +49,7 @@
     "eslint-plugin-react": "^7.34.2",
     "fluent-ffmpeg": "github:peterdee/node-fluent-ffmpeg-esm#master",
     "globals": "^15.3.0",
+    "music-metadata": "^8.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^9.1.2",
