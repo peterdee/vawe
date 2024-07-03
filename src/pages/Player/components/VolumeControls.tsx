@@ -2,7 +2,13 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
+import ButtonWithIcon from '@/components/ButtonWithIcon';
 import { changeMute, changeVolume } from '@/store/features/volumeSettings';
+import { COLORS, UNIT } from '@/constants';
+import IconVolumeHigh from '@/components/IconVolumeHigh';
+import IconVolumeLow from '@/components/IconVolumeLow';
+import IconVolumeMedium from '@/components/IconVolumeMedium';
+import IconVolumeMuted from '@/components/IconVolumeMuted';
 import * as types from 'types';
 
 interface VolumeControlsProps {
@@ -38,13 +44,48 @@ function VolumeControls(props: VolumeControlsProps): React.JSX.Element {
 
   return (
     <div className="f ai-center">
-      <button
-        className="button mr-1"
+      <ButtonWithIcon
+        globalStyles="mr-1"
         onClick={onChangeMute}
-        type="button"
+        title={isMuted ? 'Unmute' : 'Mute'}
       >
-        { isMuted ? 'Unmute' : 'Mute' }
-      </button>
+        { isMuted && (
+          <IconVolumeMuted
+            height={UNIT * 2}
+            iconColorBase={COLORS.accent}
+            iconColorHover={COLORS.accentHighlight}
+            width={UNIT * 2}
+          />
+        ) }
+        { !isMuted && (
+          <>
+            { volume > 0.6 && (
+              <IconVolumeHigh
+                height={UNIT * 2}
+                iconColorBase={COLORS.accent}
+                iconColorHover={COLORS.accentHighlight}
+                width={UNIT * 2}
+              />
+            ) }
+            { volume <= 0.6 && volume > 0.3 && (
+              <IconVolumeMedium
+                height={UNIT * 2}
+                iconColorBase={COLORS.accent}
+                iconColorHover={COLORS.accentHighlight}
+                width={UNIT * 2}
+              />
+            ) }
+            { volume <= 0.3 && (
+              <IconVolumeLow
+                height={UNIT * 2}
+                iconColorBase={COLORS.accent}
+                iconColorHover={COLORS.accentHighlight}
+                width={UNIT * 2}
+              />
+            ) }
+          </>
+        ) }
+      </ButtonWithIcon>
       <input
         className="volume-slider"
         max={1}

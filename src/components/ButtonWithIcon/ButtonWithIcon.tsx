@@ -5,6 +5,7 @@ import './styles.css';
 interface ButtonWithIconProps {
   globalStyles?: string;
   onClick: () => void;
+  styles?: object;
   title?: string;
 }
 
@@ -19,6 +20,7 @@ function ButtonWithIcon(
     children,
     globalStyles = '',
     onClick,
+    styles = {},
     title = '',
   } = props;
 
@@ -42,6 +44,9 @@ function ButtonWithIcon(
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      style={{
+        ...styles,
+      }}
       title={title}
       type="button"
     >
