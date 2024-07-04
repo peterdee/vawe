@@ -3,14 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
-import { changeIsPlaying } from '@/store/features/playbackSettings';
+import { changeIsPlaying } from '@/store/features/tracklist';
+import { COLORS, UNIT } from '@/constants';
 import IconNext from '@/components/IconNext';
 import IconPause from '@/components/IconPause';
 import IconPlay from '@/components/IconPlay';
 import IconPrevious from '@/components/IconPrevious';
 import IconStop from '@/components/IconStop';
-import * as types from 'types';
-import { COLORS, UNIT } from '@/constants';
+import type * as types from 'types';
 
 interface PlaybackControlsProps {
   handleChangeTrack: (changeTo: types.ChangeTrackTo) => void;
@@ -26,7 +26,7 @@ function PlaybackControls(props: PlaybackControlsProps): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
 
   const isPlaying = useSelector<RootState, boolean>(
-    (state) => state.playbackSettings.isPlaying,
+    (state) => state.tracklist.isPlaying,
   );
 
   const handlePlayPause = async () => {

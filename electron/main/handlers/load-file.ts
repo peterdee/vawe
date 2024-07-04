@@ -3,13 +3,10 @@ import { parseFile } from 'music-metadata';
 import { readFile } from 'node:fs/promises';
 
 import { IPC_EVENTS } from '../../constants';
-import type {
-  LoadFileRequestPayload,
-  LoadFileResponsePayload,
-} from 'types';
+import type * as types from 'types';
 
 export default async function loadFile(
-  payload: LoadFileRequestPayload,
+  payload: types.LoadFileRequestPayload,
   browserWindow: BrowserWindow,
 ) {
   const {
@@ -17,9 +14,10 @@ export default async function loadFile(
     path = '',
   } = payload;
 
-  const responsePayload: LoadFileResponsePayload = {
+  const responsePayload: types.LoadFileResponsePayload = {
     buffer: null,
     id,
+    metadata: null,
   };
 
   if (!(id && path)) {
@@ -31,8 +29,7 @@ export default async function loadFile(
 
   try {
     responsePayload.buffer = await readFile(path);
-    const res = await parseFile(path);
-    console.log(JSON.stringify(res));
+    responsePayload.metadata = await parseFile(path);
     return browserWindow.webContents.send(
       IPC_EVENTS.loadFileResponse,
       responsePayload,

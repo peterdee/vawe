@@ -3,7 +3,7 @@ import { decode } from 'strencojs';
 import { readFile } from 'node:fs/promises';
 
 import { IPC_EVENTS } from '../../constants';
-import * as types from 'types';
+import type * as types from 'types';
 
 export default async function openPlaylist(browserWindow: BrowserWindow): Promise<void> {
   const responsePayload: types.OpenPlaylistResponsePayload = {
@@ -38,7 +38,7 @@ export default async function openPlaylist(browserWindow: BrowserWindow): Promis
     const [path = ''] = dialogResult.filePaths;
     const encodedString = await readFile(path, { encoding: 'utf8' });
 
-    const playlist: { value: types.ParsedFile[] } = JSON.parse(decode(encodedString));
+    const playlist: { value: types.Track[] } = JSON.parse(decode(encodedString));
     responsePayload.playlist = playlist.value;
     return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
   } catch (error) {

@@ -10,6 +10,7 @@ import {
   addTrackMetadata,
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
+  changeIsPlaying,
   changeSelectedTrackIdWithKeys,
   loadPlaylist,
   removeIdFromQueue,
@@ -18,12 +19,11 @@ import {
 } from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
 import BottomPanel from './components/BottomPanel';
-import { changeIsPlaying } from '@/store/features/playbackSettings';
 import formatTrackName from '@/utilities/format-track-name';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import PlaylistSettings from './components/PlaylistSettings';
-import * as types from 'types';
+import type * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import WavesurferPlayer from './components/WavesurferPlayer';
 import './styles.css';
@@ -35,7 +35,7 @@ function Player(): React.JSX.Element {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const currentTrack = useSelector<RootState, types.ParsedFile | null>(
+  const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
   );
   const isLooped = useSelector<RootState, boolean>(
@@ -45,7 +45,7 @@ function Player(): React.JSX.Element {
     (state) => state.volumeSettings.isMuted,
   );
   const isPlaying = useSelector<RootState, boolean>(
-    (state) => state.playbackSettings.isPlaying,
+    (state) => state.tracklist.isPlaying,
   );
   const selectedTrackId = useSelector<RootState, string>(
     (state) => state.tracklist.selectedTrackId,
@@ -53,7 +53,7 @@ function Player(): React.JSX.Element {
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
   );
-  const tracks = useSelector<RootState, types.ParsedFile[]>(
+  const tracks = useSelector<RootState, types.Track[]>(
     (state) => state.tracklist.tracks,
   );
   const volume = useSelector<RootState, number>(
@@ -92,32 +92,37 @@ function Player(): React.JSX.Element {
       dispatch(changeIsPlaying(false));
       dispatch(changeCurrentTrackObjectURL(''));
 
+      extendedWindow.backend.addFilesResponse(
+        (_, value: types.Track) => dispatch(addTrack(value)),
+      );
+
       extendedWindow.backend.loadDefaultPlaylistRequest();
 
       extendedWindow.backend.loadDefaultPlaylistResponse(
-        (_, payload) => {
-          dispatch(loadPlaylist(payload.playlist));
-        },
+        (_, payload) => dispatch(loadPlaylist(payload.playlist)),
       );
 
       extendedWindow.backend.loadFileResponse(
-        ({ buffer, id }: types.LoadFileResponsePayload): null | void => {
+        (_, { buffer, id, metadata }: types.LoadFileResponsePayload): null | void => {
           if (buffer === null) {
             return null;
           }
           const objectURL = URL.createObjectURL(new Blob([buffer]));
           dispatch(changeCurrentTrackObjectURL(objectURL));
           dispatch(changeCurrentTrack(id));
+          if (metadata) {
+            dispatch(addTrackMetadata({ id, metadata }));
+          }
         },
       );
 
-      extendedWindow.backend.onAddFile(
-        (_, value: types.ParsedFile) => dispatch(addTrack(value)),
-      );
-
-      extendedWindow.backend.onReceiveMetadata(({ id, metadata }) => {
-        // TODO: handle error (if metadata is null)
-        dispatch(addTrackMetadata({ id, metadata }));
+      extendedWindow.backend.loadMetadataResponse((_, { error, id, metadata }) => {
+        if (error) {
+          console.log('error loading metadata', error);
+        }
+        if (!error && metadata) {
+          dispatch(addTrackMetadata({ id, metadata }));
+        }
       });
 
       extendedWindow.backend.openPlaylistResponse(
@@ -148,7 +153,7 @@ function Player(): React.JSX.Element {
 
       if (queue.length > 0) {
         const [nextTrack] = tracks.filter(
-          (track: types.ParsedFile): boolean => track.id === queue[0],
+          (track: types.Track): boolean => track.id === queue[0],
         );
         extendedWindow.backend.loadFileRequest({
           id: nextTrack.id,
@@ -249,7 +254,7 @@ function Player(): React.JSX.Element {
         extendedWindow.backend.loadFileRequest({
           id: selectedTrackId,
           path: tracks.filter(
-            (track: types.ParsedFile): boolean => track.id === selectedTrackId,
+            (track: types.Track): boolean => track.id === selectedTrackId,
           )[0].path,
         })
       }
@@ -285,7 +290,7 @@ function Player(): React.JSX.Element {
   const wavesurferOnFinish = useCallback(
     (wavesurferInstance: types.WaveSurferInstance) => {
       dispatch(changeIsPlaying(false));
-      const trackIds = tracks.map((track: types.ParsedFile): string => track.id);
+      const trackIds = tracks.map((track: types.Track): string => track.id);
       if (trackIds.indexOf(currentTrack?.id || '') === (trackIds.length - 1)
         && !isLooped) {
         return wavesurferInstance?.stop();

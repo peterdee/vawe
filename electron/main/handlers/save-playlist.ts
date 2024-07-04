@@ -3,10 +3,10 @@ import { encode } from 'strencojs';
 import { writeFile } from 'node:fs/promises';
 
 import { IPC_EVENTS } from '../../constants';
-import * as types from 'types';
+import type * as types from 'types';
 
 export default async function savePlaylist(
-  payload: types.ParsedFile[],
+  payload: types.Track[],
   browserWindow: BrowserWindow,
 ): Promise<void> {
   try {

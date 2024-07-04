@@ -9,7 +9,7 @@ import IconVolumeHigh from '@/components/IconVolumeHigh';
 import IconVolumeLow from '@/components/IconVolumeLow';
 import IconVolumeMedium from '@/components/IconVolumeMedium';
 import IconVolumeMuted from '@/components/IconVolumeMuted';
-import * as types from 'types';
+import type * as types from 'types';
 
 interface VolumeControlsProps {
   wavesurfer: types.WaveSurferInstance;

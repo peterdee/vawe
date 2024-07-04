@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import formatDuration from '@/utilities/format-duration';
 import type { RootState } from '@/store';
-import * as types from 'types';
+import type * as types from 'types';
 
 interface WavesurferPlayerProps {
   onFinish: (instance: types.WaveSurferInstance) => void;
@@ -19,7 +19,7 @@ function WavesurferPlayer(props: WavesurferPlayerProps): React.JSX.Element {
 
   const [elapsedTime, setElapsedTime] = useState<number>(0);
 
-  const currentTrack = useSelector<RootState, types.ParsedFile | null>(
+  const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
   );
   const currentTrackObjectURL = useSelector<RootState, string>(

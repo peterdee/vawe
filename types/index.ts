@@ -1,48 +1,38 @@
+import type { IAudioMetadata } from 'music-metadata';
 import type { IpcRendererEvent } from 'electron';
 import type WaveSurfer from 'wavesurfer.js';
 
-export type WaveSurferInstance = WaveSurfer | null;
-
-export interface AudioStream {
-  bitsPerSample: string | number;
-  channelLayout: string;
-  channels: number;
-  sampleRate: number;
-}
-
 export type ChangeTrackTo = 'current' | 'next' | 'previous';
 
-export type CurrentTrack = ParsedFile | null;
+export type CurrentTrack = Track | null;
 
 type BaseWindow = Window & typeof globalThis;
 
+type Callback<T> = (
+  event: IpcRendererEvent,
+  payload: T,
+) => void;
+
 export type ExtendedWindow = BaseWindow & {
   backend: {
-    handleDrop: (files: string[]) => void;
+    addFilesRequest: (payload: string[]) => void;
+    addFilesResponse: (callback: Callback<Track>) => void;
     loadDefaultPlaylistRequest: () => void;
-    loadDefaultPlaylistResponse: (callback: (
-      event: IpcRendererEvent,
-      payload: LoadDefaultPlaylistResponsePayload,
-    ) => void) => void;
+    loadDefaultPlaylistResponse: (callback: Callback<LoadDefaultPlaylistResponsePayload>) => void;
     loadFileRequest: (payload: LoadFileRequestPayload) => void;
-    loadFileResponse: (callback: (payload: LoadFileResponsePayload) => void) => void;
-    onAddFile: (callback: (event: IpcRendererEvent, entry: ParsedFile) => void) => void;
-    onReceiveMetadata: (
-      callback: ({ id, metadata }: { id: string, metadata: Metadata | null }) => void,
-    ) => void;
+    loadFileResponse: (callback: Callback<LoadFileResponsePayload>) => void;
+    loadMetadataRequest: (payload: LoadMetadataRequestPayload) => void;
+    loadMetadataResponse: (callback: Callback<LoadMetadataResponsePayload>) => void;
     openPlaylistRequest: () => void;
-    openPlaylistResponse: (callback: (
-      event: IpcRendererEvent,
-      payload: OpenPlaylistResponsePayload,
-    ) => void) => void;
-    requestMetadata: (payload: RequestMetadataPayload) => void;
-    savePlaylistRequest: (payload: ParsedFile[]) => void;
-    savePlaylistResponse: (callback: (
-      event: IpcRendererEvent,
-      payload: SavePlaylistResponsePayload,
-    ) => void) => void;
-    updateDefaultPlaylistRequest: (payload: ParsedFile[]) => void;
+    openPlaylistResponse: (callback: Callback<OpenPlaylistResponsePayload>) => void;
+    savePlaylistRequest: (payload: Track[]) => void;
+    savePlaylistResponse: (callback: Callback<SavePlaylistResponsePayload>) => void;
+    updateDefaultPlaylistRequest: (payload: Track[]) => void;
   },
+}
+
+export interface LoadDefaultPlaylistResponsePayload {
+  playlist: Track[];
 }
 
 export interface LoadFileRequestPayload {
@@ -53,37 +43,39 @@ export interface LoadFileRequestPayload {
 export interface LoadFileResponsePayload {
   buffer: Buffer | null;
   id: string;
+  metadata: IAudioMetadata | null;
 }
 
-export interface LoadDefaultPlaylistResponsePayload {
-  playlist: ParsedFile[];
+export interface LoadMetadataRequestPayload {
+  id: string;
+  path: string;
 }
 
-export interface Metadata {
-  bitrate: number;
-  durationSeconds: number;
-  sizeBytes: number;
-  streams: AudioStream[];
+export interface LoadMetadataResponsePayload {
+  error: Error | null;
+  id: string;
+  metadata: IAudioMetadata | null;
 }
 
 export interface OpenPlaylistResponsePayload {
   errorMessage: '' | 'cancelled' | 'internalError' | 'invalidFormat';
-  playlist: ParsedFile[] | null;
+  playlist: Track[] | null;
 }
 
-export interface ParsedFile {
+export interface Track {
   durationSeconds: number;
-  fileIsAccessible: boolean;
   id: string;
-  metadata: Metadata | null;
+  isAccessible: boolean;
   name: string;
   path: string;
-  sizeBytes: number;
+  withCover: boolean;
 }
 
-export interface RequestMetadataPayload {
+export interface TrackMetadata {
   id: string;
-  path: string;
+  metadata: IAudioMetadata;
 }
 
 export type SavePlaylistResponsePayload = 'cancelled' | 'internalError' | 'ok';
+
+export type WaveSurferInstance = WaveSurfer | null;

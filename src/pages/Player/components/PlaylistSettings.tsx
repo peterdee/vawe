@@ -2,9 +2,9 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
-import { changeLoop, changeShuffle } from '@/store/features/playlistSettings';
+import { changeLoop } from '@/store/features/playlistSettings';
 import { clearTracklist, shuffleTracklist } from '@/store/features/tracklist';
-import * as types from 'types';
+import type * as types from 'types';
 
 const extendedWindow = window as types.ExtendedWindow;
 
@@ -14,10 +14,7 @@ function PlaylistSettings(): React.JSX.Element {
   const isLooped = useSelector<RootState, boolean>(
     (state) => state.playlistSettings.isLooped,
   );
-  const isShuffled = useSelector<RootState, boolean>(
-    (state) => state.playlistSettings.isShuffled,
-  );
-  const tracks = useSelector<RootState, types.ParsedFile[]>(
+  const tracks = useSelector<RootState, types.Track[]>(
     (state) => state.tracklist.tracks,
   );
 
@@ -65,13 +62,6 @@ function PlaylistSettings(): React.JSX.Element {
         type="button"
       >
         { isLooped ? 'Disable playlist loop' : 'Enable playlist loop' }
-      </button>
-      <button
-        className="button ml-1"
-        onClick={() => dispatch(changeShuffle(!isShuffled))}
-        type="button"
-      >
-        { isShuffled ? 'Disable shuffling' : 'Enable shuffling' }
       </button>
     </div>
   );

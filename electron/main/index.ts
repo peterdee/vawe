@@ -8,14 +8,14 @@ import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 
-import getMetadata from './handlers/get-metadata';
 import { IPC_EVENTS } from '../constants';
 import loadDefaultPlaylist from './handlers/load-default-playlist';
 import loadFile from './handlers/load-file';
+import loadMetadata from './handlers/load-metadata';
 import openPlaylist from './handlers/open-playlist';
 import parseFiles from './handlers/parse-files';
 import savePlaylist from './handlers/save-playlist';
-import * as types from 'types';
+import type * as types from 'types';
 import { update } from './update'
 import updateDefaultPlaylist from './handlers/update-default-playlist';
 
@@ -84,25 +84,17 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
-  // parse dropped files
+  // add files
   ipcMain.handle(
-    IPC_EVENTS.handleDrop,
+    IPC_EVENTS.addFilesRequest,
     (_, payload: string[]) => parseFiles(payload, win as BrowserWindow),
   );
-  // get audio file metadata
-  ipcMain.handle(
-    IPC_EVENTS.handleRequestMetadata,
-    (_, payload: types.RequestMetadataPayload) => getMetadata(
-      payload,
-      win as BrowserWindow,
-    ),
-  );
-  // get default playlist
+  // load default playlist
   ipcMain.handle(
     IPC_EVENTS.loadDefaultPlaylistRequest,
     () => loadDefaultPlaylist(win as BrowserWindow),
   );
-  // get audio file
+  // load file
   ipcMain.handle(
     IPC_EVENTS.loadFileRequest,
     (_, payload: types.LoadFileRequestPayload) => loadFile(
@@ -110,17 +102,28 @@ app.whenReady().then(() => {
       win as BrowserWindow,
     ),
   );
+  // load metadata
+  ipcMain.handle(
+    IPC_EVENTS.loadMetadataRequest,
+    (_, payload: types.LoadMetadataRequestPayload) => loadMetadata(
+      payload,
+      win as BrowserWindow,
+    ),
+  );
   // open playlist
-  ipcMain.handle(IPC_EVENTS.openPlaylistRequest, () => openPlaylist(win as BrowserWindow));
+  ipcMain.handle(
+    IPC_EVENTS.openPlaylistRequest,
+    () => openPlaylist(win as BrowserWindow),
+  );
   // save playlist
   ipcMain.handle(
     IPC_EVENTS.savePlaylistRequest,
-    (_, payload: types.ParsedFile[]) => savePlaylist(payload, win as BrowserWindow),
+    (_, payload: types.Track[]) => savePlaylist(payload, win as BrowserWindow),
   );
   // update default playlist
   ipcMain.handle(
     IPC_EVENTS.updateDefaultPlaylistRequest,
-    (_, payload: types.ParsedFile[]) => updateDefaultPlaylist(payload),
+    (_, payload: types.Track[]) => updateDefaultPlaylist(payload),
   );
 
   createWindow();

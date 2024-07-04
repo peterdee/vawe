@@ -1,3 +1,4 @@
+import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
 import Player from '@/pages/Player';

@@ -7,7 +7,7 @@ import formatDuration from '@/utilities/format-duration';
 import formatTrackName from '@/utilities/format-track-name';
 import IconPause from '@/components/IconPause';
 import IconPlay from '@/components/IconPlay';
-import * as types from 'types';
+import type * as types from 'types';
 import { UNIT } from '@/constants';
 
 const extendedWindow = window as types.ExtendedWindow;
@@ -15,11 +15,14 @@ const extendedWindow = window as types.ExtendedWindow;
 function Playlist(): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
 
-  const currentTrack = useSelector<RootState, types.ParsedFile | null>(
+  const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
   );
   const isPlaying = useSelector<RootState, boolean>(
-    (state) => state.playbackSettings.isPlaying,
+    (state) => state.tracklist.isPlaying,
+  );
+  const metadata = useSelector<RootState, types.TrackMetadata[]>(
+    (state) => state.tracklist.metadata,
   );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
@@ -27,7 +30,7 @@ function Playlist(): React.JSX.Element {
   const selectedTrackId = useSelector<RootState, string>(
     (state) => state.tracklist.selectedTrackId,
   );
-  const tracks = useSelector<RootState, types.ParsedFile[]>(
+  const tracks = useSelector<RootState, types.Track[]>(
     (state) => state.tracklist.tracks,
   );
 
@@ -44,23 +47,25 @@ function Playlist(): React.JSX.Element {
     for (const item of event.dataTransfer.files) {
       paths.push(item.path);
     }
-    return extendedWindow.backend.handleDrop(paths);
+    return extendedWindow.backend.addFilesRequest(paths);
   };
 
   const handleContextMenu = (id: string) => {
-    const [track] = tracks.filter((item: types.ParsedFile): boolean => item.id === id);
-    if (track.metadata) {
-      return console.log('metadata already loaded:', track.metadata);
+    const [trackMetadata] = metadata.filter(
+      (entry: types.TrackMetadata): boolean => entry.id === id,
+    );
+    if (trackMetadata) {
+      return console.log('metadata already loaded:', trackMetadata);
     }
-    return extendedWindow.backend.requestMetadata({
+    return extendedWindow.backend.loadMetadataRequest({
       id,
-      path: track.path,
+      path: tracks.filter((track: types.Track): boolean => track.id === id)[0].path,
     });
   };
 
   const handleDoubleClick = (id: string) => extendedWindow.backend.loadFileRequest({
     id,
-    path: tracks.filter((file: types.ParsedFile): boolean => file.id === id)[0].path,
+    path: tracks.filter((file: types.Track): boolean => file.id === id)[0].path,
   });
 
   const toggleDragging = () => setIsDragging((value: boolean): boolean => !value);
@@ -74,7 +79,7 @@ function Playlist(): React.JSX.Element {
       onDrop={handleDrop}
     >
       { tracks.length > 0 && tracks.map(
-        (item: types.ParsedFile, index: number): React.JSX.Element => (
+        (item: types.Track, index: number): React.JSX.Element => (
           <button
             className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
               ${currentTrack && currentTrack.id === item.id

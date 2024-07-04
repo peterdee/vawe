@@ -2,19 +2,23 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
 import shuffleArray from '@/utilities/shuffle-array';
-import * as types from 'types';
+import type * as types from 'types';
 
 export interface TracklistState {
-  currentTrack: types.ParsedFile | null;
+  currentTrack: types.Track | null;
   currentTrackObjectURL: string;
+  isPlaying: boolean;
   queue: string[];
+  metadata: types.TrackMetadata[];
   selectedTrackId: string;
-  tracks: types.ParsedFile[];
+  tracks: types.Track[];
 }
 
 const initialState: TracklistState = {
   currentTrack: null,
   currentTrackObjectURL: '',
+  isPlaying: false,
+  metadata: [],
   queue: [],
   selectedTrackId: '',
   tracks: [],
@@ -24,7 +28,7 @@ export const tracklistSlice = createSlice({
   initialState,
   name: 'tracklist',
   reducers: {
-    addTrack: (state, action: PayloadAction<types.ParsedFile>) => {
+    addTrack: (state, action: PayloadAction<types.Track>) => {
       state.tracks = [
         ...state.tracks,
         action.payload,
@@ -32,18 +36,27 @@ export const tracklistSlice = createSlice({
     },
     addTrackMetadata: (
       state,
-      action: PayloadAction<{ id: string, metadata: types.Metadata | null }>,
+      action: PayloadAction<types.TrackMetadata>,
     ) => {
-      state.tracks = state.tracks.map((track: types.ParsedFile): types.ParsedFile => {
-        if (track.id === action.payload.id) {
-          track.metadata = action.payload.metadata;
+      const { id, metadata } = action.payload;
+      if (state.metadata.length === 0) {
+        state.metadata = [{ id, metadata }];
+      } else {
+        const ids = state.metadata.map((entry: types.TrackMetadata): string => entry.id);
+        if (!ids.includes(id)) {
+          state.metadata = [
+            ...state.metadata,
+            {
+              id,
+              metadata,
+            },
+          ];
         }
-        return track;
-      });
+      }
     },
     changeCurrentTrack: (state, action: PayloadAction<string>) => {
       const [track] = state.tracks.filter(
-        (item: types.ParsedFile): boolean => item.id === action.payload,
+        (item: types.Track): boolean => item.id === action.payload,
       );
       state.currentTrack = track;
     },
@@ -52,6 +65,9 @@ export const tracklistSlice = createSlice({
         URL.revokeObjectURL(state.currentTrackObjectURL);
       }
       state.currentTrackObjectURL = action.payload;
+    },
+    changeIsPlaying: (state, action: PayloadAction<boolean>) => {
+      state.isPlaying = action.payload;
     },
     changeSelectedTrackId: (state, action: PayloadAction<string>) => {
       state.selectedTrackId = action.payload;
@@ -88,11 +104,12 @@ export const tracklistSlice = createSlice({
       }
       state.currentTrack = initialState.currentTrack;
       state.currentTrackObjectURL = '';
+      state.metadata = [];
       state.queue = [];
       state.selectedTrackId = '';
       state.tracks = [];
     },
-    loadPlaylist: (state, action: PayloadAction<types.ParsedFile[]>) => {
+    loadPlaylist: (state, action: PayloadAction<types.Track[]>) => {
       state.tracks = action.payload;
     },
     removeIdFromQueue: (state, action: PayloadAction<string>) => {
@@ -111,10 +128,13 @@ export const tracklistSlice = createSlice({
       );
       const selectedTrackIdIndex = state
         .tracks
-        .map((track: types.ParsedFile): string => track.id)
+        .map((track: types.Track): string => track.id)
         .indexOf(action.payload);
+      state.metadata = state.metadata.filter(
+        (entry: types.TrackMetadata): boolean => entry.id !== action.payload,
+      );
       state.tracks = state.tracks.filter(
-        (track: types.ParsedFile): boolean => track.id !== action.payload,
+        (track: types.Track): boolean => track.id !== action.payload,
       );
       if (state.tracks.length >= 1) {
         state.selectedTrackId = selectedTrackIdIndex <= state.tracks.length - 1
@@ -148,6 +168,7 @@ export const {
   addTrackMetadata,
   changeCurrentTrack,
   changeCurrentTrackObjectURL,
+  changeIsPlaying,
   changeSelectedTrackId,
   changeSelectedTrackIdWithKeys,
   clearTracklist,

@@ -5,21 +5,28 @@ import {
 } from 'electron';
 
 import { IPC_EVENTS } from '../constants';
-import * as types from 'types';
+import type * as types from 'types';
 
 // VAWE
 contextBridge.exposeInMainWorld(
   'backend',
   {
-    // handle file drop: parse dropped items
-    handleDrop(payload: string[]): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.handleDrop, payload);
+    // add files
+    addFilesRequest(payload: string[]) {
+      ipcRenderer.invoke(IPC_EVENTS.addFilesRequest, payload);
     },
-    // request default playlist loading
-    loadDefaultPlaylistRequest(): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.loadDefaultPlaylistRequest);
+    addFilesResponse(
+      callback: (
+        event: IpcRendererEvent,
+        payload: types.Track,
+      ) => void,
+    ) {
+      ipcRenderer.on(IPC_EVENTS.addFilesResponse, callback);
     },
-    // pass default playlist to renderer
+    // load default playlist
+    loadDefaultPlaylistRequest() {
+      ipcRenderer.invoke(IPC_EVENTS.loadDefaultPlaylistRequest);
+    },
     loadDefaultPlaylistResponse(
       callback: (
         event: IpcRendererEvent,
@@ -28,31 +35,33 @@ contextBridge.exposeInMainWorld(
     ) {
       ipcRenderer.on(IPC_EVENTS.loadDefaultPlaylistResponse, callback);
     },
-    // request file data as Blob
-    loadFileRequest(payload: types.LoadFileRequestPayload): Promise<void> {
+    // load file
+    loadFileRequest(payload: types.LoadFileRequestPayload) {
       return ipcRenderer.invoke(IPC_EVENTS.loadFileRequest, payload);
     },
-    // pass requested file data to renderer
-    loadFileResponse(callback: ((payload: types.LoadFileResponsePayload) => void)) {
-      ipcRenderer.on(
-        IPC_EVENTS.loadFileResponse,
-        (_, value: types.LoadFileResponsePayload) => callback(value),
-      );
+    loadFileResponse(
+      callback: (
+        event: IpcRendererEvent,
+        payload: types.LoadFileResponsePayload,
+      ) => void,
+    ) {
+      ipcRenderer.on(IPC_EVENTS.loadFileResponse, callback);
     },
-    // handle adding file to the playlist
-    onAddFile(callback: ((event: IpcRendererEvent, entry: types.ParsedFile) => void)) {
-      ipcRenderer.on(IPC_EVENTS.handleAddFile, callback);
+    // load metadata
+    loadMetadataRequest(payload: string) {
+      ipcRenderer.invoke(IPC_EVENTS.loadMetadataRequest, payload);
     },
-    // receive audio file metadata
-    onReceiveMetadata(callback: ((metadata: types.Metadata) => void)) {
-      ipcRenderer.on(
-        IPC_EVENTS.handleReceiveMetadata,
-        (_, value: types.Metadata) => callback(value),
-      );
+    loadMetadataResponse(
+      callback: (
+        event: IpcRendererEvent,
+        payload: types.LoadMetadataResponsePayload,
+      ) => void,
+    ) {
+      ipcRenderer.on(IPC_EVENTS.loadMetadataResponse, callback);
     },
     // open playlist via dialog window
-    openPlaylistRequest(): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.openPlaylistRequest);
+    openPlaylistRequest() {
+      ipcRenderer.invoke(IPC_EVENTS.openPlaylistRequest);
     },
     openPlaylistResponse(
       callback: (
@@ -62,13 +71,9 @@ contextBridge.exposeInMainWorld(
     ) {
       ipcRenderer.on(IPC_EVENTS.openPlaylistResponse, callback);
     },
-    // request audio file metadata
-    requestMetadata(payload: string): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.handleRequestMetadata, payload);
-    },
     // save playlist via dialog window
-    savePlaylistRequest(payload: types.ParsedFile[]): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.savePlaylistRequest, payload);
+    savePlaylistRequest(payload: types.Track[]) {
+      ipcRenderer.invoke(IPC_EVENTS.savePlaylistRequest, payload);
     },
     savePlaylistResponse(
       callback: (
@@ -79,8 +84,8 @@ contextBridge.exposeInMainWorld(
       ipcRenderer.on(IPC_EVENTS.savePlaylistResponse, callback);
     },
     // update default playlist
-    updateDefaultPlaylistRequest(payload: types.ParsedFile[]): Promise<void> {
-      return ipcRenderer.invoke(IPC_EVENTS.updateDefaultPlaylistRequest, payload);
+    updateDefaultPlaylistRequest(payload: types.Track[]) {
+      ipcRenderer.invoke(IPC_EVENTS.updateDefaultPlaylistRequest, payload);
     },
   },
 );

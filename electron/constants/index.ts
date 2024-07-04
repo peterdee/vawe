@@ -2,18 +2,22 @@ export const DEFAULT_PLAYLIST_NAME = 'vawe-default.va';
 
 export const FORMATS = ['.flac', '.mp3', '.wav'];
 
+export const IPC_ERROR_MESSAGES = {
+  missingRequiredParameters: 'missing required parameters',
+};
+
 export const IPC_EVENTS = {
-  handleAddFile: 'handle:addFile',
-  handleDrop: 'handle:drop',
-  handleRequestMetadata: 'handle:requestMetadata',
-  handleReceiveMetadata: 'handle:receiveMetadata',
-  loadFileRequest: 'loadFileRequest',
-  loadFileResponse: 'loadFileResponse',
+  addFilesRequest: 'addFilesRequest',
+  addFilesResponse: 'addFilesResponse',
   loadDefaultPlaylistRequest: 'loadDefaultPlaylistRequest',
   loadDefaultPlaylistResponse: 'loadDefaultPlaylistResponse',
+  loadFileRequest: 'loadFileRequest',
+  loadFileResponse: 'loadFileResponse',
+  loadMetadataRequest: 'loadMetadataRequest',
+  loadMetadataResponse: 'loadMetadataResponse',
   openPlaylistRequest: 'openPlaylistRequest',
   openPlaylistResponse: 'openPlaylistResponse',
   savePlaylistRequest: 'savePlaylistRequest',
   savePlaylistResponse: 'savePlaylistResponse',
-  updateDefaultPlaylistRequest: 'changeDefaultPlaylistRequest',
+  updateDefaultPlaylistRequest: 'updateDefaultPlaylistRequest',
 };
