@@ -18,11 +18,11 @@ function Playlist(): React.JSX.Element {
   const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
   );
+  const currentTrackMetadata = useSelector<RootState, types.TrackMetadata | null>(
+    (state) => state.tracklist.currentTrackMetadata,
+  );
   const isPlaying = useSelector<RootState, boolean>(
     (state) => state.tracklist.isPlaying,
-  );
-  const metadata = useSelector<RootState, types.TrackMetadata[]>(
-    (state) => state.tracklist.metadata,
   );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
@@ -51,11 +51,8 @@ function Playlist(): React.JSX.Element {
   };
 
   const handleContextMenu = (id: string) => {
-    const [trackMetadata] = metadata.filter(
-      (entry: types.TrackMetadata): boolean => entry.id === id,
-    );
-    if (trackMetadata) {
-      return console.log('metadata already loaded:', trackMetadata);
+    if (currentTrack && currentTrack.id === id && currentTrackMetadata) {
+      return console.log('metadata already loaded:', currentTrackMetadata);
     }
     return extendedWindow.backend.loadMetadataRequest({
       id,

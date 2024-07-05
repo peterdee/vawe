@@ -7,8 +7,8 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import {
   addTrack,
-  addTrackMetadata,
   changeCurrentTrack,
+  changeCurrentTrackMetadata,
   changeCurrentTrackObjectURL,
   changeIsPlaying,
   changeSelectedTrackIdWithKeys,
@@ -23,6 +23,7 @@ import formatTrackName from '@/utilities/format-track-name';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import PlaylistSettings from './components/PlaylistSettings';
+import TrackCover from './components/TrackCover';
 import type * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import WavesurferPlayer from './components/WavesurferPlayer';
@@ -111,7 +112,7 @@ function Player(): React.JSX.Element {
           dispatch(changeCurrentTrackObjectURL(objectURL));
           dispatch(changeCurrentTrack(id));
           if (metadata) {
-            dispatch(addTrackMetadata({ id, metadata }));
+            dispatch(changeCurrentTrackMetadata({ id, metadata }));
           }
         },
       );
@@ -121,7 +122,7 @@ function Player(): React.JSX.Element {
           console.log('error loading metadata', error);
         }
         if (!error && metadata) {
-          dispatch(addTrackMetadata({ id, metadata }));
+          dispatch(changeCurrentTrackMetadata({ id, metadata }));
         }
       });
 
@@ -324,6 +325,7 @@ function Player(): React.JSX.Element {
         onFinish={wavesurferOnFinish}
         onReady={wavesurferOnReady}
       />
+      <TrackCover />
       <div className="f j-space-between ai-center mh-1">
         <PlaybackControls
           handleChangeTrack={handleChangeTrack}

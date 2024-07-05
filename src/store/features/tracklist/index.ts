@@ -6,19 +6,19 @@ import type * as types from 'types';
 
 export interface TracklistState {
   currentTrack: types.Track | null;
+  currentTrackMetadata: types.TrackMetadata | null;
   currentTrackObjectURL: string;
   isPlaying: boolean;
   queue: string[];
-  metadata: types.TrackMetadata[];
   selectedTrackId: string;
   tracks: types.Track[];
 }
 
 const initialState: TracklistState = {
   currentTrack: null,
+  currentTrackMetadata: null,
   currentTrackObjectURL: '',
   isPlaying: false,
-  metadata: [],
   queue: [],
   selectedTrackId: '',
   tracks: [],
@@ -34,31 +34,17 @@ export const tracklistSlice = createSlice({
         action.payload,
       ];
     },
-    addTrackMetadata: (
-      state,
-      action: PayloadAction<types.TrackMetadata>,
-    ) => {
-      const { id, metadata } = action.payload;
-      if (state.metadata.length === 0) {
-        state.metadata = [{ id, metadata }];
-      } else {
-        const ids = state.metadata.map((entry: types.TrackMetadata): string => entry.id);
-        if (!ids.includes(id)) {
-          state.metadata = [
-            ...state.metadata,
-            {
-              id,
-              metadata,
-            },
-          ];
-        }
-      }
-    },
     changeCurrentTrack: (state, action: PayloadAction<string>) => {
       const [track] = state.tracks.filter(
         (item: types.Track): boolean => item.id === action.payload,
       );
       state.currentTrack = track;
+    },
+    changeCurrentTrackMetadata: (
+      state,
+      action: PayloadAction<types.TrackMetadata>,
+    ) => {
+      state.currentTrackMetadata = action.payload;
     },
     changeCurrentTrackObjectURL: (state, action: PayloadAction<string>) => {
       if (state.currentTrackObjectURL) {
@@ -103,11 +89,11 @@ export const tracklistSlice = createSlice({
         URL.revokeObjectURL(state.currentTrackObjectURL);
       }
       state.currentTrack = initialState.currentTrack;
-      state.currentTrackObjectURL = '';
-      state.metadata = [];
-      state.queue = [];
-      state.selectedTrackId = '';
-      state.tracks = [];
+      state.currentTrackMetadata = initialState.currentTrackMetadata;
+      state.currentTrackObjectURL = initialState.currentTrackObjectURL;
+      state.queue = initialState.queue;
+      state.selectedTrackId = initialState.selectedTrackId;
+      state.tracks = initialState.tracks;
     },
     loadPlaylist: (state, action: PayloadAction<types.Track[]>) => {
       state.tracks = action.payload;
@@ -117,11 +103,12 @@ export const tracklistSlice = createSlice({
     },
     removeTrack: (state, action: PayloadAction<string>) => {
       if (state.currentTrack && state.currentTrack.id === action.payload) {
-        state.currentTrack = null;
+        state.currentTrack = initialState.currentTrack;
         if (state.currentTrackObjectURL) {
           URL.revokeObjectURL(state.currentTrackObjectURL);
         }
-        state.currentTrackObjectURL = '';
+        state.currentTrackMetadata = initialState.currentTrackMetadata;
+        state.currentTrackObjectURL = initialState.currentTrackObjectURL;
       }
       state.queue = state.queue.filter(
         (id: string): boolean => id !== action.payload, 
@@ -130,9 +117,6 @@ export const tracklistSlice = createSlice({
         .tracks
         .map((track: types.Track): string => track.id)
         .indexOf(action.payload);
-      state.metadata = state.metadata.filter(
-        (entry: types.TrackMetadata): boolean => entry.id !== action.payload,
-      );
       state.tracks = state.tracks.filter(
         (track: types.Track): boolean => track.id !== action.payload,
       );
@@ -165,8 +149,8 @@ export const tracklistSlice = createSlice({
 
 export const {
   addTrack,
-  addTrackMetadata,
   changeCurrentTrack,
+  changeCurrentTrackMetadata,
   changeCurrentTrackObjectURL,
   changeIsPlaying,
   changeSelectedTrackId,

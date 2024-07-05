@@ -30,6 +30,10 @@
 .playtime {
   height: calc(var(--spacer-half) * 3);
 }
+.track-cover {
+  height: calc(var(--spacer) * 10);
+  width: calc(var(--spacer) * 10);
+}
 .track-duration {
   width: calc(var(--spacer-half) + var(--spacer) * 4);
 }
