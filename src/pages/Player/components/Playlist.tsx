@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import { changeSelectedTrackId } from '@/store/features/tracklist';
 import formatDuration from '@/utilities/format-duration';
-import formatTrackName from '@/utilities/format-track-name';
 import IconPause from '@/components/IconPause';
 import IconPlay from '@/components/IconPlay';
 import type * as types from 'types';
@@ -124,7 +123,7 @@ function Playlist(): React.JSX.Element {
                 }
               </div>
               <div className="track-name">
-                { formatTrackName(item.name) }
+                { item.name }
               </div>
             </div>
             <div className="track-duration t-right">

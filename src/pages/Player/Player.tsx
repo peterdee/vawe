@@ -19,7 +19,6 @@ import {
 } from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
 import BottomPanel from './components/BottomPanel';
-import formatTrackName from '@/utilities/format-track-name';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import PlaylistSettings from './components/PlaylistSettings';
@@ -65,7 +64,7 @@ function Player(): React.JSX.Element {
     () => {
       let title = 'VAWE';
       if (currentTrack && currentTrack.name) {
-        title = `VAWE: ${formatTrackName(currentTrack.name)}`;
+        title = `VAWE: ${currentTrack.name}`;
       }
       window.document.title = title;
     },
@@ -112,6 +111,8 @@ function Player(): React.JSX.Element {
           dispatch(changeCurrentTrackObjectURL(objectURL));
           dispatch(changeCurrentTrack(id));
           if (metadata) {
+            console.log(metadata);
+            // TODO: dispatch custom metadata payload, leave only the necessary fields
             dispatch(changeCurrentTrackMetadata({ id, metadata }));
           }
         },
@@ -319,13 +320,13 @@ function Player(): React.JSX.Element {
   return (
     <div className="f d-col j-start h-100vh">
       <div className="f j-center mt-1">
-        { currentTrack && formatTrackName(currentTrack.name) || 'VAWE' }
+        { currentTrack && currentTrack.name || 'VAWE' }
       </div>
+      <TrackCover />
       <WavesurferPlayer
         onFinish={wavesurferOnFinish}
         onReady={wavesurferOnReady}
       />
-      <TrackCover />
       <div className="f j-space-between ai-center mh-1">
         <PlaybackControls
           handleChangeTrack={handleChangeTrack}

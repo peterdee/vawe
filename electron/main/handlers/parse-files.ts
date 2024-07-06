@@ -9,6 +9,7 @@ import { parseFile } from 'music-metadata';
 import { readdir, stat } from 'node:fs/promises';
 import type * as types from 'types';
 
+import formatTrackName from '../utilities/format-track-name';
 import { FORMATS, IPC_EVENTS } from '../../constants';
 
 async function handleFile(
@@ -23,10 +24,12 @@ async function handleFile(
     },
   );
 
-  let trackName = name;
+  let trackName = formatTrackName(name);
   if (metadata.common.title) {
     trackName = metadata.common.title;
-    if (metadata.common.artist) {
+    if (metadata.common.artists && metadata.common.artists.length > 0) {
+      trackName = `${metadata.common.artists.join(', ')} - ${trackName}`;
+    } else if (metadata.common.artist) {
       trackName = `${metadata.common.artist} - ${trackName}`;
     }
   }
