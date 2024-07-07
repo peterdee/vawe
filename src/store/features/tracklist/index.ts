@@ -44,6 +44,10 @@ export const tracklistSlice = createSlice({
       state,
       action: PayloadAction<types.TrackMetadata>,
     ) => {
+      if (state.currentTrackMetadata
+        && Array.isArray(state.currentTrackMetadata.metadata.pictureLinks)) {
+        state.currentTrackMetadata.metadata.pictureLinks.forEach(URL.revokeObjectURL);
+      }
       state.currentTrackMetadata = action.payload;
     },
     changeCurrentTrackObjectURL: (state, action: PayloadAction<string>) => {
@@ -88,6 +92,10 @@ export const tracklistSlice = createSlice({
       if (state.currentTrackObjectURL) {
         URL.revokeObjectURL(state.currentTrackObjectURL);
       }
+      if (state.currentTrackMetadata
+        && Array.isArray(state.currentTrackMetadata.metadata.pictureLinks)) {
+        state.currentTrackMetadata.metadata.pictureLinks.forEach(URL.revokeObjectURL);
+      }
       state.currentTrack = initialState.currentTrack;
       state.currentTrackMetadata = initialState.currentTrackMetadata;
       state.currentTrackObjectURL = initialState.currentTrackObjectURL;
@@ -106,6 +114,10 @@ export const tracklistSlice = createSlice({
         state.currentTrack = initialState.currentTrack;
         if (state.currentTrackObjectURL) {
           URL.revokeObjectURL(state.currentTrackObjectURL);
+        }
+        if (state.currentTrackMetadata
+          && Array.isArray(state.currentTrackMetadata.metadata.pictureLinks)) {
+          state.currentTrackMetadata.metadata.pictureLinks.forEach(URL.revokeObjectURL);
         }
         state.currentTrackMetadata = initialState.currentTrackMetadata;
         state.currentTrackObjectURL = initialState.currentTrackObjectURL;

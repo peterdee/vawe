@@ -13,6 +13,10 @@ type Callback<T> = (
   payload: T,
 ) => void;
 
+export type CustomAudioMetadata = Pick<IAudioMetadata, 'common' | 'format'> & {
+  pictureLinks?: string[];
+};
+
 export type ExtendedWindow = BaseWindow & {
   backend: {
     addFilesRequest: (payload: string[]) => void;
@@ -73,7 +77,7 @@ export interface Track {
 
 export interface TrackMetadata {
   id: string;
-  metadata: IAudioMetadata;
+  metadata: CustomAudioMetadata;
 }
 
 export type SavePlaylistResponsePayload = 'cancelled' | 'internalError' | 'ok';

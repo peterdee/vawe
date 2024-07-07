@@ -22,7 +22,7 @@ import BottomPanel from './components/BottomPanel';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import PlaylistSettings from './components/PlaylistSettings';
-import TrackCover from './components/TrackCover';
+import TrackInfo from './components/TrackInfo';
 import type * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import WavesurferPlayer from './components/WavesurferPlayer';
@@ -111,9 +111,27 @@ function Player(): React.JSX.Element {
           dispatch(changeCurrentTrackObjectURL(objectURL));
           dispatch(changeCurrentTrack(id));
           if (metadata) {
-            console.log(metadata);
-            // TODO: dispatch custom metadata payload, leave only the necessary fields
-            dispatch(changeCurrentTrackMetadata({ id, metadata }));
+            const pictureLinks: string[] = [];
+            if (metadata.common
+              && metadata.common.picture
+              && metadata.common.picture.length > 0) {
+              metadata.common.picture.forEach((value) => {
+                if (value.data) {
+                  pictureLinks.push(URL.createObjectURL(new Blob([value.data])));
+                }
+              });
+            }
+            dispatch(changeCurrentTrackMetadata({
+              id,
+              metadata: {
+                common: {
+                  ...metadata.common,
+                  picture: undefined,
+                },
+                format: metadata.format,
+                pictureLinks,
+              },
+            }));
           }
         },
       );
@@ -319,10 +337,7 @@ function Player(): React.JSX.Element {
   
   return (
     <div className="f d-col j-start h-100vh">
-      <div className="f j-center mt-1">
-        { currentTrack && currentTrack.name || 'VAWE' }
-      </div>
-      <TrackCover />
+      <TrackInfo />
       <WavesurferPlayer
         onFinish={wavesurferOnFinish}
         onReady={wavesurferOnReady}

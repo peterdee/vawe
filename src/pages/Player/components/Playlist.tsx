@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import { changeSelectedTrackId } from '@/store/features/tracklist';
 import formatDuration from '@/utilities/format-duration';
-import IconPause from '@/components/IconPause';
 import IconPlay from '@/components/IconPlay';
 import type * as types from 'types';
 import { UNIT } from '@/constants';
@@ -19,9 +18,6 @@ function Playlist(): React.JSX.Element {
   );
   const currentTrackMetadata = useSelector<RootState, types.TrackMetadata | null>(
     (state) => state.tracklist.currentTrackMetadata,
-  );
-  const isPlaying = useSelector<RootState, boolean>(
-    (state) => state.tracklist.isPlaying,
   );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
@@ -100,22 +96,11 @@ function Playlist(): React.JSX.Element {
             <div className="f ai-center">
               <div className="f j-center mr-1 track-index">
                 { currentTrack && currentTrack.id === item.id && (
-                  <>
-                    { isPlaying && (
-                      <IconPause
-                        height={UNIT}
-                        iconColorBase="lightgreen"
-                        width={UNIT}
-                      />
-                    ) }
-                    { !isPlaying && (
-                      <IconPlay
-                        height={UNIT}
-                        iconColorBase="lightgreen"
-                        width={UNIT}
-                      />
-                    ) }
-                  </>
+                  <IconPlay
+                    height={UNIT}
+                    iconColorBase="lightgreen"
+                    width={UNIT}
+                  />
                 ) }
                 {
                   (!currentTrack || (currentTrack && currentTrack.id !== item.id))

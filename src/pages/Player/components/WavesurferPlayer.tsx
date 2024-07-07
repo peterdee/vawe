@@ -45,7 +45,7 @@ function WavesurferPlayer(props: WavesurferPlayerProps): React.JSX.Element {
         <Player
           cursorColor="black"
           cursorWidth={2}
-          height={100}
+          height={32}
           onReady={onReady}
           onFinish={onFinish}
           onTimeupdate={onTime}
