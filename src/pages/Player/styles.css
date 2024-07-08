@@ -1,3 +1,47 @@
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: calc(var(--spacer) * 8);
+}
+input[type="range"]:focus {
+  outline: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  background-color: var(--muted-light);
+  border-radius: var(--spacer-quarter);
+  height: var(--spacer-half);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: calc(var(--spacer-quarter) * -1);
+  background-color: var(--accent);
+  border-radius: var(--spacer-half);
+  height: var(--spacer);
+  width: var(--spacer);
+}
+input[type="range"]:focus::-webkit-slider-thumb {
+  outline: 3px solid var(--accent);
+  outline-offset: 0.125rem;
+}
+input[type="range"]::-moz-range-track {
+  background-color: var(--muted-light);
+  border-radius: var(--spacer-quarter);
+  height: var(--spacer-half);
+}
+input[type="range"]::-moz-range-thumb {
+  background-color: var(--accent);
+  border: none;
+  border-radius: var(--spacer-half);
+  height: var(--spacer);
+  width: var(--spacer);
+}
+input[type="range"]:focus::-moz-range-thumb{
+  outline: 3px solid var(--accent);
+  outline-offset: 0.125rem;
+}
 .bottom-panel, .playtime {
   font-size: calc(var(--spacer-half) + var(--spacer-half) / 2);
 }
@@ -35,6 +79,16 @@
 }
 .playtime-separator {
   width: var(--spacer);
+}
+.settings-modal-wrap {
+  position: fixed;
+  top: calc(50% - var(--spacer) * 10);
+  left: calc(50% - var(--spacer) * 10);
+  border-radius: var(--spacer);
+  background-color: var(--background);
+  z-index: 12;
+  height: calc(var(--spacer) * 20);
+  width: calc(var(--spacer) * 20);
 }
 .track-duration {
   width: calc(var(--spacer-half) + var(--spacer) * 4);

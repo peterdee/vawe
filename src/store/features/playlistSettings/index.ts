@@ -3,12 +3,12 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 
 export interface PlaylistSettingsState {
   isLooped: boolean;
-  isShuffled: boolean;
+  showSettingsModal: boolean;
 }
 
 const initialState: PlaylistSettingsState = {
-  isLooped: true,
-  isShuffled: false,
+  isLooped: false,
+  showSettingsModal: false,
 };
 
 export const playlistSettingsSlice = createSlice({
@@ -18,11 +18,15 @@ export const playlistSettingsSlice = createSlice({
     changeLoop: (state, action: PayloadAction<boolean>) => {
       state.isLooped = action.payload;
     },
+    changeShowSettingsModal: (state, action: PayloadAction<boolean>) => {
+      state.showSettingsModal = action.payload;
+    },
   },
 });
 
 export const {
   changeLoop,
+  changeShowSettingsModal,
 } = playlistSettingsSlice.actions;
 
 export default playlistSettingsSlice.reducer;

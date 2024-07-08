@@ -20,6 +20,7 @@ import {
 import type { AppDispatch, RootState } from '@/store';
 import BottomPanel from './components/BottomPanel';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
+import { changeShowSettingsModal } from '@/store/features/playlistSettings';
 import ElapsedTime from './components/ElapsedTime';
 import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
@@ -30,6 +31,7 @@ import type * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import WavesurferPlayer from './components/WavesurferPlayer';
 import './styles.css';
+import PlaylistSettingsModal from './components/PlaylistSettingsModal';
 
 const extendedWindow = window as types.ExtendedWindow;
 
@@ -55,6 +57,9 @@ function Player(): React.JSX.Element {
   );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
+  );
+  const showSettingsModal = useSelector<RootState, boolean>(
+    (state) => state.playlistSettings.showSettingsModal,
   );
   const tracks = useSelector<RootState, types.Track[]>(
     (state) => state.tracklist.tracks,
@@ -294,6 +299,11 @@ function Player(): React.JSX.Element {
     ],
   );
 
+  const handleShowSettingsModal = () => {
+    console.log('toggle')
+    dispatch(changeShowSettingsModal(true));
+  };
+
   useEffect(
     () => {
       extendedWindow.addEventListener('keydown', handleKeyDown);
@@ -340,6 +350,9 @@ function Player(): React.JSX.Element {
   
   return (
     <div className="f d-col j-start h-100vh">
+      { showSettingsModal && (
+        <PlaylistSettingsModal />
+      ) }
       <TrackInfo />
       <WavesurferPlayer
         onFinish={wavesurferOnFinish}
@@ -355,7 +368,7 @@ function Player(): React.JSX.Element {
           <VolumeControls wavesurfer={wavesurfer} />
           <ButtonWithIcon
             globalStyles="ml-1"
-            onClick={() => console.log('playlist settings')}
+            onClick={handleShowSettingsModal}
           >
             <IconPlaylistSettings />
           </ButtonWithIcon>
