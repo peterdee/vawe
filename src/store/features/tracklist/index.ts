@@ -6,6 +6,7 @@ import type * as types from 'types';
 
 export interface TracklistState {
   currentTrack: types.Track | null;
+  currentTrackElapsedTime: number;
   currentTrackMetadata: types.TrackMetadata | null;
   currentTrackObjectURL: string;
   isPlaying: boolean;
@@ -16,6 +17,7 @@ export interface TracklistState {
 
 const initialState: TracklistState = {
   currentTrack: null,
+  currentTrackElapsedTime: 0,
   currentTrackMetadata: null,
   currentTrackObjectURL: '',
   isPlaying: false,
@@ -39,6 +41,10 @@ export const tracklistSlice = createSlice({
         (item: types.Track): boolean => item.id === action.payload,
       );
       state.currentTrack = track;
+      state.currentTrackElapsedTime = 0;
+    },
+    changeCurrentTrackElapsedTime: (state, action: PayloadAction<number>) => {
+      state.currentTrackElapsedTime = action.payload;
     },
     changeCurrentTrackMetadata: (
       state,
@@ -97,6 +103,7 @@ export const tracklistSlice = createSlice({
         state.currentTrackMetadata.metadata.pictureLinks.forEach(URL.revokeObjectURL);
       }
       state.currentTrack = initialState.currentTrack;
+      state.currentTrackElapsedTime = 0;
       state.currentTrackMetadata = initialState.currentTrackMetadata;
       state.currentTrackObjectURL = initialState.currentTrackObjectURL;
       state.queue = initialState.queue;
@@ -112,6 +119,7 @@ export const tracklistSlice = createSlice({
     removeTrack: (state, action: PayloadAction<string>) => {
       if (state.currentTrack && state.currentTrack.id === action.payload) {
         state.currentTrack = initialState.currentTrack;
+        state.currentTrackElapsedTime = 0;
         if (state.currentTrackObjectURL) {
           URL.revokeObjectURL(state.currentTrackObjectURL);
         }
@@ -162,6 +170,7 @@ export const tracklistSlice = createSlice({
 export const {
   addTrack,
   changeCurrentTrack,
+  changeCurrentTrackElapsedTime,
   changeCurrentTrackMetadata,
   changeCurrentTrackObjectURL,
   changeIsPlaying,

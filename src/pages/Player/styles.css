@@ -30,6 +30,12 @@
 .playtime {
   height: calc(var(--spacer-half) * 3);
 }
+.playtime-element {
+  width: calc(var(--spacer) * 4);
+}
+.playtime-separator {
+  width: var(--spacer);
+}
 .track-duration {
   width: calc(var(--spacer-half) + var(--spacer) * 4);
 }

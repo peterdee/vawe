@@ -19,6 +19,9 @@ import {
 } from '@/store/features/tracklist';
 import type { AppDispatch, RootState } from '@/store';
 import BottomPanel from './components/BottomPanel';
+import ButtonWithIcon from '@/components/ButtonWithIcon';
+import ElapsedTime from './components/ElapsedTime';
+import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import PlaylistSettings from './components/PlaylistSettings';
@@ -347,7 +350,16 @@ function Player(): React.JSX.Element {
           handleChangeTrack={handleChangeTrack}
           wavesurfer={wavesurfer}
         />
-        <VolumeControls wavesurfer={wavesurfer} />
+        <ElapsedTime />
+        <div className="f ai-center">
+          <VolumeControls wavesurfer={wavesurfer} />
+          <ButtonWithIcon
+            globalStyles="ml-1"
+            onClick={() => console.log('playlist settings')}
+          >
+            <IconPlaylistSettings />
+          </ButtonWithIcon>
+        </div>
       </div>
       <PlaylistSettings />
       <Playlist />

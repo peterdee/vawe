@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useSelector } from 'react-redux';
 
 import { COLORS, UNIT } from '@/constants';
@@ -16,9 +20,44 @@ function TrackInfo(): React.JSX.Element {
     (state) => state.tracklist.currentTrackMetadata,
   );
 
+  const genre = useMemo(
+    () => {
+      if (currentTrackMetadata && currentTrackMetadata.metadata) {
+        const string = Array.isArray(currentTrackMetadata.metadata.common.genre)
+          && currentTrackMetadata.metadata.common.genre.length > 0
+          ? currentTrackMetadata.metadata.common.genre.join(', ')
+          : '';
+        return string;
+      }
+      return '';
+    },
+    [currentTrackMetadata],
+  );
+
+  const metadataString = useMemo(
+    () => {
+      if (currentTrackMetadata && currentTrackMetadata.metadata) {
+        let bitrate = currentTrackMetadata.metadata.format.bitrate;
+        if (bitrate) {
+          bitrate = Math.round(bitrate / 1000);
+        }
+        let string = `${bitrate}kbps / ${
+          currentTrackMetadata.metadata.format.sampleRate
+        }khz / `;
+        string += currentTrackMetadata.metadata.format.numberOfChannels === 2
+          ? 'stereo'
+          : 'mono';
+        return string;
+      }
+      return '';
+    },
+    [currentTrackMetadata],
+  );
+
   useEffect(
     () => {
       if (currentTrackMetadata
+        && currentTrackMetadata.metadata
         && currentTrackMetadata.metadata.pictureLinks
         && currentTrackMetadata.metadata.pictureLinks.length > 0) {
         setCoverLink(currentTrackMetadata.metadata.pictureLinks[0]);
@@ -83,8 +122,14 @@ function TrackInfo(): React.JSX.Element {
           </svg>
         ) }
       </div>
-      <div className="f ml-1">
-        { currentTrack && currentTrack.name || 'VAWE' }
+      <div className="f d-col ml-1">
+        <div>
+          { currentTrack && currentTrack.name || 'VAWE' }
+        </div>
+        <div>
+          { metadataString }
+        </div>
+        { genre && `Genre: ${genre}` }
       </div>
     </div>
   );

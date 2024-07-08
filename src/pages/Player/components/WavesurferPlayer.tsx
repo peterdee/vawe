@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Player from '@wavesurfer/react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import formatDuration from '@/utilities/format-duration';
-import type { RootState } from '@/store';
+import type { AppDispatch, RootState } from '@/store';
+import { changeCurrentTrackElapsedTime } from '@/store/features/tracklist';
 import type * as types from 'types';
 
 interface WavesurferPlayerProps {
@@ -17,59 +17,31 @@ function WavesurferPlayer(props: WavesurferPlayerProps): React.JSX.Element {
     onReady,
   } = props;
 
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const currentTrack = useSelector<RootState, types.Track | null>(
-    (state) => state.tracklist.currentTrack,
-  );
   const currentTrackObjectURL = useSelector<RootState, string>(
     (state) => state.tracklist.currentTrackObjectURL,
   );
 
   const onTime = (wavesurfer: types.WaveSurferInstance) => {
     if (wavesurfer) {
-      setElapsedTime(wavesurfer.getCurrentTime());
+      dispatch(changeCurrentTrackElapsedTime(wavesurfer.getCurrentTime()));
     }
   };
 
-  useEffect(
-    () => {
-      setElapsedTime(0);
-    },
-    [currentTrackObjectURL],
-  );
-
   return (
-    <div className="f d-col m-1">
-      <div>
-        <Player
-          cursorColor="black"
-          cursorWidth={2}
-          height={32}
-          onReady={onReady}
-          onFinish={onFinish}
-          onTimeupdate={onTime}
-          progressColor="darkgreen"
-          url={currentTrackObjectURL}
-          waveColor="lightgreen"
-        />
-      </div>
-      <div className="f j-space-between mt-quarter ai-center ns playtime">
-        { currentTrackObjectURL && (
-          <>
-            <div>
-              { formatDuration(elapsedTime) }
-            </div>
-            <div>
-              {
-                currentTrack && currentTrackObjectURL
-                  ? formatDuration(currentTrack.durationSeconds)
-                  : '00:00'
-              }
-            </div>
-          </>
-        ) }
-      </div>
+    <div className="m-1">
+      <Player
+        cursorColor="black"
+        cursorWidth={2}
+        height={32}
+        onReady={onReady}
+        onFinish={onFinish}
+        onTimeupdate={onTime}
+        progressColor="darkgreen"
+        url={currentTrackObjectURL}
+        waveColor="lightgreen"
+      />
     </div>
   );
 }
