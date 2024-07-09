@@ -25,13 +25,12 @@ import ElapsedTime from './components/ElapsedTime';
 import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
-import PlaylistSettings from './components/PlaylistSettings';
+import PlaylistSettingsModal from './components/PlaylistSettingsModal';
 import TrackInfo from './components/TrackInfo';
 import type * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import WavesurferPlayer from './components/WavesurferPlayer';
 import './styles.css';
-import PlaylistSettingsModal from './components/PlaylistSettingsModal';
 
 const extendedWindow = window as types.ExtendedWindow;
 
@@ -372,7 +371,6 @@ function Player(): React.JSX.Element {
           </ButtonWithIcon>
         </div>
       </div>
-      <PlaylistSettings />
       <Playlist />
       <BottomPanel />
     </div>

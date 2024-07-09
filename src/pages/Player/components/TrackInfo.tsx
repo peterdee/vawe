@@ -20,6 +20,13 @@ function TrackInfo(): React.JSX.Element {
     (state) => state.tracklist.currentTrackMetadata,
   );
 
+  const album = useMemo(
+    (): string => currentTrackMetadata
+      && currentTrackMetadata.metadata
+      && currentTrackMetadata.metadata.common.album || '',
+    [currentTrackMetadata],
+  );
+
   const genre = useMemo(
     () => {
       if (currentTrackMetadata && currentTrackMetadata.metadata) {
@@ -127,9 +134,18 @@ function TrackInfo(): React.JSX.Element {
           { currentTrack && currentTrack.name || 'VAWE' }
         </div>
         <div>
-          { metadataString }
+          { `Stats: ${metadataString}` }
         </div>
-        { genre && `Genre: ${genre}` }
+        { album && (
+          <div>
+            { `Album: ${album}` }
+          </div>  
+        ) }
+        { genre && (
+          <div>
+            { `Genre: ${genre}` }
+          </div>  
+        ) }
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ interface StyledSwitchProps {
   checked: boolean;
   globalClasses?: string;
   labelText: string;
-  onChange: (event: React.FormEvent<HTMLInputElement>) => void;
+  onChange: () => void;
 }
 
 function StyledSwitch(
@@ -20,14 +20,17 @@ function StyledSwitch(
   } = props;
 
   return (
-    <label className={`f ai-center ns ${globalClasses}`}>
+    <label
+      className={`f ai-center ns ${globalClasses}`}
+      onClick={onChange}
+    >
       <span className="mr-1 label">
         { labelText }
       </span>
       <input
         checked={checked}
         className="checkbox"
-        onChange={onChange}
+        readOnly
         type="checkbox"
       />
       <div className="slider" />

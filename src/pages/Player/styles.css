@@ -81,14 +81,14 @@ input[type="range"]:focus::-moz-range-thumb{
   width: var(--spacer);
 }
 .settings-modal-wrap {
-  position: fixed;
-  top: calc(50% - var(--spacer) * 10);
-  left: calc(50% - var(--spacer) * 10);
-  border-radius: var(--spacer);
   background-color: var(--background);
+  border-radius: var(--spacer);
+  height: calc(var(--spacer) * 16);
+  left: calc(50% - var(--spacer) * 9);
+  position: fixed;
+  top: calc(50% - var(--spacer) * 8);
+  width: calc(var(--spacer) * 18);
   z-index: 12;
-  height: calc(var(--spacer) * 20);
-  width: calc(var(--spacer) * 20);
 }
 .track-duration {
   width: calc(var(--spacer-half) + var(--spacer) * 4);

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
@@ -41,10 +41,12 @@ function PlaylistSettingsModal(): React.JSX.Element {
     handleCloseModal();
   };
 
-  const handleLoopPlaylist = (event: React.FormEvent<HTMLInputElement>) => {
-    const value = event.currentTarget.value;
-    dispatch(changeLoop(!!value));
-  };
+  const handleLoopPlaylist = useCallback(
+    () => {
+      dispatch(changeLoop(!isLooped));
+    },
+    [isLooped],
+  );
 
   const handleOpenPlaylist = () => {
     extendedWindow.backend.openPlaylistRequest();
@@ -66,7 +68,7 @@ function PlaylistSettingsModal(): React.JSX.Element {
   return (
     <ModalBackground>
       <div
-        className="f d-col p-1 settings-modal-wrap"
+        className="f d-col j-space-between p-1 settings-modal-wrap"
         ref={ref}
       >
         <div className="f ai-center j-space-between ns">
@@ -80,18 +82,16 @@ function PlaylistSettingsModal(): React.JSX.Element {
           </ButtonWithIcon>
         </div>
         <LinkButton
-          globalClasses="mt-1"
           onClick={handleOpenPlaylist}
         >
           Open playlist
         </LinkButton>
         <LinkButton
-          globalClasses="mt-1"
           onClick={handleSavePlaylist}
         >
           Save playlist
         </LinkButton>
-        <hr className="mv-1" />
+        <hr />
         <StyledSwitch
           checked={isLooped}
           globalClasses="j-space-between"
@@ -99,13 +99,11 @@ function PlaylistSettingsModal(): React.JSX.Element {
           onChange={handleLoopPlaylist}
         />
         <LinkButton
-          globalClasses="mt-1"
           onClick={handleShufflePlaylist}
         >
           Shuffle playlist
         </LinkButton>
         <LinkButton
-          globalClasses="mt-1"
           onClick={handleClearPlaylist}
         >
           Clear playlist
