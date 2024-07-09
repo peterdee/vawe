@@ -2,23 +2,11 @@ import React from 'react';
 
 import './styles.css';
 
-interface ModalBackgroundProps {
-  closeModal: () => void;
-}
-
-function ModalBackground(
-  props: React.PropsWithChildren<ModalBackgroundProps>,
-): React.JSX.Element {
-  const {
-    children,
-    closeModal,
-  } = props;
+function ModalBackground(props: React.PropsWithChildren): React.JSX.Element {
+  const { children } = props;
 
   return (
-    <div
-      className="background"
-      onClick={closeModal}
-    >
+    <div className="background">
       { children }
     </div>
   );

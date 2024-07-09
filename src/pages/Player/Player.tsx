@@ -299,10 +299,7 @@ function Player(): React.JSX.Element {
     ],
   );
 
-  const handleShowSettingsModal = () => {
-    console.log('toggle')
-    dispatch(changeShowSettingsModal(true));
-  };
+  const handleShowSettingsModal = () => dispatch(changeShowSettingsModal(true));
 
   useEffect(
     () => {
@@ -369,6 +366,7 @@ function Player(): React.JSX.Element {
           <ButtonWithIcon
             globalStyles="ml-1"
             onClick={handleShowSettingsModal}
+            stopPropagation
           >
             <IconPlaylistSettings />
           </ButtonWithIcon>

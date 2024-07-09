@@ -5,6 +5,7 @@ import './styles.css';
 interface ButtonWithIconProps {
   globalStyles?: string;
   onClick: () => void;
+  stopPropagation?: boolean;
   styles?: object;
   title?: string;
 }
@@ -20,6 +21,7 @@ function ButtonWithIcon(
     children,
     globalStyles = '',
     onClick,
+    stopPropagation = false,
     styles = {},
     title = '',
   } = props;
@@ -38,10 +40,17 @@ function ButtonWithIcon(
     return child;
   });
 
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (stopPropagation) {
+      event.stopPropagation();
+    }
+    return onClick();
+  }
+
   return (
     <button
       className={`f j-center ai-center ${globalStyles} icon-button`}
-      onClick={onClick}
+      onClick={handleClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
