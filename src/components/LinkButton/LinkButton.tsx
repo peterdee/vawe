@@ -23,18 +23,20 @@ function LinkButton(
   } = props;
 
   return (
-    <button
-      className={`f j-center ai-center ${globalClasses} link-button`}
-      onClick={onClick}
-      style={{
-        ...styles,
-      }}
-      title={title}
-      type={type}
-    >
-      { children }
-    </button>
-  )
+    <div>
+      <button
+        className={`ns ${globalClasses} link-button`}
+        onClick={onClick}
+        style={{
+          ...styles,
+        }}
+        title={title}
+        type={type}
+      >
+        { children }
+      </button>
+    </div>
+  );
 }
 
 export default React.memo(LinkButton);
