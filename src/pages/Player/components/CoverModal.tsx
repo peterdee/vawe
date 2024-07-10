@@ -1,4 +1,8 @@
-import React, { useRef } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
@@ -16,51 +20,71 @@ const iconSize = UNIT * 2.5;
 function CoverModal(): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
 
-  const closeRef = useRef<HTMLDivElement>(null);
-  const downloadRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
 
   const currentTrackMetadata = useSelector<RootState, types.TrackMetadata | null>(
     (state) => state.tracklist.currentTrackMetadata,
   );
 
+  const coverLink = useMemo(
+    () => currentTrackMetadata
+      && currentTrackMetadata.metadata
+      && currentTrackMetadata.metadata.pictureLinks
+      && currentTrackMetadata.metadata.pictureLinks.length > 0
+      && currentTrackMetadata.metadata.pictureLinks[0] || '',
+    [currentTrackMetadata],
+  );
+
   const handleCloseModal = () => {
     dispatch(changeShowCoverModal(false));
   };
+
+  const handleDownload = useCallback(
+    () => {
+      
+    },
+    [currentTrackMetadata],
+  );
   
-  useClickOutside<void>(closeRef, handleCloseModal);
-  useClickOutside<void>(downloadRef, handleCloseModal);
+  useClickOutside<void>(controlsRef, handleCloseModal);
 
   return (
     <ModalBackground>
-      <div className="f j-end p-1 cover-modal-wrap-top">
-        <div ref={downloadRef}>
-          <ButtonWithIcon
-            onClick={() => console.log('download')}
+      <div
+        className="f j-end p-1 cover-modal-top-wrap"
+        ref={controlsRef}
+      >
+        <ButtonWithIcon
+          onClick={handleDownload}
+        >
+          <IconDownload
+            height={iconSize}
+            iconColorBase="black"
             title="Dowlnoad cover"
-          >
-            <IconDownload
-              height={iconSize}
-              iconColorBase="black"
-              width={iconSize}
-            />
-          </ButtonWithIcon>
-        </div>
-        <div ref={closeRef}>
-          <ButtonWithIcon
-            globalStyles="ml-1"
-            onClick={handleCloseModal}
-          >
-            <IconClose
-              height={iconSize}
-              iconColorBase="black"
-              width={iconSize}
-            />
-          </ButtonWithIcon>
-        </div>
+            width={iconSize}
+          />
+        </ButtonWithIcon>
+        <ButtonWithIcon
+          globalStyles="ml-1"
+          onClick={handleCloseModal}
+        >
+          <IconClose
+            height={iconSize}
+            iconColorBase="black"
+            title="Close"
+            width={iconSize}
+          />
+        </ButtonWithIcon>
       </div>
-      <div className="f d-col j-space-between p-1 settings-modal-wrap">
-        asd
-      </div>
+      <div
+        className="f j-center mh-auto cover-modal-image-wrap"
+        style={{
+          backgroundImage: `url(${coverLink})`,
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+        }}
+      />
     </ModalBackground>
   );
 }

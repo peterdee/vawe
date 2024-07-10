@@ -45,6 +45,18 @@ input[type="range"]:focus::-moz-range-thumb{
 .bottom-panel, .playtime {
   font-size: calc(var(--spacer-half) + var(--spacer-half) / 2);
 }
+.cover-modal-image-wrap {
+  height: 80vh;
+  width: 80vw;
+  z-index: 12;
+}
+.cover-modal-top-wrap {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: calc(var(--spacer) * 8);
+  z-index: 15;
+}
 .drop-zone {
   border: 2px dotted lightgreen;
   height: calc(100vh - var(--spacer) * 10);

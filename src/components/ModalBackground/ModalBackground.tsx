@@ -6,7 +6,7 @@ function ModalBackground(props: React.PropsWithChildren): React.JSX.Element {
   const { children } = props;
 
   return (
-    <div className="background">
+    <div className="f d-col j-center background">
       { children }
     </div>
   );
