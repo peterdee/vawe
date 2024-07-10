@@ -1,21 +1,15 @@
 import React from 'react';
 
 import { COLORS, UNIT } from '@/constants';
+import type * as types from 'types';
 
-interface IconNextProps {
-  height?: number;
-  iconColorBase?: string;
-  iconColorHover?: string;
-  isHovering?: boolean;
-  width?: number;
-}
-
-function IconNext(props: IconNextProps): React.JSX.Element {
+function IconNext(props: types.BaseIconProps): React.JSX.Element {
   const {
     height = UNIT * 2,
     iconColorBase = COLORS.accent,
     iconColorHover = COLORS.accentHighlight,
     isHovering = false,
+    title = '',
     width = UNIT * 2,
   } = props;
 
@@ -26,13 +20,14 @@ function IconNext(props: IconNextProps): React.JSX.Element {
         height,
         width,
       }}
+      title={title}
     >
       <svg 
         height={height}
         version="1.1"
         viewBox="0 -2 12 12"
-        xmlns="http://www.w3.org/2000/svg"
         width={width}
+        xmlns="http://www.w3.org/2000/svg"
       >
         <g
           fill="none"

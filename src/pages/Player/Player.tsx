@@ -20,6 +20,7 @@ import {
 import type { AppDispatch, RootState } from '@/store';
 import BottomPanel from './components/BottomPanel';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
+import CoverModal from './components/CoverModal';
 import { changeShowSettingsModal } from '@/store/features/playlistSettings';
 import ElapsedTime from './components/ElapsedTime';
 import IconPlaylistSettings from '@/components/IconPlaylistSettings';
@@ -56,6 +57,9 @@ function Player(): React.JSX.Element {
   );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
+  );
+  const showCoverModal = useSelector<RootState, boolean>(
+    (state) => state.playlistSettings.showCoverModal,
   );
   const showSettingsModal = useSelector<RootState, boolean>(
     (state) => state.playlistSettings.showSettingsModal,
@@ -346,6 +350,9 @@ function Player(): React.JSX.Element {
   
   return (
     <div className="f d-col j-start h-100vh">
+      { showCoverModal && (
+        <CoverModal />
+      ) }
       { showSettingsModal && (
         <PlaylistSettingsModal />
       ) }

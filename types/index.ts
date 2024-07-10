@@ -2,6 +2,15 @@ import type { IAudioMetadata } from 'music-metadata';
 import type { IpcRendererEvent } from 'electron';
 import type WaveSurfer from 'wavesurfer.js';
 
+export interface BaseIconProps {
+  height?: number;
+  iconColorBase?: string;
+  iconColorHover?: string;
+  isHovering?: boolean;
+  title?: string;
+  width?: number;
+}
+
 export type ChangeTrackTo = 'current' | 'next' | 'previous';
 
 export type CurrentTrack = Track | null;

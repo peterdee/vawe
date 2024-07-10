@@ -1,21 +1,15 @@
 import React from 'react';
 
 import { COLORS, UNIT } from '@/constants';
+import type * as types from 'types';
 
-interface IconPlaylistSettingsProps {
-  height?: number;
-  iconColorBase?: string;
-  iconColorHover?: string;
-  isHovering?: boolean;
-  width?: number;
-}
-
-function IconPlaylistSettings(props: IconPlaylistSettingsProps): React.JSX.Element {
+function IconPlaylistSettings(props: types.BaseIconProps): React.JSX.Element {
   const {
     height = UNIT * 2,
     iconColorBase = COLORS.accent,
     iconColorHover = COLORS.accentHighlight,
     isHovering = false,
+    title = '',
     width = UNIT * 2,
   } = props;
 
@@ -26,6 +20,7 @@ function IconPlaylistSettings(props: IconPlaylistSettingsProps): React.JSX.Eleme
         height,
         width,
       }}
+      title={title}
     >
       <svg
         height={height}

@@ -3,15 +3,19 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
+import type { AppDispatch, RootState } from '@/store';
 import { COLORS, UNIT } from '@/constants';
-import type { RootState } from '@/store';
+import IconDisk from '@/components/IconDisk';
 import type * as types from 'types';
 import '../styles.css';
+import { changeShowCoverModal } from '@/store/features/playlistSettings';
 
 function TrackInfo(): React.JSX.Element {
   const [coverLink, setCoverLink] = useState<string>('');
+
+  const dispatch = useDispatch<AppDispatch>();
 
   const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
@@ -85,8 +89,6 @@ function TrackInfo(): React.JSX.Element {
 
   // TODO: context menu click to save cover
 
-  // TODO: cover should be a background-image to prevent image dragging
-
   // TODO: cover picture size should be controlled via settings
   const size = UNIT * 15;
 
@@ -100,33 +102,25 @@ function TrackInfo(): React.JSX.Element {
         }}
       >
         { coverLink && (
-          <img
-            alt="Cover"
-            src={coverLink}
+          <div
+            onDoubleClick={() => dispatch(changeShowCoverModal(true))}
             style={{
+              backgroundImage: `url(${coverLink})`,
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'contain',
+              cursor: 'pointer',
               height: `${size}px`,
               width: `${size}px`,
             }}
           />
         ) }
         { !coverLink && (
-          <svg
+          <IconDisk
             height={size}
-            viewBox="0 0 24 24"
+            iconColorBase={COLORS.accent}
             width={size}
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g>
-              <path
-                d="M0 0h24v24H0z"
-                fill="none"
-              />
-              <path
-                d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 14c2.213 0 4-1.787 4-4s-1.787-4-4-4-4 1.787-4 4 1.787 4 4 4zm0-5c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"
-                fill={COLORS.accentHighlight}
-              />
-            </g>
-          </svg>
+          />
         ) }
       </div>
       <div className="f d-col ml-1">
@@ -134,7 +128,7 @@ function TrackInfo(): React.JSX.Element {
           { currentTrack && currentTrack.name || 'VAWE' }
         </div>
         <div>
-          { `Stats: ${metadataString}` }
+          { currentTrack && currentTrack.name && `Stats: ${metadataString}` }
         </div>
         { album && (
           <div>

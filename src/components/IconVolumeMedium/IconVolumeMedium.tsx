@@ -1,21 +1,15 @@
 import React from 'react';
 
 import { COLORS, UNIT } from '@/constants';
+import type * as types from 'types';
 
-interface IconVolumeMediumProps {
-  height?: number;
-  iconColorBase?: string;
-  iconColorHover?: string;
-  isHovering?: boolean;
-  width?: number;
-}
-
-function IconVolumeMedium(props: IconVolumeMediumProps): React.JSX.Element {
+function IconVolumeMedium(props: types.BaseIconProps): React.JSX.Element {
   const {
     height = UNIT * 2,
     iconColorBase = COLORS.accent,
     iconColorHover = COLORS.accentHighlight,
     isHovering = false,
+    title = '',
     width = UNIT * 2,
   } = props;
 
@@ -26,6 +20,7 @@ function IconVolumeMedium(props: IconVolumeMediumProps): React.JSX.Element {
         height,
         width,
       }}
+      title={title}
     >
       <svg
         fill="none"
