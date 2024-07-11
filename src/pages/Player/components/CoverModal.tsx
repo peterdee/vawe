@@ -21,6 +21,7 @@ function CoverModal(): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
 
   const controlsRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   const currentTrackMetadata = useSelector<RootState, types.TrackMetadata | null>(
     (state) => state.tracklist.currentTrackMetadata,
@@ -41,12 +42,19 @@ function CoverModal(): React.JSX.Element {
 
   const handleDownload = useCallback(
     () => {
-      
+      console.log('here');
+      const link = document.createElement('a');
+      link.href = coverLink;
+      link.setAttribute('style', 'display: none;');
+      link.setAttribute('download', 'cover.jpg');
+      document.body.appendChild(link);
+      link.click();
+      // document.body.removeChild(link);
     },
-    [currentTrackMetadata],
+    [coverLink],
   );
   
-  useClickOutside<void>(controlsRef, handleCloseModal);
+  useClickOutside<void>([controlsRef, imageRef], handleCloseModal);
 
   return (
     <ModalBackground>
@@ -56,6 +64,7 @@ function CoverModal(): React.JSX.Element {
       >
         <ButtonWithIcon
           onClick={handleDownload}
+          stopPropagation
         >
           <IconDownload
             height={iconSize}
@@ -67,6 +76,7 @@ function CoverModal(): React.JSX.Element {
         <ButtonWithIcon
           globalStyles="ml-1"
           onClick={handleCloseModal}
+          stopPropagation
         >
           <IconClose
             height={iconSize}
@@ -78,6 +88,7 @@ function CoverModal(): React.JSX.Element {
       </div>
       <div
         className="f j-center mh-auto cover-modal-image-wrap"
+        ref={imageRef}
         style={{
           backgroundImage: `url(${coverLink})`,
           backgroundPosition: 'center',

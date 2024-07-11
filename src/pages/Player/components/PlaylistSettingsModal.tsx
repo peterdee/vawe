@@ -63,7 +63,7 @@ function PlaylistSettingsModal(): React.JSX.Element {
     handleCloseModal();
   };
 
-  useClickOutside<void>(ref, handleCloseModal);
+  useClickOutside<void>([ref], handleCloseModal);
 
   return (
     <ModalBackground>
