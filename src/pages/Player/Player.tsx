@@ -122,13 +122,16 @@ function Player(): React.JSX.Element {
           dispatch(changeCurrentTrackObjectURL(objectURL));
           dispatch(changeCurrentTrack(id));
           if (metadata) {
-            const pictureLinks: string[] = [];
+            const covers: types.CoverData[] = [];
             if (metadata.common
               && metadata.common.picture
               && metadata.common.picture.length > 0) {
               metadata.common.picture.forEach((value) => {
                 if (value.data) {
-                  pictureLinks.push(URL.createObjectURL(new Blob([value.data])));
+                  covers.push({
+                    format: value.format,
+                    objectURL: URL.createObjectURL(new Blob([value.data])),
+                  });
                 }
               });
             }
@@ -139,8 +142,8 @@ function Player(): React.JSX.Element {
                   ...metadata.common,
                   picture: undefined,
                 },
+                covers,
                 format: metadata.format,
-                pictureLinks,
               },
             }));
           }

@@ -22,8 +22,13 @@ type Callback<T> = (
   payload: T,
 ) => void;
 
+export interface CoverData {
+  format?: string;
+  objectURL?: string;
+}
+
 export type CustomAudioMetadata = Pick<IAudioMetadata, 'common' | 'format'> & {
-  pictureLinks?: string[];
+  covers?: CoverData[];
 };
 
 export type ExtendedWindow = BaseWindow & {

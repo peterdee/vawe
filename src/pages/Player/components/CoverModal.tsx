@@ -20,8 +20,7 @@ const iconSize = UNIT * 2.5;
 function CoverModal(): React.JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
 
-  const controlsRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const currentTrackMetadata = useSelector<RootState, types.TrackMetadata | null>(
     (state) => state.tracklist.currentTrackMetadata,
@@ -30,9 +29,9 @@ function CoverModal(): React.JSX.Element {
   const coverLink = useMemo(
     () => currentTrackMetadata
       && currentTrackMetadata.metadata
-      && currentTrackMetadata.metadata.pictureLinks
-      && currentTrackMetadata.metadata.pictureLinks.length > 0
-      && currentTrackMetadata.metadata.pictureLinks[0] || '',
+      && currentTrackMetadata.metadata.covers
+      && currentTrackMetadata.metadata.covers.length > 0
+      && currentTrackMetadata.metadata.covers[0].objectURL || '',
     [currentTrackMetadata],
   );
 
@@ -42,25 +41,30 @@ function CoverModal(): React.JSX.Element {
 
   const handleDownload = useCallback(
     () => {
-      console.log('here');
       const link = document.createElement('a');
       link.href = coverLink;
       link.setAttribute('style', 'display: none;');
       link.setAttribute('download', 'cover.jpg');
       document.body.appendChild(link);
       link.click();
-      // document.body.removeChild(link);
+      document.body.removeChild(link);
     },
     [coverLink],
   );
   
-  useClickOutside<void>([controlsRef, imageRef], handleCloseModal);
+  useClickOutside<void>(ref, handleCloseModal);
 
   return (
     <ModalBackground>
       <div
-        className="f j-end p-1 cover-modal-top-wrap"
-        ref={controlsRef}
+        className="f j-end mh-auto cover-modal-image-wrap"
+        ref={ref}
+        style={{
+          backgroundImage: `url(${coverLink})`,
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+        }}
       >
         <ButtonWithIcon
           onClick={handleDownload}
@@ -86,16 +90,6 @@ function CoverModal(): React.JSX.Element {
           />
         </ButtonWithIcon>
       </div>
-      <div
-        className="f j-center mh-auto cover-modal-image-wrap"
-        ref={imageRef}
-        style={{
-          backgroundImage: `url(${coverLink})`,
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'contain',
-        }}
-      />
     </ModalBackground>
   );
 }

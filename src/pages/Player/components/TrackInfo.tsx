@@ -69,9 +69,9 @@ function TrackInfo(): React.JSX.Element {
     () => {
       if (currentTrackMetadata
         && currentTrackMetadata.metadata
-        && currentTrackMetadata.metadata.pictureLinks
-        && currentTrackMetadata.metadata.pictureLinks.length > 0) {
-        setCoverLink(currentTrackMetadata.metadata.pictureLinks[0]);
+        && currentTrackMetadata.metadata.covers
+        && currentTrackMetadata.metadata.covers.length > 0) {
+        setCoverLink(currentTrackMetadata.metadata.covers[0].objectURL || '');
       } else {
         setCoverLink('');
       }
@@ -84,10 +84,6 @@ function TrackInfo(): React.JSX.Element {
     },
     [currentTrackMetadata],
   );
-
-  // TODO: double click on cover to open it in a modal
-
-  // TODO: context menu click to save cover
 
   // TODO: cover picture size should be controlled via settings
   const size = UNIT * 15;

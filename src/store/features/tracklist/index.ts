@@ -26,6 +26,16 @@ const initialState: TracklistState = {
   tracks: [],
 };
 
+function revokeCoverURLs(metadata: types.TrackMetadata) {
+  if (Array.isArray(metadata.metadata.covers)) {
+    metadata.metadata.covers.forEach((cover: types.CoverData) => {
+      if (cover.objectURL) {
+        URL.revokeObjectURL(cover.objectURL);
+      }
+    });
+  }
+}
+
 export const tracklistSlice = createSlice({
   initialState,
   name: 'tracklist',
@@ -50,9 +60,8 @@ export const tracklistSlice = createSlice({
       state,
       action: PayloadAction<types.TrackMetadata>,
     ) => {
-      if (state.currentTrackMetadata
-        && Array.isArray(state.currentTrackMetadata.metadata.pictureLinks)) {
-        state.currentTrackMetadata.metadata.pictureLinks.forEach(URL.revokeObjectURL);
+      if (state.currentTrackMetadata) {
+        revokeCoverURLs(state.currentTrackMetadata);
       }
       state.currentTrackMetadata = action.payload;
     },
@@ -98,9 +107,8 @@ export const tracklistSlice = createSlice({
       if (state.currentTrackObjectURL) {
         URL.revokeObjectURL(state.currentTrackObjectURL);
       }
-      if (state.currentTrackMetadata
-        && Array.isArray(state.currentTrackMetadata.metadata.pictureLinks)) {
-        state.currentTrackMetadata.metadata.pictureLinks.forEach(URL.revokeObjectURL);
+      if (state.currentTrackMetadata) {
+        revokeCoverURLs(state.currentTrackMetadata);
       }
       state.currentTrack = initialState.currentTrack;
       state.currentTrackElapsedTime = 0;
@@ -123,9 +131,8 @@ export const tracklistSlice = createSlice({
         if (state.currentTrackObjectURL) {
           URL.revokeObjectURL(state.currentTrackObjectURL);
         }
-        if (state.currentTrackMetadata
-          && Array.isArray(state.currentTrackMetadata.metadata.pictureLinks)) {
-          state.currentTrackMetadata.metadata.pictureLinks.forEach(URL.revokeObjectURL);
+        if (state.currentTrackMetadata) {
+          revokeCoverURLs(state.currentTrackMetadata);
         }
         state.currentTrackMetadata = initialState.currentTrackMetadata;
         state.currentTrackObjectURL = initialState.currentTrackObjectURL;
