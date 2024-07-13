@@ -43,6 +43,10 @@ export default async function openPlaylist(browserWindow: BrowserWindow): Promis
     return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
   } catch (error) {
     const typedError = error as Error;
+    if (typedError.message.toLowerCase().includes('provided string is empty')) {
+      responsePayload.errorMessage = 'emptyFile';
+      return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);
+    }
     if (typedError.message.toLowerCase().includes('invalid string format')) {
       responsePayload.errorMessage = 'invalidFormat';
       return browserWindow.webContents.send(IPC_EVENTS.openPlaylistResponse, responsePayload);

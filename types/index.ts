@@ -76,7 +76,7 @@ export interface LoadMetadataResponsePayload {
 }
 
 export interface OpenPlaylistResponsePayload {
-  errorMessage: '' | 'cancelled' | 'internalError' | 'invalidFormat';
+  errorMessage: '' | 'cancelled' | 'emptyFile' | 'internalError' | 'invalidFormat';
   playlist: Track[] | null;
 }
 

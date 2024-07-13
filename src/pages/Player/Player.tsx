@@ -161,11 +161,23 @@ function Player(): React.JSX.Element {
 
       extendedWindow.backend.openPlaylistResponse(
         (_, payload) => {
-          if (!payload.errorMessage && payload.playlist) {
-            dispatch(loadPlaylist(payload.playlist));
+          const {
+            errorMessage,
+            playlist,
+          } = payload;
+          if (!errorMessage && playlist) {
+            dispatch(loadPlaylist(playlist));
           } else {
-            // TODO: handle error response
             console.log(payload);
+            if (errorMessage === 'emptyFile') {
+              // TODO: dispatch different error messages and show error modal
+            }
+            if (errorMessage === 'internalError') {
+              // TODO: dispatch different error messages and show error modal
+            }
+            if (errorMessage === 'invalidFormat') {
+              // TODO: dispatch different error messages and show error modal
+            }
           }
         },
       );
