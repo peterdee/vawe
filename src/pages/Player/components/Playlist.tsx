@@ -81,6 +81,9 @@ function Playlist(): React.JSX.Element {
               } ${queue.includes(item.id)
                 ? 'playlist-entry-queued'
                 : ''
+              } ${!item.isAccessible
+                ? 'playlist-entry-not-accessible'
+                : ''
               }`
             }
             key={item.id}

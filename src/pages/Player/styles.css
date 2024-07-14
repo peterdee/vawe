@@ -69,6 +69,9 @@ input[type="range"]:focus::-moz-range-thumb{
 .playlist-entry-wrap:hover {
   background-color: rgb(181, 255, 181);
 }
+.playlist-entry-not-accessible {
+  background-color: var(--error-light);
+}
 .playlist-entry-selected {
   border: calc(var(--spacer-quarter) / 2) solid rgb(181, 255, 181);
   border-radius: calc(var(--spacer-quarter) / 2);

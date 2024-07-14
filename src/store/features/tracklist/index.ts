@@ -103,6 +103,17 @@ export const tracklistSlice = createSlice({
         state.selectedTrackId = state.tracks[nextTrackIndex].id;
       }
     },
+    changeTrackNotAccessible: (state, action: PayloadAction<string>) => {
+      state.tracks = state.tracks.map((track: types.Track): types.Track => {
+        if (track.id === action.payload) {
+          return {
+            ...track,
+            isAccessible: false,
+          };
+        }
+        return track;
+      });
+    },
     clearTracklist: (state) => {
       if (state.currentTrackObjectURL) {
         URL.revokeObjectURL(state.currentTrackObjectURL);
@@ -183,6 +194,7 @@ export const {
   changeIsPlaying,
   changeSelectedTrackId,
   changeSelectedTrackIdWithKeys,
+  changeTrackNotAccessible,
   clearTracklist,
   loadPlaylist,
   removeIdFromQueue,

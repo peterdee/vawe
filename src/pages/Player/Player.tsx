@@ -12,6 +12,7 @@ import {
   changeCurrentTrackObjectURL,
   changeIsPlaying,
   changeSelectedTrackIdWithKeys,
+  changeTrackNotAccessible,
   loadPlaylist,
   removeIdFromQueue,
   removeTrack,
@@ -114,9 +115,17 @@ function Player(): React.JSX.Element {
       );
 
       extendedWindow.backend.loadFileResponse(
-        (_, { buffer, id, metadata }: types.LoadFileResponsePayload): null | void => {
+        (
+          _,
+          {
+            buffer,
+            id,
+            metadata,
+          }: types.LoadFileResponsePayload,
+        ): null | Promise<void> | void => {
           if (buffer === null) {
-            return null;
+            dispatch(changeTrackNotAccessible(id));
+            return handleChangeTrack('next');
           }
           const objectURL = URL.createObjectURL(new Blob([buffer]));
           dispatch(changeCurrentTrackObjectURL(objectURL));
@@ -197,16 +206,16 @@ function Player(): React.JSX.Element {
         return null;
       }
 
+      // TODO: check track accessibility before loading
       if (queue.length > 0) {
         const [nextTrack] = tracks.filter(
           (track: types.Track): boolean => track.id === queue[0],
         );
-        extendedWindow.backend.loadFileRequest({
+        dispatch(removeIdFromQueue(nextTrack.id));
+        return extendedWindow.backend.loadFileRequest({
           id: nextTrack.id,
           path: nextTrack.path,
         });
-        dispatch(removeIdFromQueue(nextTrack.id));
-        return null;
       }
 
       if (!currentTrack) {
