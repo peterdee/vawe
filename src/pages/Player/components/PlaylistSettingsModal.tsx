@@ -3,10 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
-import {
-  changeLoop,
-  changeShowSettingsModal,
-} from '@/store/features/playlistSettings';
+import { changeLoop } from '@/store/features/playlistSettings';
+import { changeShowSettingsModal } from '@/store/features/modals';
 import {
   clearTracklist,
   shuffleTracklist,

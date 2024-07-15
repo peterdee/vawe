@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
+import { COLORS, UNIT } from '@/constants';
 import formatDuration from '@/utilities/format-duration';
 import IconLoop from '@/components/IconLoop';
 import type { RootState } from '@/store';
 import type * as types from 'types';
-import { COLORS, UNIT } from '@/constants';
 
 function BottomPanel(): React.JSX.Element {
   const isLooped = useSelector<RootState, boolean>(

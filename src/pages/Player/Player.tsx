@@ -21,7 +21,7 @@ import type { AppDispatch, RootState } from '@/store';
 import BottomPanel from './components/BottomPanel';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
 import CoverModal from './components/CoverModal';
-import { changeShowSettingsModal } from '@/store/features/playlistSettings';
+import { changeShowSettingsModal } from '@/store/features/modals';
 import ElapsedTime from './components/ElapsedTime';
 import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
@@ -59,10 +59,10 @@ function Player(): React.JSX.Element {
     (state) => state.tracklist.queue,
   );
   const showCoverModal = useSelector<RootState, boolean>(
-    (state) => state.playlistSettings.showCoverModal,
+    (state) => state.modals.showCoverModal,
   );
   const showSettingsModal = useSelector<RootState, boolean>(
-    (state) => state.playlistSettings.showSettingsModal,
+    (state) => state.modals.showSettingsModal,
   );
   const tracks = useSelector<RootState, types.Track[]>(
     (state) => state.tracklist.tracks,

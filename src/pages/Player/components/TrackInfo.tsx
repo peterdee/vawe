@@ -6,11 +6,11 @@ import React, {
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
+import { changeShowCoverModal } from '@/store/features/modals';
 import { COLORS, UNIT } from '@/constants';
 import IconDisk from '@/components/IconDisk';
 import type * as types from 'types';
 import '../styles.css';
-import { changeShowCoverModal } from '@/store/features/playlistSettings';
 
 function TrackInfo(): React.JSX.Element {
   const [coverLink, setCoverLink] = useState<string>('');
@@ -53,7 +53,7 @@ function TrackInfo(): React.JSX.Element {
           bitrate = Math.round(bitrate / 1000);
         }
         let string = `${bitrate}kbps / ${
-          currentTrackMetadata.metadata.format.sampleRate
+          (currentTrackMetadata.metadata.format.sampleRate || 1) / 1000
         }khz / `;
         string += currentTrackMetadata.metadata.format.numberOfChannels === 2
           ? 'stereo'
