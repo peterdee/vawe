@@ -22,8 +22,12 @@ import type { AppDispatch, RootState } from '@/store';
 import BottomPanel from './components/BottomPanel';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
 import CoverModal from './components/CoverModal';
-import { changeShowSettingsModal } from '@/store/features/modals';
+import {
+  changeShowErrorModal,
+  changeShowSettingsModal,
+} from '@/store/features/modals';
 import ElapsedTime from './components/ElapsedTime';
+import ErrorModal from './components/ErrorModal';
 import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
@@ -53,14 +57,17 @@ function Player(): React.JSX.Element {
   const isPlaying = useSelector<RootState, boolean>(
     (state) => state.tracklist.isPlaying,
   );
-  const selectedTrackId = useSelector<RootState, string>(
-    (state) => state.tracklist.selectedTrackId,
-  );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
   );
+  const selectedTrackId = useSelector<RootState, string>(
+    (state) => state.tracklist.selectedTrackId,
+  );
   const showCoverModal = useSelector<RootState, boolean>(
     (state) => state.modals.showCoverModal,
+  );
+  const showErrorModal = useSelector<RootState, boolean>(
+    (state) => state.modals.showErrorModal,
   );
   const showSettingsModal = useSelector<RootState, boolean>(
     (state) => state.modals.showSettingsModal,
@@ -89,7 +96,7 @@ function Player(): React.JSX.Element {
         () => {
           extendedWindow.backend.updateDefaultPlaylistRequest(tracks);
         },
-        5000,
+        2000,
       );
 
       return () => {
@@ -161,7 +168,11 @@ function Player(): React.JSX.Element {
 
       extendedWindow.backend.loadMetadataResponse((_, { error, id, metadata }) => {
         if (error) {
-          console.log('error loading metadata', error);
+          dispatch(changeTrackNotAccessible(id));
+          dispatch(changeShowErrorModal({
+            message: 'Could not load metadata for a track!',
+            showModal: true,
+          }));
         }
         if (!error && metadata) {
           dispatch(changeCurrentTrackMetadata({ id, metadata }));
@@ -177,23 +188,36 @@ function Player(): React.JSX.Element {
           if (!errorMessage && playlist) {
             dispatch(loadPlaylist(playlist));
           } else {
-            console.log(payload);
             if (errorMessage === 'emptyFile') {
-              // TODO: dispatch different error messages and show error modal
-            }
-            if (errorMessage === 'internalError') {
-              // TODO: dispatch different error messages and show error modal
+              dispatch(changeShowErrorModal({
+                message: 'Selected playlist is empty!',
+                showModal: true,
+              }));
+              return null;
             }
             if (errorMessage === 'invalidFormat') {
-              // TODO: dispatch different error messages and show error modal
+              dispatch(changeShowErrorModal({
+                message: 'Playlist format is invalid!',
+                showModal: true,
+              }));
+              return null;
             }
+            dispatch(changeShowErrorModal({
+              message: 'Could not open the playlist!',
+              showModal: true,
+            }));
           }
         },
       );
 
       extendedWindow.backend.savePlaylistResponse(
         (_, payload) => {
-          console.log('playlist save response', payload);
+          if (payload === 'internalError') {
+            dispatch(changeShowErrorModal({
+              message: 'Could not save the playlist!',
+              showModal: true,
+            }));
+          }
         },
       );
     },
@@ -376,6 +400,9 @@ function Player(): React.JSX.Element {
     <div className="f d-col j-start h-100vh">
       { showCoverModal && (
         <CoverModal />
+      ) }
+      { showErrorModal && (
+        <ErrorModal />
       ) }
       { showSettingsModal && (
         <PlaylistSettingsModal />
