@@ -19,12 +19,19 @@ function StyledSwitch(
     onChange,
   } = props;
 
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    return onChange();
+  }
+
   return (
     <label
       className={`f ai-center ns ${globalClasses}`}
-      onClick={onChange}
     >
-      <span className="mr-1 label">
+      <span
+        onClick={handleClick}
+        className="mr-1 label"
+      >
         { labelText }
       </span>
       <input
@@ -33,7 +40,10 @@ function StyledSwitch(
         readOnly
         type="checkbox"
       />
-      <div className="slider" />
+      <div
+        className="slider" 
+        onClick={handleClick}
+      />
     </label>
   );
 }

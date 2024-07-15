@@ -68,21 +68,41 @@ input[type="range"]:focus::-moz-range-thumb{
   background-color: rgba(0, 255, 0, .2);
   border: 2px dotted greenyellow;
 }
+.error-modal-text {
+  font-size: calc(var(--spacer) * 1.25);
+}
+.error-modal-title {
+  color: var(--error);
+}
+.error-modal-wrap {
+  background-color: var(--background);
+  border-radius: var(--spacer);
+  left: calc(50% - var(--spacer) * 9);
+  min-height: calc(var(--spacer) * 8);
+  position: fixed;
+  top: calc(50% - var(--spacer) * 4);
+  width: calc(var(--spacer) * 18);
+  z-index: 12;
+}
 .playlist-entry-wrap {
   background-color: transparent;
   border: 2px solid transparent;
   color: var(--text);
+  cursor: pointer;
   flex-shrink: 0;
   height: calc(var(--spacer) * 2);
 }
-.playlist-entry-wrap:hover {
-  background-color: rgb(181, 255, 181);
+.playlist-entry-wrap:focus {
+  outline: none;
+}
+.playlist-entry-is-playing {
+  background-color: var(--accent-lightest);
 }
 .playlist-entry-not-accessible {
-  background-color: var(--error-light);
+  background-color: var(--error-lightest);
 }
 .playlist-entry-selected {
-  border: calc(var(--spacer-quarter) / 2) solid rgb(181, 255, 181);
+  border: calc(var(--spacer-quarter) / 2) dotted var(--muted);
   border-radius: calc(var(--spacer-quarter) / 2);
 }
 .playlist-entry-queued {
@@ -115,7 +135,9 @@ input[type="range"]:focus::-moz-range-thumb{
 }
 .track-name {
   overflow-x: hidden;
+  text-overflow: ellipsis;
   text-wrap: nowrap;
+  width: calc(100vw - var(--spacer) * 11);
 }
 .volume-slider {
   width: calc(var(--spacer) * 8);

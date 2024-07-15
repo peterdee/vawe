@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
 import { changeSelectedTrackId } from '@/store/features/tracklist';
+import { COLORS, UNIT } from '@/constants';
 import formatDuration from '@/utilities/format-duration';
 import IconPlay from '@/components/IconPlay';
 import type * as types from 'types';
-import { UNIT } from '@/constants';
 
 const extendedWindow = window as types.ExtendedWindow;
 
@@ -75,6 +75,8 @@ function Playlist(): React.JSX.Element {
           <button
             className={`f j-space-between ai-center ph-half ns playlist-entry-wrap
               ${currentTrack && currentTrack.id === item.id
+                ? 'playlist-entry-is-playing'
+                : ''
               } ${selectedTrackId === item.id
                 ? 'playlist-entry-selected'
                 : ''
@@ -101,7 +103,7 @@ function Playlist(): React.JSX.Element {
                 { currentTrack && currentTrack.id === item.id && (
                   <IconPlay
                     height={UNIT}
-                    iconColorBase="lightgreen"
+                    iconColorBase={COLORS.accent}
                     width={UNIT}
                   />
                 ) }
@@ -110,11 +112,11 @@ function Playlist(): React.JSX.Element {
                     && index + 1
                 }
               </div>
-              <div className="track-name">
+              <div className="track-name t-left">
                 { item.name }
               </div>
             </div>
-            <div className="track-duration t-right">
+            <div className="track-duration ml-1 t-right">
               { formatDuration(item.durationSeconds) }
             </div>
           </button>
