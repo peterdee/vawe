@@ -13,11 +13,19 @@ import storage from 'redux-persist/lib/storage';
 import storageSession from 'redux-persist/lib/storage/session';
 
 import { ENABLE_REDUX_DEVTOOLS } from '@/configuration';
+import modals from './features/modals';
 import playlistSettings from './features/playlistSettings';
 import tracklist from './features/tracklist';
 import volumeSettings from './features/volumeSettings';
 
 const rootReducer = combineReducers({
+  modals: persistReducer(
+    {
+      key: 'modals',
+      storage: storageSession,
+    },
+    modals,
+  ),
   playlistSettings: persistReducer(
     {
       key: 'playlistSettings',
