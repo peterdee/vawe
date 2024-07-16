@@ -73,7 +73,6 @@ contextBridge.exposeInMainWorld(
     },
     // open track details in a separate window
     openTrackDetails(payload: string) {
-      console.log('id:', payload);
       ipcRenderer.invoke(IPC_EVENTS.openTrackDetails, payload);
     },
     // save playlist via dialog window
