@@ -16,7 +16,6 @@ import openPlaylist from './handlers/open-playlist';
 import parseFiles from './handlers/parse-files';
 import savePlaylist from './handlers/save-playlist';
 import type * as types from 'types';
-import { update } from './update'
 import updateDefaultPlaylist from './handlers/update-default-playlist';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -48,39 +47,32 @@ const indexHtml = path.join(RENDERER_DIST, 'index.html')
 
 async function createWindow() {
   win = new BrowserWindow({
-    title: 'VAWE',
     center: false,
     height: 800,
-    width: 1200,
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+    title: 'VAWE',
     webPreferences: {
-      preload,
-      // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
-      nodeIntegration: false,
-
-      // Consider using contextBridge.exposeInMainWorld
-      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
       contextIsolation: true,
-      // sandbox: false,
+      nodeIntegration: false,
+      preload,
     },
+    width: 1200,
   })
 
-  if (VITE_DEV_SERVER_URL) { // #298
-    win.loadURL(VITE_DEV_SERVER_URL)
+  if (VITE_DEV_SERVER_URL) {
+    win.loadURL(VITE_DEV_SERVER_URL);
+
     // Open devTool if the app is not packaged
-    win.webContents.openDevTools()
+    win.webContents.openDevTools();
   } else {
-    win.loadFile(indexHtml)
+    win.loadFile(indexHtml);
   }
 
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
-  })
-
-  // Auto update
-  update(win)
+  });
 }
 
 app.whenReady().then(() => {
@@ -132,38 +124,44 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   win = null
   if (process.platform !== 'darwin') app.quit()
-})
+});
 
 app.on('second-instance', () => {
   if (win) {
     // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore()
-    win.focus()
+    if (win.isMinimized()) win.restore();
+    win.focus();
   }
-})
+});
 
 app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows()
+  const allWindows = BrowserWindow.getAllWindows();
   if (allWindows.length) {
-    allWindows[0].focus()
+    allWindows[0].focus();
   } else {
-    createWindow()
+    createWindow();
   }
-})
+});
 
-// New window example arg: new windows url
-ipcMain.handle('open-win', (_, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  })
+// open track details window
+ipcMain.handle(
+  IPC_EVENTS.openTrackDetails,
+  (_, payload: string) => {
+    const childWindow = new BrowserWindow({
+      height: 500,
+      icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+      webPreferences: {
+        contextIsolation: true,
+        nodeIntegration: false,
+        preload,
+      },
+      width: 600,
+    });
 
-  if (VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${arg}`)
-  } else {
-    childWindow.loadFile(indexHtml, { hash: arg })
-  }
-})
+    if (VITE_DEV_SERVER_URL) {
+      childWindow.loadURL(`${VITE_DEV_SERVER_URL}details/${payload}`)
+    } else {
+      childWindow.loadFile(indexHtml, { hash: payload })
+    }
+  },
+);

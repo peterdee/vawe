@@ -71,6 +71,11 @@ contextBridge.exposeInMainWorld(
     ) {
       ipcRenderer.on(IPC_EVENTS.openPlaylistResponse, callback);
     },
+    // open track details in a separate window
+    openTrackDetails(payload: string) {
+      console.log('id:', payload);
+      ipcRenderer.invoke(IPC_EVENTS.openTrackDetails, payload);
+    },
     // save playlist via dialog window
     savePlaylistRequest(payload: types.Track[]) {
       ipcRenderer.invoke(IPC_EVENTS.savePlaylistRequest, payload);

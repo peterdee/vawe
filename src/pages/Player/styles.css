@@ -3,7 +3,7 @@ input[type="range"] {
   appearance: none;
   background: transparent;
   cursor: pointer;
-  width: calc(var(--spacer) * 8);
+  width: calc(var(--spacer) * 6);
 }
 input[type="range"]:focus {
   outline: none;
@@ -138,7 +138,4 @@ input[type="range"]:focus::-moz-range-thumb{
   text-overflow: ellipsis;
   text-wrap: nowrap;
   width: calc(100vw - var(--spacer) * 11);
-}
-.volume-slider {
-  width: calc(var(--spacer) * 8);
 }

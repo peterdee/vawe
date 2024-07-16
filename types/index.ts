@@ -43,6 +43,7 @@ export type ExtendedWindow = BaseWindow & {
     loadMetadataResponse: (callback: Callback<LoadMetadataResponsePayload>) => void;
     openPlaylistRequest: () => void;
     openPlaylistResponse: (callback: Callback<OpenPlaylistResponsePayload>) => void;
+    openTrackDetails: (payload: string) => void;
     savePlaylistRequest: (payload: Track[]) => void;
     savePlaylistResponse: (callback: Callback<SavePlaylistResponsePayload>) => void;
     updateDefaultPlaylistRequest: (payload: Track[]) => void;

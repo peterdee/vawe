@@ -16,9 +16,6 @@ function Playlist(): React.JSX.Element {
   const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
   );
-  const currentTrackMetadata = useSelector<RootState, types.TrackMetadata | null>(
-    (state) => state.tracklist.currentTrackMetadata,
-  );
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
   );
@@ -45,15 +42,7 @@ function Playlist(): React.JSX.Element {
     return extendedWindow.backend.addFilesRequest(paths);
   };
 
-  const handleContextMenu = (id: string) => {
-    if (currentTrack && currentTrack.id === id && currentTrackMetadata) {
-      return console.log('metadata already loaded:', currentTrackMetadata);
-    }
-    return extendedWindow.backend.loadMetadataRequest({
-      id,
-      path: tracks.filter((track: types.Track): boolean => track.id === id)[0].path,
-    });
-  };
+  const handleContextMenu = (id: string) => extendedWindow.backend.openTrackDetails(id);
 
   const handleDoubleClick = (id: string) => extendedWindow.backend.loadFileRequest({
     id,

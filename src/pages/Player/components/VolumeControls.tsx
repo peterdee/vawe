@@ -87,11 +87,11 @@ function VolumeControls(props: VolumeControlsProps): React.JSX.Element {
         ) }
       </ButtonWithIcon>
       <input
-        className="volume-slider"
         max={1}
         min={0}
         onChange={onChangeVolume}
         step={0.01}
+        title={`Volume: ${Math.round(volume * 100)}%`}
         type="range"
         value={volume}
       />

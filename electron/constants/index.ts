@@ -17,6 +17,7 @@ export const IPC_EVENTS = {
   loadMetadataResponse: 'loadMetadataResponse',
   openPlaylistRequest: 'openPlaylistRequest',
   openPlaylistResponse: 'openPlaylistResponse',
+  openTrackDetails: 'openTrackDetails',
   savePlaylistRequest: 'savePlaylistRequest',
   savePlaylistResponse: 'savePlaylistResponse',
   updateDefaultPlaylistRequest: 'updateDefaultPlaylistRequest',

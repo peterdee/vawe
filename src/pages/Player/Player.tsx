@@ -166,19 +166,6 @@ function Player(): React.JSX.Element {
         },
       );
 
-      extendedWindow.backend.loadMetadataResponse((_, { error, id, metadata }) => {
-        if (error) {
-          dispatch(changeTrackNotAccessible(id));
-          dispatch(changeShowErrorModal({
-            message: 'Could not load metadata for a track!',
-            showModal: true,
-          }));
-        }
-        if (!error && metadata) {
-          dispatch(changeCurrentTrackMetadata({ id, metadata }));
-        }
-      });
-
       extendedWindow.backend.openPlaylistResponse(
         (_, payload) => {
           const {
@@ -335,7 +322,7 @@ function Player(): React.JSX.Element {
           path: tracks.filter(
             (track: types.Track): boolean => track.id === selectedTrackId,
           )[0].path,
-        })
+        });
       }
       // q: add track to queue 
       if (event.key.toLowerCase() === 'q' && selectedTrackId) {
