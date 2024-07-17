@@ -146,7 +146,7 @@ app.on('activate', () => {
 // open track details window
 ipcMain.handle(
   IPC_EVENTS.openTrackDetails,
-  (_, payload: string) => {
+  () => {
     const detailsWindow = new BrowserWindow({
       height: 500,
       icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
@@ -159,10 +159,10 @@ ipcMain.handle(
     });
 
     if (VITE_DEV_SERVER_URL) {
-      detailsWindow.loadURL(`${VITE_DEV_SERVER_URL}details/${payload}`);
+      detailsWindow.loadURL(`${VITE_DEV_SERVER_URL}details`);
       detailsWindow.webContents.openDevTools();
     } else {
-      detailsWindow.loadFile(indexHtml, { hash: payload });
+      detailsWindow.loadFile(indexHtml, { hash: 'details' });
     }
   },
 );

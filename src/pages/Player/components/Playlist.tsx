@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
-import { changeSelectedTrackId } from '@/store/features/tracklist';
+import { changeSelectedTrackId, changeTrackNotAccessible } from '@/store/features/tracklist';
+import { changeShowErrorModal } from '@/store/features/modals';
 import { COLORS, UNIT } from '@/constants';
 import formatDuration from '@/utilities/format-duration';
 import IconPlay from '@/components/IconPlay';
+import { setItem } from '@/utilities/local-storage';
 import type * as types from 'types';
 
 const extendedWindow = window as types.ExtendedWindow;
@@ -43,11 +45,10 @@ function Playlist(): React.JSX.Element {
   };
 
   const handleContextMenu = (id: string) => {
-    window.localStorage.setItem(
-      'trackPath',
-      tracks.filter((track: types.Track): boolean => track.id === id)[0].path,
-    );
-    extendedWindow.backend.openTrackDetails(id);
+    extendedWindow.backend.loadMetadataRequest({
+      id,
+      path: tracks.filter((file: types.Track): boolean => file.id === id)[0].path,
+    });
   };
 
   const handleDoubleClick = (id: string) => extendedWindow.backend.loadFileRequest({
@@ -56,6 +57,55 @@ function Playlist(): React.JSX.Element {
   });
 
   const toggleDragging = () => setIsDragging((value: boolean): boolean => !value);
+
+  useEffect(
+    () => {
+      extendedWindow.backend.loadMetadataResponse((_, { error, id, metadata }) => {
+        if (error) {
+          dispatch(changeTrackNotAccessible(id));
+          return dispatch(changeShowErrorModal({
+            message: 'Could not load track metadata!',
+            showModal: true,
+          }));
+        }
+
+        const covers: types.CoverData[] = [];
+        if (metadata
+          && metadata.common
+          && metadata.common.picture
+          && metadata.common.picture.length > 0
+        ) {
+          metadata.common.picture.forEach((value) => {
+            if (value.data) {
+              covers.push({
+                format: value.format,
+                objectURL: URL.createObjectURL(new Blob([value.data])),
+              });
+            }
+          });
+
+          setItem(
+            'trackMetadata',
+            {
+              common: {
+                ...metadata.common,
+                picture: undefined,
+              },
+              covers,
+              format: metadata.format,
+            },
+          );
+          extendedWindow.backend.openTrackDetails();
+        } else {
+          return dispatch(changeShowErrorModal({
+            message: 'Could not load track metadata!',
+            showModal: true,
+          }));
+        }
+      });
+    },
+    [],
+  );
 
   return (
     <div

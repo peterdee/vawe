@@ -11,6 +11,6 @@ export default createBrowserRouter([
   },
   {
     element: <TrackDetails />,
-    path: '/details/:id',
+    path: '/details',
   },
 ]);

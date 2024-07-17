@@ -43,7 +43,7 @@ export type ExtendedWindow = BaseWindow & {
     loadMetadataResponse: (callback: Callback<LoadMetadataResponsePayload>) => void;
     openPlaylistRequest: () => void;
     openPlaylistResponse: (callback: Callback<OpenPlaylistResponsePayload>) => void;
-    openTrackDetails: (payload: string) => void;
+    openTrackDetails: () => void;
     savePlaylistRequest: (payload: Track[]) => void;
     savePlaylistResponse: (callback: Callback<SavePlaylistResponsePayload>) => void;
     updateDefaultPlaylistRequest: (payload: Track[]) => void;
@@ -74,6 +74,12 @@ export interface LoadMetadataResponsePayload {
   error: Error | null;
   id: string;
   metadata: IAudioMetadata | null;
+}
+
+export type LocalStorageKey = 'trackMetadata';
+
+export interface LocalStorageValue<T> {
+  value: T;
 }
 
 export interface OpenPlaylistResponsePayload {
