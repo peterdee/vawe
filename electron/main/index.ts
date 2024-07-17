@@ -147,7 +147,7 @@ app.on('activate', () => {
 ipcMain.handle(
   IPC_EVENTS.openTrackDetails,
   (_, payload: string) => {
-    const childWindow = new BrowserWindow({
+    const detailsWindow = new BrowserWindow({
       height: 500,
       icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
       webPreferences: {
@@ -159,9 +159,10 @@ ipcMain.handle(
     });
 
     if (VITE_DEV_SERVER_URL) {
-      childWindow.loadURL(`${VITE_DEV_SERVER_URL}details/${payload}`)
+      detailsWindow.loadURL(`${VITE_DEV_SERVER_URL}details/${payload}`);
+      detailsWindow.webContents.openDevTools();
     } else {
-      childWindow.loadFile(indexHtml, { hash: payload })
+      detailsWindow.loadFile(indexHtml, { hash: payload });
     }
   },
 );

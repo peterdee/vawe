@@ -42,7 +42,13 @@ function Playlist(): React.JSX.Element {
     return extendedWindow.backend.addFilesRequest(paths);
   };
 
-  const handleContextMenu = (id: string) => extendedWindow.backend.openTrackDetails(id);
+  const handleContextMenu = (id: string) => {
+    window.localStorage.setItem(
+      'trackPath',
+      tracks.filter((track: types.Track): boolean => track.id === id)[0].path,
+    );
+    extendedWindow.backend.openTrackDetails(id);
+  };
 
   const handleDoubleClick = (id: string) => extendedWindow.backend.loadFileRequest({
     id,
