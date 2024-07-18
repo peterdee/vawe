@@ -1,0 +1,11 @@
+.textarea {
+  border: calc(var(--spacer-quarter) / 4) solid var(--accent);
+  border-radius: var(--spacer-quarter);
+  outline: none;
+  padding: var(--spacer-half);
+  resize: none;
+  width: 100%;
+}
+.textarea:focus {
+  border: calc(var(--spacer-quarter) / 4) solid var(--accent-light);
+}

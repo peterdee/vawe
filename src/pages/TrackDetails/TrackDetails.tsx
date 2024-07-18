@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -11,6 +12,7 @@ import IconAudio from '@/components/IconAudio';
 import IconDownload from '@/components/IconDownload';
 import IconExclamation from '@/components/IconExclamation';
 import LinkButton from '@/components/LinkButton';
+import StyledTextArea from '@/components/StyledTextArea/StyledTextArea';
 import type * as types from 'types';
 import './styles.css';
 
@@ -45,16 +47,18 @@ function TrackDetails(): React.JSX.Element {
   useEffect(
     () => {
       if (metadata) {
-        console.log(metadata)
-        const fileName = metadata
-          .path
-          .split('/')
-          .slice(0, metadata.path.split('.').length - 1)
-          .join('.');
-        const title = `VAWE: ${fileName}`;
-        // if () {
-        //   title = `VAWE: ${currentTrack.name}`;
-        // }
+        const pathPartials = metadata.path.split('/').reverse();
+        const fileName = pathPartials[0];
+        let title = 'VAWE';
+        if (metadata.common.title) {
+          if (metadata.common.artists && metadata.common.artists.length > 0) {
+            title += `: ${metadata.common.artists.join(', ')} - ${title}`;
+          } else if (metadata.common.artist) {
+            title += `: ${metadata.common.artist} - ${title}`;
+          }
+        } else {
+          title += `: ${fileName.split('.').reverse().slice(1).reverse().join('.')}`;
+        }
         window.document.title = title;
       }
     },
@@ -74,6 +78,21 @@ function TrackDetails(): React.JSX.Element {
           ? 'png'
           : 'jpg',
       );
+    },
+    [metadata],
+  );
+
+  const artist = useMemo(
+    () => {
+      if (metadata && metadata.common.artist) {
+        let valueString = metadata.common.artist;
+        if (metadata.common.artists && metadata.common.artists.length > 1) {
+          valueString = metadata.common.artists.join(', ');
+        }
+        return valueString;
+      } else {
+        return '-';
+      }
     },
     [metadata],
   );
@@ -102,16 +121,59 @@ function TrackDetails(): React.JSX.Element {
       ) }
       { !metadataLoadingError && (
         <div className="f j-space-between mt-1">
-          <div>
-            { `Artist: ${metadata?.common.artist}` }
+          <div className="f d-col">
+            <span className="ns detail-title">
+              File path
+            </span>
+            <StyledTextArea
+              globalClasses="mt-half"
+              customStyles={{
+                height: UNIT * 5,
+                width: UNIT * 20,
+              }}
+              value={metadata?.path || ''}
+            />
+            <span className="mt-1 ns detail-title">
+              Artist
+            </span>
+            <span className="mt-half">
+              { artist }
+            </span>
+            <span className="mt-1 ns detail-title">
+              Title
+            </span>
+            <span className="mt-half">
+              { metadata?.common.title || '-' }
+            </span>
+            <span className="mt-1 ns detail-title">
+              Album
+            </span>
+            <span className="mt-half">
+              { metadata?.common.album || '-' }
+            </span>
+            <span className="mt-1 ns detail-title">
+              Genre
+            </span>
+            <span className="mt-half">
+              {
+                (Array.isArray(metadata?.common.genre)
+                  && metadata?.common.genre.join(', ')) || '-'
+              }
+            </span>
+            <span className="mt-1 ns detail-title">
+              Year
+            </span>
+            <span className="mt-half">
+              { metadata?.common.year || '-' }
+            </span>
           </div>
           { metadata?.covers && metadata.covers.length > 0 && (
             <div className="f d-col ns ml-1">
-              <span>
+              <span className="detail-title">
                 Cover
               </span>
               <div
-                className="mt-1"
+                className="mt-half"
                 style={{
                   backgroundImage: `url(${metadata?.covers[0].objectURL})`,
                   backgroundPosition: 'center',
