@@ -1,0 +1,10 @@
+.data-loading-error {
+  height: calc(var(--spacer) * 3);
+  position: fixed;
+  top: calc(50vh - var(--spacer) * 1.5);
+  width: calc(100vw - var(--spacer) * 2);
+}
+.error-message {
+  color: var(--error);
+  font-size: calc(var(--spacer) * 1.5);
+}

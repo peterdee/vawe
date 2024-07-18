@@ -28,6 +28,7 @@ import {
 } from '@/store/features/modals';
 import ElapsedTime from './components/ElapsedTime';
 import ErrorModal from './components/ErrorModal';
+import getCoverURLs from '@/utilities/get-cover-urls';
 import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
@@ -138,19 +139,6 @@ function Player(): React.JSX.Element {
           dispatch(changeCurrentTrackObjectURL(objectURL));
           dispatch(changeCurrentTrack(id));
           if (metadata) {
-            const covers: types.CoverData[] = [];
-            if (metadata.common
-              && metadata.common.picture
-              && metadata.common.picture.length > 0) {
-              metadata.common.picture.forEach((value) => {
-                if (value.data) {
-                  covers.push({
-                    format: value.format,
-                    objectURL: URL.createObjectURL(new Blob([value.data])),
-                  });
-                }
-              });
-            }
             dispatch(changeCurrentTrackMetadata({
               id,
               metadata: {
@@ -158,7 +146,7 @@ function Player(): React.JSX.Element {
                   ...metadata.common,
                   picture: undefined,
                 },
-                covers,
+                covers: getCoverURLs(metadata),
                 format: metadata.format,
               },
             }));

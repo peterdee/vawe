@@ -6,6 +6,7 @@ import { changeSelectedTrackId, changeTrackNotAccessible } from '@/store/feature
 import { changeShowErrorModal } from '@/store/features/modals';
 import { COLORS, UNIT } from '@/constants';
 import formatDuration from '@/utilities/format-duration';
+import getCoverURLs from '@/utilities/get-cover-urls';
 import IconPlay from '@/components/IconPlay';
 import { setItem } from '@/utilities/local-storage';
 import type * as types from 'types';
@@ -61,7 +62,7 @@ function Playlist(): React.JSX.Element {
   useEffect(
     () => {
       extendedWindow.backend.loadMetadataResponse((_, { error, id, metadata }) => {
-        if (error) {
+        if (error || !metadata) {
           dispatch(changeTrackNotAccessible(id));
           return dispatch(changeShowErrorModal({
             message: 'Could not load track metadata!',
@@ -69,39 +70,18 @@ function Playlist(): React.JSX.Element {
           }));
         }
 
-        const covers: types.CoverData[] = [];
-        if (metadata
-          && metadata.common
-          && metadata.common.picture
-          && metadata.common.picture.length > 0
-        ) {
-          metadata.common.picture.forEach((value) => {
-            if (value.data) {
-              covers.push({
-                format: value.format,
-                objectURL: URL.createObjectURL(new Blob([value.data])),
-              });
-            }
-          });
-
-          setItem(
-            'trackMetadata',
-            {
-              common: {
-                ...metadata.common,
-                picture: undefined,
-              },
-              covers,
-              format: metadata.format,
+        setItem(
+          'trackMetadata',
+          {
+            common: {
+              ...metadata.common,
+              picture: undefined,
             },
-          );
-          extendedWindow.backend.openTrackDetails();
-        } else {
-          return dispatch(changeShowErrorModal({
-            message: 'Could not load track metadata!',
-            showModal: true,
-          }));
-        }
+            covers: getCoverURLs(metadata),
+            format: metadata.format,
+          },
+        );
+        extendedWindow.backend.openTrackDetails();
       });
     },
     [],

@@ -8,6 +8,7 @@ import type { AppDispatch, RootState } from '@/store';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
 import { changeShowCoverModal } from '@/store/features/modals';
 import { COLORS, UNIT } from '../../../constants';
+import downloadFile from '@/utilities/download-file';
 import IconClose from '@/components/IconClose';
 import IconDownload from '@/components/IconDownload';
 import ModalBackground from '@/components/ModalBackground';
@@ -45,20 +46,13 @@ function CoverModal(): React.JSX.Element {
   };
 
   const handleDownload = useCallback(
-    () => {
-      const link = document.createElement('a');
-      link.href = coverLink;
-      link.setAttribute('style', 'display: none;');
-      const fileName = coverLink.split('/').reverse()[0].split('-')[0];
-      let format = 'jpg';
-      if (coverFormat === 'image/png') {
-        format = 'png';
-      }
-      link.setAttribute('download', `${fileName}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    },
+    () => downloadFile(
+      coverLink,
+      coverLink.split('/').reverse()[0].split('-')[0],
+      coverFormat === 'image/png'
+        ? 'png'
+        : 'jpg',
+    ),
     [
       coverFormat,
       coverLink,
