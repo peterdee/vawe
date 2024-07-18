@@ -14,22 +14,20 @@ import LinkButton from '@/components/LinkButton';
 import type * as types from 'types';
 import './styles.css';
 
+type ExtendedCustomAudioMetadata = types.CustomAudioMetadata & {
+  path: string;
+};
+
 function TrackDetails(): React.JSX.Element {
-  const [metadata, setMetadata] = useState<types.CustomAudioMetadata | null>(null);
+  const [metadata, setMetadata] = useState<ExtendedCustomAudioMetadata | null>(null);
   const [metadataLoadingError, setMetadataLoadingError] = useState<boolean>(false);
 
   useEffect(
     () => {
-      const storedMetadata = getItem<types.CustomAudioMetadata | null>('trackMetadata');
+      const storedMetadata = getItem<ExtendedCustomAudioMetadata | null>('trackMetadata');
       if (!storedMetadata) {
         setMetadataLoadingError(true);
       } else {
-        // TODO: set track name as title
-        // let title = 'VAWE';
-        // if (currentTrack && currentTrack.name) {
-        //   title = `VAWE: ${currentTrack.name}`;
-        // }
-        // window.document.title = title;
         setMetadata(storedMetadata);
       }
 
@@ -42,6 +40,25 @@ function TrackDetails(): React.JSX.Element {
       };
     },
     [],
+  );
+
+  useEffect(
+    () => {
+      if (metadata) {
+        console.log(metadata)
+        const fileName = metadata
+          .path
+          .split('/')
+          .slice(0, metadata.path.split('.').length - 1)
+          .join('.');
+        const title = `VAWE: ${fileName}`;
+        // if () {
+        //   title = `VAWE: ${currentTrack.name}`;
+        // }
+        window.document.title = title;
+      }
+    },
+    [metadata],
   );
 
   const hanldeSaveCover = useCallback(

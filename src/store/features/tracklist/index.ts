@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
+import { setItem } from '@/utilities/local-storage';
 import shuffleArray from '@/utilities/shuffle-array';
 import type * as types from 'types';
 
@@ -70,6 +71,19 @@ export const tracklistSlice = createSlice({
         URL.revokeObjectURL(state.currentTrackObjectURL);
       }
       state.currentTrackObjectURL = action.payload;
+    },
+    changeDetailsMetadata: (
+      state,
+      action: PayloadAction<{ id: string; metadata: types.CustomAudioMetadata; }>,
+    ) => {
+      const { id, metadata } = action.payload;
+      setItem(
+        'trackMetadata',
+        {
+          ...metadata,
+          path: state.tracks.filter((track: types.Track): boolean => id === track.id)[0].path,
+        },
+      );
     },
     changeIsPlaying: (state, action: PayloadAction<boolean>) => {
       state.isPlaying = action.payload;
@@ -191,6 +205,7 @@ export const {
   changeCurrentTrackElapsedTime,
   changeCurrentTrackMetadata,
   changeCurrentTrackObjectURL,
+  changeDetailsMetadata,
   changeIsPlaying,
   changeSelectedTrackId,
   changeSelectedTrackIdWithKeys,

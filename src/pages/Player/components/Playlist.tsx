@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
-import { changeSelectedTrackId, changeTrackNotAccessible } from '@/store/features/tracklist';
+import { changeDetailsMetadata, changeSelectedTrackId, changeTrackNotAccessible } from '@/store/features/tracklist';
 import { changeShowErrorModal } from '@/store/features/modals';
 import { COLORS, UNIT } from '@/constants';
 import formatDuration from '@/utilities/format-duration';
 import getCoverURLs from '@/utilities/get-cover-urls';
 import IconPlay from '@/components/IconPlay';
-import { setItem } from '@/utilities/local-storage';
 import type * as types from 'types';
 
 const extendedWindow = window as types.ExtendedWindow;
@@ -70,17 +69,17 @@ function Playlist(): React.JSX.Element {
           }));
         }
 
-        setItem(
-          'trackMetadata',
-          {
+        dispatch(changeDetailsMetadata({
+          id,
+          metadata: {
             common: {
               ...metadata.common,
               picture: undefined,
             },
             covers: getCoverURLs(metadata),
             format: metadata.format,
-          },
-        );
+          }
+        }));
         extendedWindow.backend.openTrackDetails();
       });
     },
