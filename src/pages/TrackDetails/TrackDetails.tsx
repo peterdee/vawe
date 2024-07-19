@@ -145,7 +145,7 @@ function TrackDetails(): React.JSX.Element {
       ) }
       { !metadataLoadingError && (
         <div className="f mt-1">
-          <div className="f d-col col-section">
+          <div className="f d-col col-left">
             <span className="ns detail-title">
               File path
             </span>
@@ -201,7 +201,7 @@ function TrackDetails(): React.JSX.Element {
               </>
             ) }
           </div>
-          <div className="f d-col mh-1 col-section">
+          <div className="f d-col mh-1 col-middle">
             <span className="ns detail-title">
               Track length
             </span>

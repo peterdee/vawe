@@ -1,5 +1,8 @@
-.col-section {
+.col-left {
   min-width: calc(var(--spacer) * 15);
+}
+.col-middle {
+  min-width: calc(var(--spacer) * 8);
 }
 .data-loading-error {
   height: calc(var(--spacer) * 3);
