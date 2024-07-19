@@ -10,7 +10,7 @@ import router from './router';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <div className="f d-col h-100vh">
+  <div className="f d-col wrap">
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <RouterProvider router={router} />

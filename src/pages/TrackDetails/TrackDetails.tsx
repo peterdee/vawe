@@ -7,6 +7,7 @@ import React, {
 
 import { COLORS, UNIT } from '@/constants';
 import downloadFile from '@/utilities/download-file';
+import formatDuration from '@/utilities/format-duration';
 import { getItem } from '@/utilities/local-storage';
 import IconAudio from '@/components/IconAudio';
 import IconDownload from '@/components/IconDownload';
@@ -47,6 +48,7 @@ function TrackDetails(): React.JSX.Element {
   useEffect(
     () => {
       if (metadata) {
+        console.log(metadata);
         const pathPartials = metadata.path.split('/').reverse();
         const fileName = pathPartials[0];
         let title = 'VAWE';
@@ -97,6 +99,28 @@ function TrackDetails(): React.JSX.Element {
     [metadata],
   );
 
+  const bitrate = useMemo(
+    () => {
+      if (metadata && metadata.format.bitrate) {
+        return `${Math.round(metadata.format.bitrate / 1000)}kbps`;
+      } else {
+        return '-';
+      }
+    },
+    [metadata],
+  );
+
+  const sampleRate = useMemo(
+    () => {
+      if (metadata && metadata.format.sampleRate) {
+        return `${metadata.format.sampleRate / 1000}khz`;
+      } else {
+        return '-';
+      }
+    },
+    [metadata],
+  );
+
   return (
     <div className="f d-col p-1">
       <div className="f ai-center">
@@ -120,41 +144,41 @@ function TrackDetails(): React.JSX.Element {
         </div>
       ) }
       { !metadataLoadingError && (
-        <div className="f j-space-between mt-1">
-          <div className="f d-col">
+        <div className="f mt-1">
+          <div className="f d-col col-section">
             <span className="ns detail-title">
               File path
             </span>
             <StyledTextArea
-              globalClasses="mt-half"
+              globalClasses="mt-quarter"
               customStyles={{
-                height: UNIT * 5,
-                width: UNIT * 20,
+                height: UNIT * 6,
+                width: UNIT * 15,
               }}
               value={metadata?.path || ''}
             />
             <span className="mt-1 ns detail-title">
               Artist
             </span>
-            <span className="mt-half">
+            <span className="mt-quarter">
               { artist }
             </span>
             <span className="mt-1 ns detail-title">
               Title
             </span>
-            <span className="mt-half">
+            <span className="mt-quarter">
               { metadata?.common.title || '-' }
             </span>
             <span className="mt-1 ns detail-title">
               Album
             </span>
-            <span className="mt-half">
+            <span className="mt-quarter">
               { metadata?.common.album || '-' }
             </span>
             <span className="mt-1 ns detail-title">
               Genre
             </span>
-            <span className="mt-half">
+            <span className="mt-quarter">
               {
                 (Array.isArray(metadata?.common.genre)
                   && metadata?.common.genre.join(', ')) || '-'
@@ -163,9 +187,55 @@ function TrackDetails(): React.JSX.Element {
             <span className="mt-1 ns detail-title">
               Year
             </span>
-            <span className="mt-half">
+            <span className="mt-quarter">
               { metadata?.common.year || '-' }
             </span>
+            { metadata?.common.bpm && (
+              <>
+                <span className="mt-1 ns detail-title">
+                  BPM
+                </span>
+                <span className="mt-quarter">
+                  { metadata?.common.bpm }
+                </span>
+              </>
+            ) }
+          </div>
+          <div className="f d-col mh-1 col-section">
+            <span className="ns detail-title">
+              Track length
+            </span>
+            <span className="mt-quarter">
+              { formatDuration(metadata?.format.duration || 0) }
+            </span>
+            <span className="mt-1 ns detail-title">
+              Bitrate
+            </span>
+            <span className="mt-quarter">
+              { bitrate }
+            </span>
+            <span className="mt-1 ns detail-title">
+              Sample rate
+            </span>
+            <span className="mt-quarter">
+              { sampleRate }
+            </span>
+            <span className="mt-1 ns detail-title">
+              Channels
+            </span>
+            <span className="mt-quarter">
+              { metadata?.format.numberOfChannels || '-' }
+            </span>
+            { metadata?.format.lossless && (
+              <>
+                <span className="mt-1 ns detail-title">
+                  Bits per sample
+                </span>
+                <span className="mt-quarter">
+                  { metadata?.format.bitsPerSample }
+                </span>
+              </>
+            ) }
           </div>
           { metadata?.covers && metadata.covers.length > 0 && (
             <div className="f d-col ns ml-1">
@@ -173,7 +243,7 @@ function TrackDetails(): React.JSX.Element {
                 Cover
               </span>
               <div
-                className="mt-half"
+                className="mt-quarter"
                 style={{
                   backgroundImage: `url(${metadata?.covers[0].objectURL})`,
                   backgroundPosition: 'center',

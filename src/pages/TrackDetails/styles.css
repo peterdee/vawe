@@ -1,3 +1,6 @@
+.col-section {
+  min-width: calc(var(--spacer) * 15);
+}
 .data-loading-error {
   height: calc(var(--spacer) * 3);
   position: fixed;
@@ -5,6 +8,7 @@
   width: calc(100vw - var(--spacer) * 2);
 }
 .detail-title {
+  color: var(--muted-dark);
   font-size: calc(var(--spacer) + var(--spacer-quarter) / 2);
   font-weight: 300;
 }
