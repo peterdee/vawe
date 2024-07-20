@@ -48,15 +48,14 @@ function TrackDetails(): React.JSX.Element {
   useEffect(
     () => {
       if (metadata) {
-        console.log(metadata);
         const pathPartials = metadata.path.split('/').reverse();
         const fileName = pathPartials[0];
         let title = 'VAWE';
         if (metadata.common.title) {
           if (metadata.common.artists && metadata.common.artists.length > 0) {
-            title += `: ${metadata.common.artists.join(', ')} - ${title}`;
+            title += `: ${metadata.common.artists.join(', ')} - ${metadata.common.title}`;
           } else if (metadata.common.artist) {
-            title += `: ${metadata.common.artist} - ${title}`;
+            title += `: ${metadata.common.artist} - ${metadata.common.title}`;
           }
         } else {
           title += `: ${fileName.split('.').reverse().slice(1).reverse().join('.')}`;

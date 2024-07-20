@@ -148,21 +148,21 @@ ipcMain.handle(
   IPC_EVENTS.openTrackDetails,
   () => {
     const detailsWindow = new BrowserWindow({
-      height: 600,
+      height: 420,
       icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+      maxWidth: 688,
       minHeight: 420,
-      minWidth: 640,
+      minWidth: 688,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
         preload,
       },
-      width: 1000,
+      width: 688,
     });
 
     if (VITE_DEV_SERVER_URL) {
       detailsWindow.loadURL(`${VITE_DEV_SERVER_URL}details`);
-      detailsWindow.webContents.openDevTools();
     } else {
       detailsWindow.loadFile(indexHtml, { hash: 'details' });
     }
