@@ -29,6 +29,7 @@ import {
 import ElapsedTime from './components/ElapsedTime';
 import ErrorModal from './components/ErrorModal';
 import getCoverURLs from '@/utilities/get-cover-urls';
+import getNextTrack from '@/utilities/get-next-track';
 import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
@@ -201,11 +202,7 @@ function Player(): React.JSX.Element {
 
   const handleChangeTrack = useCallback(
     (changeTo: types.ChangeTrackTo): null | Promise<void> | void => {
-      if (tracks.length === 0) {
-        return null;
-      }
-
-      // TODO: check track accessibility before loading
+      // TODO: check track accessibility before loading when checking queue
       if (queue.length > 0) {
         const [nextTrack] = tracks.filter(
           (track: types.Track): boolean => track.id === queue[0],
@@ -217,10 +214,25 @@ function Player(): React.JSX.Element {
         });
       }
 
+      if (tracks.length === 1) {
+        if (wavesurfer) {
+          wavesurfer.stop();
+          dispatch(changeIsPlaying(true));
+          return wavesurfer.play();
+        }
+        const result = getNextTrack(currentTrack, tracks, changeTo);
+        if (!result) {
+          dispatch(changeIsPlaying(false));
+          dispatch(changeCurrentTrack(''));
+        }
+      }
+
       if (!currentTrack) {
-        const track = changeTo === 'previous'
-          ? tracks[tracks.length - 1]
-          : tracks[0];
+        const nextTrackId = getNextTrackId(
+          tracks,
+          currentTrack.id,
+          changeTo,
+        );
         return extendedWindow.backend.loadFileRequest({
           id: track.id,
           path: track.path,
@@ -230,15 +242,7 @@ function Player(): React.JSX.Element {
         wavesurfer?.stop();
         dispatch(changeIsPlaying(true));
         wavesurfer?.play();
-      } else {
-        let currentTrackIndex = 0;
-        for (let i = 0; i < tracks.length; i += 1) {
-          if (tracks[i].id === currentTrack.id) {
-            currentTrackIndex = i;
-            break;
-          }
-        }
-        
+      } else {        
         if (changeTo === 'current' && currentTrack && !wavesurfer) {
           return extendedWindow.backend.loadFileRequest({
             id: currentTrack.id,
@@ -246,22 +250,16 @@ function Player(): React.JSX.Element {
           });
         }
 
-        let nextIndex = 0;
-        if (changeTo === 'next') {
-          nextIndex = currentTrackIndex + 1;
-        }
-        if (changeTo === 'previous') {
-          nextIndex = currentTrackIndex - 1;
-        }
-        if (nextIndex < 0) {
-          nextIndex = tracks.length - 1;
-        }
-        if (nextIndex > tracks.length - 1) {
-          nextIndex = 0;
-        }
+        const nextTrackId = getNextTrackId(
+          tracks,
+          currentTrack.id,
+          changeTo,
+        );
         return extendedWindow.backend.loadFileRequest({
-          id: tracks[nextIndex].id,
-          path: tracks[nextIndex].path,
+          id: nextTrackId,
+          path: tracks.filter(
+            (track: types.Track): boolean => track.id === nextTrackId,
+          )[0].path,
         });
       }
     },
