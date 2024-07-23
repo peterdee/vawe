@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import { changeCurrentTrackElapsedTime } from '@/store/features/tracklist';
 import type * as types from 'types';
+import { UNIT } from '@/constants';
 
 interface WavesurferPlayerProps {
   onFinish: (instance: types.WaveSurferInstance) => void;
@@ -34,7 +35,7 @@ function WavesurferPlayer(props: WavesurferPlayerProps): React.JSX.Element {
       <Player
         cursorColor="black"
         cursorWidth={2}
-        height={32}
+        height={UNIT * 2}
         onReady={onReady}
         onFinish={onFinish}
         onTimeupdate={onTime}

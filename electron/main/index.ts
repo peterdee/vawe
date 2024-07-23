@@ -1,6 +1,7 @@
 import {
   app,
   BrowserWindow,
+  Menu,
   ipcMain,
   shell,
 } from 'electron';
@@ -17,6 +18,7 @@ import parseFiles from './handlers/parse-files';
 import savePlaylist from './handlers/save-playlist';
 import type * as types from 'types';
 import updateDefaultPlaylist from './handlers/update-default-playlist';
+import createMenuTemplate from './menu';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -50,6 +52,8 @@ async function createWindow() {
     center: false,
     height: 800,
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+    minHeight: 600,
+    minWidth: 600,
     title: 'VAWE',
     webPreferences: {
       contextIsolation: true,
@@ -57,7 +61,9 @@ async function createWindow() {
       preload,
     },
     width: 1200,
-  })
+  });
+
+  Menu.setApplicationMenu(createMenuTemplate());
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
@@ -153,6 +159,7 @@ ipcMain.handle(
       maxWidth: 688,
       minHeight: 420,
       minWidth: 688,
+      title: 'VAWE',
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,

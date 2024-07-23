@@ -7,12 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import ButtonWithIcon from '@/components/ButtonWithIcon';
 import { changeShowCoverModal } from '@/store/features/modals';
-import { COLORS, UNIT } from '../../../constants';
 import downloadFile from '@/utilities/download-file';
 import IconClose from '@/components/IconClose';
 import IconDownload from '@/components/IconDownload';
 import ModalBackground from '@/components/ModalBackground';
 import type * as types from 'types';
+import { UNIT } from '../../../constants';
 
 const iconSize = UNIT * 2.5;
 
@@ -69,7 +69,7 @@ function CoverModal(): React.JSX.Element {
           <IconDownload
             height={iconSize}
             iconColorBase="black"
-            iconColorHover={COLORS.accent}
+            iconColorHover="gray"
             title="Dowlnoad cover"
             width={iconSize}
           />
@@ -82,7 +82,7 @@ function CoverModal(): React.JSX.Element {
           <IconClose
             height={iconSize}
             iconColorBase="black"
-            iconColorHover={COLORS.accent}
+            iconColorHover="gray"
             title="Close"
             width={iconSize}
           />

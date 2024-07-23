@@ -16,9 +16,7 @@ function BottomPanel(): React.JSX.Element {
   );
 
   const totalPlaytime = tracks.reduce(
-    (value: number, track: types.Track): number => {
-      return value + track.durationSeconds;
-    },
+    (value: number, track: types.Track): number => value + track.durationSeconds,
     0,
   );
 
