@@ -8,6 +8,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   addTrack,
   changeCurrentTrack,
+  changeCurrentTrackElapsedTime,
   changeCurrentTrackMetadata,
   changeCurrentTrackObjectURL,
   changeIsPlaying,
@@ -202,7 +203,6 @@ function Player(): React.JSX.Element {
 
   const handleChangeTrack = useCallback(
     (changeTo: types.ChangeTrackTo): null | Promise<void> | void => {
-      // TODO: check track accessibility before loading when checking queue
       if (queue.length > 0) {
         const [nextTrack] = tracks.filter(
           (track: types.Track): boolean => track.id === queue[0],
@@ -220,48 +220,16 @@ function Player(): React.JSX.Element {
           dispatch(changeIsPlaying(true));
           return wavesurfer.play();
         }
-        const result = getNextTrack(currentTrack, tracks, changeTo);
-        if (!result) {
-          dispatch(changeIsPlaying(false));
-          dispatch(changeCurrentTrack(''));
-        }
       }
-
-      if (!currentTrack) {
-        const nextTrackId = getNextTrackId(
-          tracks,
-          currentTrack.id,
-          changeTo,
-        );
-        return extendedWindow.backend.loadFileRequest({
-          id: track.id,
-          path: track.path,
-        });
+      const result = getNextTrack(currentTrack, tracks, changeTo);
+      if (!result) {
+        dispatch(changeCurrentTrack(''));
+        dispatch(changeCurrentTrackElapsedTime(0));
+        dispatch(changeCurrentTrackObjectURL(''));
+        dispatch(changeIsPlaying(false));
+        return null;
       }
-      if (tracks.length === 1) {
-        wavesurfer?.stop();
-        dispatch(changeIsPlaying(true));
-        wavesurfer?.play();
-      } else {        
-        if (changeTo === 'current' && currentTrack && !wavesurfer) {
-          return extendedWindow.backend.loadFileRequest({
-            id: currentTrack.id,
-            path: currentTrack.path,
-          });
-        }
-
-        const nextTrackId = getNextTrackId(
-          tracks,
-          currentTrack.id,
-          changeTo,
-        );
-        return extendedWindow.backend.loadFileRequest({
-          id: nextTrackId,
-          path: tracks.filter(
-            (track: types.Track): boolean => track.id === nextTrackId,
-          )[0].path,
-        });
-      }
+      return extendedWindow.backend.loadFileRequest(result);
     },
     [
       currentTrack,

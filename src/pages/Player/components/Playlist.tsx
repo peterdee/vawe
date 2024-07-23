@@ -132,7 +132,13 @@ function Playlist(): React.JSX.Element {
                   />
                 ) }
                 {
-                  (!currentTrack || (currentTrack && currentTrack.id !== item.id))
+                  (!currentTrack || (currentTrack && currentTrack.id !== item.id
+                    && queue.includes(item.id)))
+                    && queue.indexOf(item.id) + 1
+                }
+                {
+                  (!currentTrack || (currentTrack && currentTrack.id !== item.id
+                    && !queue.includes(item.id)))
                     && index + 1
                 }
               </div>
