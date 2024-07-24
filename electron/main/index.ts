@@ -63,7 +63,7 @@ async function createWindow() {
     width: 1200,
   });
 
-  Menu.setApplicationMenu(createMenuTemplate());
+  Menu.setApplicationMenu(createMenuTemplate(win));
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);

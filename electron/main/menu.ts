@@ -1,9 +1,17 @@
-import { Menu, shell } from 'electron';
+import {
+  type BrowserWindow,
+  Menu,
+  type MenuItemConstructorOptions,
+  shell,
+} from 'electron';
+
+import { IPC_EVENTS } from '../constants';
+import openPlaylist from './handlers/open-playlist';
 
 const isMac = process.platform === 'darwin';
 
-export default function createMenuTemplate(): Menu {
-  const template = [
+export default function createMenuTemplate(browserWindow: BrowserWindow): Menu {
+  const template: MenuItemConstructorOptions[] = [
     {
       accelerator: 'Ctrl+F',
       label: 'File',
@@ -24,7 +32,7 @@ export default function createMenuTemplate(): Menu {
       label: 'Playlist',
       submenu: [
         {
-          click: () => console.log('click'),
+          click: () => openPlaylist(browserWindow),
           label: 'Open playlist',
         },
         {
@@ -33,11 +41,15 @@ export default function createMenuTemplate(): Menu {
         },
         { type: 'separator' },
         {
-          click: () => console.log('click'),
+          click: () => browserWindow.webContents.send(
+            IPC_EVENTS.menuShufflePlaylistRequest,
+          ),
           label: 'Shuffle playlist',
         },
         {
-          click: () => console.log('click'),
+          click: () => browserWindow.webContents.send(
+            IPC_EVENTS.menuClearPlaylistRequest,
+          ),
           label: 'Clear playlist',
         },
       ],

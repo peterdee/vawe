@@ -59,6 +59,16 @@ contextBridge.exposeInMainWorld(
     ) {
       ipcRenderer.on(IPC_EVENTS.loadMetadataResponse, callback);
     },
+    // menu bar actions
+    menuClearPlaylistRequest(callback: () => void) {
+      ipcRenderer.on(IPC_EVENTS.menuClearPlaylistRequest, callback);
+    },
+    menuSavePlaylistRequest(callback: () => void) {
+      ipcRenderer.on(IPC_EVENTS.menuShufflePlaylistRequest, callback);
+    },
+    menuShufflePlaylistRequest(callback: () => void) {
+      ipcRenderer.on(IPC_EVENTS.menuShufflePlaylistRequest, callback);
+    },
     // open playlist via dialog window
     openPlaylistRequest() {
       ipcRenderer.invoke(IPC_EVENTS.openPlaylistRequest);

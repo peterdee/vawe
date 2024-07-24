@@ -41,6 +41,9 @@ export type ExtendedWindow = BaseWindow & {
     loadFileResponse: (callback: Callback<LoadFileResponsePayload>) => void;
     loadMetadataRequest: (payload: LoadMetadataRequestPayload) => void;
     loadMetadataResponse: (callback: Callback<LoadMetadataResponsePayload>) => void;
+    menuClearPlaylistRequest: (callback: () => void) => void;
+    menuSavePlaylistRequest: (callback: () => void) => void;
+    menuShufflePlaylistRequest: (callback: () => void) => void;
     openPlaylistRequest: () => void;
     openPlaylistResponse: (callback: Callback<OpenPlaylistResponsePayload>) => void;
     openTrackDetails: () => void;

@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/store';
-import { changeDetailsMetadata, changeSelectedTrackId, changeTrackNotAccessible } from '@/store/features/tracklist';
+import {
+  changeDetailsMetadata,
+  changeSelectedTrackId,
+  changeTrackNotAccessible,
+  clearTracklist,
+  shuffleTracklist,
+} from '@/store/features/tracklist';
 import { changeShowErrorModal } from '@/store/features/modals';
 import { COLORS, UNIT } from '@/constants';
 import formatDuration from '@/utilities/format-duration';
@@ -82,6 +88,14 @@ function Playlist(): React.JSX.Element {
         }));
         extendedWindow.backend.openTrackDetails();
       });
+
+      extendedWindow.backend.menuClearPlaylistRequest(
+        () => dispatch(clearTracklist()),
+      );
+
+      extendedWindow.backend.menuShufflePlaylistRequest(
+        () => dispatch(shuffleTracklist()),
+      );
     },
     [],
   );
