@@ -5,7 +5,7 @@ import {
   shell,
 } from 'electron';
 
-import { IPC_EVENTS } from '../constants';
+import { EXTERNAL_LINKS, IPC_EVENTS } from '../constants';
 import openPlaylist from './handlers/open-playlist';
 
 const isMac = process.platform === 'darwin';
@@ -36,7 +36,9 @@ export default function createMenuTemplate(browserWindow: BrowserWindow): Menu {
           label: 'Open playlist',
         },
         {
-          click: () => console.log('click'),
+          click: () => browserWindow.webContents.send(
+            IPC_EVENTS.menuSavePlaylistRequest,
+          ),
           label: 'Save playlist',
         },
         { type: 'separator' },
@@ -90,13 +92,13 @@ export default function createMenuTemplate(browserWindow: BrowserWindow): Menu {
       submenu: [
         {
           click: async () => {
-            await shell.openExternal('https://github.com/peterdee/vawe/issues');
+            await shell.openExternal(EXTERNAL_LINKS.menuReportIssue);
           },
           label: 'Report an issue',
         },
         {
           click: async () => {
-            await shell.openExternal('https://github.com/peterdee/vawe');
+            await shell.openExternal(EXTERNAL_LINKS.menuSourceCode);
           },
           label: 'View source code',
         },

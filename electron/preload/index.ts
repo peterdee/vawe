@@ -64,7 +64,7 @@ contextBridge.exposeInMainWorld(
       ipcRenderer.on(IPC_EVENTS.menuClearPlaylistRequest, callback);
     },
     menuSavePlaylistRequest(callback: () => void) {
-      ipcRenderer.on(IPC_EVENTS.menuShufflePlaylistRequest, callback);
+      ipcRenderer.on(IPC_EVENTS.menuSavePlaylistRequest, callback);
     },
     menuShufflePlaylistRequest(callback: () => void) {
       ipcRenderer.on(IPC_EVENTS.menuShufflePlaylistRequest, callback);

@@ -1,5 +1,10 @@
 export const DEFAULT_PLAYLIST_NAME = 'vawe-default.va';
 
+export const EXTERNAL_LINKS = {
+  menuReportIssue: 'https://github.com/peterdee/vawe/issues',
+  menuSourceCode: 'https://github.com/peterdee/vawe',
+};
+
 export const FORMATS = ['.flac', '.mp3', '.wav'];
 
 export const IPC_ERROR_MESSAGES = {
@@ -16,6 +21,7 @@ export const IPC_EVENTS = {
   loadMetadataRequest: 'loadMetadataRequest',
   loadMetadataResponse: 'loadMetadataResponse',
   menuClearPlaylistRequest: 'menuClearPlaylistRequest',
+  menuSavePlaylistRequest: 'menuSavePlaylistRequest',
   menuShufflePlaylistRequest: 'menuShufflePlaylistRequest',
   openPlaylistRequest: 'openPlaylistRequest',
   openPlaylistResponse: 'openPlaylistResponse',

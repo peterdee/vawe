@@ -27,6 +27,8 @@ const initialState: TracklistState = {
   tracks: [],
 };
 
+const extendedWindow = window as types.ExtendedWindow;
+
 function revokeCoverURLs(metadata: types.TrackMetadata) {
   if (Array.isArray(metadata.metadata.covers)) {
     metadata.metadata.covers.forEach((cover: types.CoverData) => {
@@ -146,6 +148,9 @@ export const tracklistSlice = createSlice({
     loadPlaylist: (state, action: PayloadAction<types.Track[]>) => {
       state.tracks = action.payload;
     },
+    menuSavePlaylist: (state) => {
+      extendedWindow.backend.savePlaylistRequest(state.tracks);
+    },
     removeIdFromQueue: (state, action: PayloadAction<string>) => {
       state.queue = state.queue.filter((id: string): boolean => id !== action.payload);
     },
@@ -212,6 +217,7 @@ export const {
   changeTrackNotAccessible,
   clearTracklist,
   loadPlaylist,
+  menuSavePlaylist,
   removeIdFromQueue,
   removeTrack,
   shuffleTracklist,

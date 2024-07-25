@@ -15,6 +15,7 @@ import {
   changeSelectedTrackIdWithKeys,
   changeTrackNotAccessible,
   loadPlaylist,
+  menuSavePlaylist,
   removeIdFromQueue,
   removeTrack,
   toggleQueueTrack,
@@ -156,6 +157,10 @@ function Player(): React.JSX.Element {
         },
       );
 
+      extendedWindow.backend.menuSavePlaylistRequest(
+        () => dispatch(menuSavePlaylist()),
+      );
+
       extendedWindow.backend.openPlaylistResponse(
         (_, payload) => {
           const {
@@ -165,6 +170,9 @@ function Player(): React.JSX.Element {
           if (!errorMessage && playlist) {
             dispatch(loadPlaylist(playlist));
           } else {
+            if (errorMessage === 'cancelled') {
+              return null;
+            }
             if (errorMessage === 'emptyFile') {
               dispatch(changeShowErrorModal({
                 message: 'Selected playlist is empty!',
