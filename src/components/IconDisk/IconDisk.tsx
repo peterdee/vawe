@@ -8,7 +8,6 @@ function IconDisk(props: types.BaseIconProps): React.JSX.Element {
     height = UNIT * 2,
     iconColorBase = COLORS.accent,
     iconColorHover = COLORS.accentHighlight,
-    isHovering = false,
     title = '',
     width = UNIT * 2,
   } = props;
@@ -23,21 +22,25 @@ function IconDisk(props: types.BaseIconProps): React.JSX.Element {
       title={title}
     >
       <svg
-        height={width}
-        viewBox="0 0 24 24"
+        height={height}
+        version="1.1"
+        viewBox="0 0 501.333 501.333"
         width={width}
         xmlns="http://www.w3.org/2000/svg"
+        xmlSpace="preserve"
       >
-        <g>
-          <path
-            d="M0 0h24v24H0z"
-            fill="none"
-          />
-          <path
-            d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 14c2.213 0 4-1.787 4-4s-1.787-4-4-4-4 1.787-4 4 1.787 4 4 4zm0-5c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"
-            fill={isHovering ? iconColorHover : iconColorBase}
-          />
-        </g>
+        <path
+          d="M250.667,0C112,0,0,112,0,250.667s112,250.667,250.667,250.667s250.667-112,250.667-250.667
+	            S389.333,0,250.667,0z M250.667,285.867c-19.2,0-35.2-16-35.2-35.2s16-35.2,35.2-35.2s35.2,16,35.2,35.2
+	            S269.867,285.867,250.667,285.867z"
+          fill={iconColorBase}
+        />
+        <path
+          d="M250.667,146.133c-57.6,0-104.533,46.933-104.533,104.533S193.067,355.2,250.667,355.2
+	          S355.2,308.267,355.2,250.667S308.267,146.133,250.667,146.133z M250.667,285.867c-19.2,0-35.2-16-35.2-35.2s16-35.2,35.2-35.2
+	          s35.2,16,35.2,35.2S269.867,285.867,250.667,285.867z"
+          fill={iconColorHover}
+        />
       </svg>
     </div>
   );
