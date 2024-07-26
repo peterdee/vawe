@@ -149,7 +149,9 @@ export const tracklistSlice = createSlice({
       state.tracks = action.payload;
     },
     menuSavePlaylist: (state) => {
-      extendedWindow.backend.savePlaylistRequest(state.tracks);
+      extendedWindow.backend.savePlaylistRequest(
+        state.tracks.map((draftTrack) => ({ ...draftTrack })),
+      );
     },
     removeIdFromQueue: (state, action: PayloadAction<string>) => {
       state.queue = state.queue.filter((id: string): boolean => id !== action.payload);

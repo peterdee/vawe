@@ -157,9 +157,7 @@ function Player(): React.JSX.Element {
         },
       );
 
-      extendedWindow.backend.menuSavePlaylistRequest(
-        () => dispatch(menuSavePlaylist()),
-      );
+      extendedWindow.backend.menuSavePlaylistRequest(() => dispatch(menuSavePlaylist()));
 
       extendedWindow.backend.openPlaylistResponse(
         (_, payload) => {

@@ -6,6 +6,7 @@ import {
 } from 'electron';
 
 import { EXTERNAL_LINKS, IPC_EVENTS } from '../constants';
+import menuAddFiles from './handlers/menu-add-files';
 import openPlaylist from './handlers/open-playlist';
 
 const isMac = process.platform === 'darwin';
@@ -17,7 +18,7 @@ export default function createMenuTemplate(browserWindow: BrowserWindow): Menu {
       label: 'File',
       submenu: [
         {
-          click: () => console.log('click'),
+          click: () => menuAddFiles(browserWindow),
           label: 'Add files and directories',
         },
         { type: 'separator' },
