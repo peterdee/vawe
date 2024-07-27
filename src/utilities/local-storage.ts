@@ -13,6 +13,10 @@ export function getItem<T>(key: types.LocalStorageKey): T | null {
   }
 }
 
+export function removeItem(key: types.LocalStorageKey) {
+  localStorage.removeItem(key);
+}
+
 export function setItem(key: types.LocalStorageKey, value: unknown) {
   localStorage.setItem(key, JSON.stringify({ value }));
 }

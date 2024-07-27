@@ -26,6 +26,8 @@ export const IPC_EVENTS = {
   openPlaylistRequest: 'openPlaylistRequest',
   openPlaylistResponse: 'openPlaylistResponse',
   openTrackDetails: 'openTrackDetails',
+  removeTrackFromPlaylistRequest: 'removeTrackFromPlaylistRequest',
+  removeTrackFromPlaylistResponse: 'removeTrackFromPlaylistResponse',
   savePlaylistRequest: 'savePlaylistRequest',
   savePlaylistResponse: 'savePlaylistResponse',
   updateDefaultPlaylistRequest: 'updateDefaultPlaylistRequest',

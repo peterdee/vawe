@@ -83,6 +83,7 @@ export const tracklistSlice = createSlice({
         'trackMetadata',
         {
           ...metadata,
+          id,
           path: state.tracks.filter((track: types.Track): boolean => id === track.id)[0].path,
         },
       );

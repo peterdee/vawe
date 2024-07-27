@@ -113,6 +113,11 @@ app.whenReady().then(() => {
     IPC_EVENTS.openPlaylistRequest,
     () => openPlaylist(win as BrowserWindow),
   );
+  // TODO: remove track from playlist (from track details window)
+  // ipcMain.handle(
+  //   IPC_EVENTS.openPlaylistRequest,
+  //   () => openPlaylist(win as BrowserWindow),
+  // );
   // save playlist
   ipcMain.handle(
     IPC_EVENTS.savePlaylistRequest,

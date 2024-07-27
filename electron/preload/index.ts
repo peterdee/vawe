@@ -85,6 +85,18 @@ contextBridge.exposeInMainWorld(
     openTrackDetails() {
       ipcRenderer.invoke(IPC_EVENTS.openTrackDetails);
     },
+    // remove track from playlist (from track details window)
+    removeTrackFromPlaylistRequest(payload: string) {
+      ipcRenderer.invoke(IPC_EVENTS.removeTrackFromPlaylistRequest, payload);
+    },
+    removeTrackFromPlaylistResponse(
+      callback: (
+        event: IpcRendererEvent,
+        payload: string,
+      ) => void,
+    ) {
+      ipcRenderer.on(IPC_EVENTS.removeTrackFromPlaylistRequest, callback);
+    },
     // save playlist via dialog window
     savePlaylistRequest(payload: types.Track[]) {
       ipcRenderer.invoke(IPC_EVENTS.savePlaylistRequest, payload);

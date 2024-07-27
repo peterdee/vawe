@@ -8,7 +8,7 @@ import React, {
 import { COLORS, UNIT } from '@/constants';
 import downloadFile from '@/utilities/download-file';
 import formatDuration from '@/utilities/format-duration';
-import { getItem } from '@/utilities/local-storage';
+import { getItem, removeItem } from '@/utilities/local-storage';
 import IconAudio from '@/components/IconAudio';
 import IconDownload from '@/components/IconDownload';
 import IconExclamation from '@/components/IconExclamation';
@@ -18,8 +18,11 @@ import type * as types from 'types';
 import './styles.css';
 
 type ExtendedCustomAudioMetadata = types.CustomAudioMetadata & {
+  id: string;
   path: string;
 };
+
+const extendedWindow = window as types.ExtendedWindow;
 
 function TrackDetails(): React.JSX.Element {
   const [metadata, setMetadata] = useState<ExtendedCustomAudioMetadata | null>(null);
@@ -31,6 +34,7 @@ function TrackDetails(): React.JSX.Element {
       if (!storedMetadata) {
         setMetadataLoadingError(true);
       } else {
+        removeItem('trackMetadata');
         setMetadata(storedMetadata);
       }
 
@@ -61,6 +65,15 @@ function TrackDetails(): React.JSX.Element {
           title += `: ${fileName.split('.').reverse().slice(1).reverse().join('.')}`;
         }
         window.document.title = title;
+      }
+    },
+    [metadata],
+  );
+
+  const handleRemoveTrack = useCallback(
+    () => {
+      if (metadata) {
+        extendedWindow.backend.removeTrackFromPlaylistRequest(metadata.id);
       }
     },
     [metadata],
@@ -122,17 +135,30 @@ function TrackDetails(): React.JSX.Element {
 
   return (
     <div className="f d-col p-1">
-      <div className="f ai-center">
-        <IconAudio
-          height={UNIT * 2}
-          width={UNIT * 2}
-        />
-        <h2
-          className="ml-half ns"
-          style={{ color: COLORS.accent }}
+      <div className="f ai-center j-space-between">
+        <div className="f ai-center">
+          <IconAudio
+            height={UNIT * 2}
+            width={UNIT * 2}
+          />
+          <h2
+            className="ml-half ns"
+            style={{ color: COLORS.accent }}
+          >
+            Track details
+          </h2>
+        </div>
+        <LinkButton
+          onClick={handleRemoveTrack}
+          styles={{
+            border: `${UNIT / 16}px solid ${COLORS.error}`,
+            borderRadius: `${UNIT / 4}px`,
+            color: COLORS.error,
+            padding: `${UNIT / 4}px`,
+          }}
         >
-          Track details
-        </h2>
+          Remove track from playlist
+        </LinkButton>
       </div>
       { metadataLoadingError && (
         <div className="f ai-center j-center ns data-loading-error">
