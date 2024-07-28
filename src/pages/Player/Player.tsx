@@ -193,6 +193,13 @@ function Player(): React.JSX.Element {
         },
       );
 
+      extendedWindow.backend.removeTrackFromPlaylistResponse(
+        (_, payload) => {
+          console.log('remove track', payload);
+          dispatch(removeTrack(payload));
+        }
+      );
+
       extendedWindow.backend.savePlaylistResponse(
         (_, payload) => {
           if (payload === 'internalError') {

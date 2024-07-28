@@ -15,6 +15,7 @@ import loadFile from './handlers/load-file';
 import loadMetadata from './handlers/load-metadata';
 import openPlaylist from './handlers/open-playlist';
 import parseFiles from './handlers/parse-files';
+import removeTrackFromPlaylist from './handlers/remove-track-from-playlist';
 import savePlaylist from './handlers/save-playlist';
 import type * as types from 'types';
 import updateDefaultPlaylist from './handlers/update-default-playlist';
@@ -43,12 +44,13 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0)
 }
 
-let win: BrowserWindow | null = null
+let detailsWindow: BrowserWindow | null = null;
+let mainWindow: BrowserWindow | null = null;
 const preload = path.join(__dirname, '../preload/index.mjs')
 const indexHtml = path.join(RENDERER_DIST, 'index.html')
 
 async function createWindow() {
-  win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     center: false,
     height: 800,
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
@@ -63,19 +65,19 @@ async function createWindow() {
     width: 1200,
   });
 
-  Menu.setApplicationMenu(createMenuTemplate(win));
+  Menu.setApplicationMenu(createMenuTemplate(mainWindow));
 
   if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
+    mainWindow.loadURL(VITE_DEV_SERVER_URL);
 
     // Open devTool if the app is not packaged
-    win.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   } else {
-    win.loadFile(indexHtml);
+    mainWindow.loadFile(indexHtml);
   }
 
   // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
   });
@@ -85,19 +87,19 @@ app.whenReady().then(() => {
   // add files
   ipcMain.handle(
     IPC_EVENTS.addFilesRequest,
-    (_, payload: string[]) => parseFiles(payload, win as BrowserWindow),
+    (_, payload: string[]) => parseFiles(payload, mainWindow as BrowserWindow),
   );
   // load default playlist
   ipcMain.handle(
     IPC_EVENTS.loadDefaultPlaylistRequest,
-    () => loadDefaultPlaylist(win as BrowserWindow),
+    () => loadDefaultPlaylist(mainWindow as BrowserWindow),
   );
   // load file
   ipcMain.handle(
     IPC_EVENTS.loadFileRequest,
     (_, payload: types.LoadFileRequestPayload) => loadFile(
       payload,
-      win as BrowserWindow,
+      mainWindow as BrowserWindow,
     ),
   );
   // load metadata
@@ -105,23 +107,23 @@ app.whenReady().then(() => {
     IPC_EVENTS.loadMetadataRequest,
     (_, payload: types.LoadMetadataRequestPayload) => loadMetadata(
       payload,
-      win as BrowserWindow,
+      mainWindow as BrowserWindow,
     ),
   );
   // open playlist
   ipcMain.handle(
     IPC_EVENTS.openPlaylistRequest,
-    () => openPlaylist(win as BrowserWindow),
+    () => openPlaylist(mainWindow as BrowserWindow),
   );
-  // TODO: remove track from playlist (from track details window)
-  // ipcMain.handle(
-  //   IPC_EVENTS.openPlaylistRequest,
-  //   () => openPlaylist(win as BrowserWindow),
-  // );
+  // remove track from playlist (from track details window)
+  ipcMain.handle(
+    IPC_EVENTS.removeTrackFromPlaylistRequest,
+    (_, payload: string) => removeTrackFromPlaylist(payload, mainWindow as BrowserWindow),
+  );
   // save playlist
   ipcMain.handle(
     IPC_EVENTS.savePlaylistRequest,
-    (_, payload: types.Track[]) => savePlaylist(payload, win as BrowserWindow),
+    (_, payload: types.Track[]) => savePlaylist(payload, mainWindow as BrowserWindow),
   );
   // update default playlist
   ipcMain.handle(
@@ -133,15 +135,18 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  win = null
-  if (process.platform !== 'darwin') app.quit()
+  detailsWindow = null;
+  mainWindow = null;
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
 
 app.on('second-instance', () => {
-  if (win) {
+  if (mainWindow) {
     // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore();
-    win.focus();
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
   }
 });
 
@@ -158,7 +163,7 @@ app.on('activate', () => {
 ipcMain.handle(
   IPC_EVENTS.openTrackDetails,
   () => {
-    const detailsWindow = new BrowserWindow({
+    detailsWindow = new BrowserWindow({
       height: 420,
       icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
       maxWidth: 688,
@@ -178,5 +183,9 @@ ipcMain.handle(
     } else {
       detailsWindow.loadFile(indexHtml, { hash: 'details' });
     }
+
+    detailsWindow.on('closed', () => {
+      detailsWindow = null;
+    });
   },
 );
