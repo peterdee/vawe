@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 
+import createMenuTemplate from './menu';
 import { IPC_EVENTS } from '../constants';
 import loadDefaultPlaylist from './handlers/load-default-playlist';
 import loadFile from './handlers/load-file';
@@ -19,7 +20,7 @@ import removeTrackFromPlaylist from './handlers/remove-track-from-playlist';
 import savePlaylist from './handlers/save-playlist';
 import type * as types from 'types';
 import updateDefaultPlaylist from './handlers/update-default-playlist';
-import createMenuTemplate from './menu';
+import openTrackDetails from './handlers/open-track-details';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -115,6 +116,16 @@ app.whenReady().then(() => {
     IPC_EVENTS.openPlaylistRequest,
     () => openPlaylist(mainWindow as BrowserWindow),
   );
+  // open track details window
+  ipcMain.handle(
+    IPC_EVENTS.openTrackDetails,
+    () => openTrackDetails(
+      detailsWindow,
+      VITE_DEV_SERVER_URL,
+      indexHtml,
+      preload,
+    ),
+  );
   // remove track from playlist (from track details window)
   ipcMain.handle(
     IPC_EVENTS.removeTrackFromPlaylistRequest,
@@ -158,34 +169,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-// open track details window
-ipcMain.handle(
-  IPC_EVENTS.openTrackDetails,
-  () => {
-    detailsWindow = new BrowserWindow({
-      height: 420,
-      icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
-      maxWidth: 688,
-      minHeight: 420,
-      minWidth: 688,
-      title: 'VAWE',
-      webPreferences: {
-        contextIsolation: true,
-        nodeIntegration: false,
-        preload,
-      },
-      width: 688,
-    });
-
-    if (VITE_DEV_SERVER_URL) {
-      detailsWindow.loadURL(`${VITE_DEV_SERVER_URL}details`);
-    } else {
-      detailsWindow.loadFile(indexHtml, { hash: 'details' });
-    }
-
-    detailsWindow.on('closed', () => {
-      detailsWindow = null;
-    });
-  },
-);

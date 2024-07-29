@@ -95,7 +95,7 @@ contextBridge.exposeInMainWorld(
         payload: string,
       ) => void,
     ) {
-      ipcRenderer.on(IPC_EVENTS.removeTrackFromPlaylistRequest, callback);
+      ipcRenderer.on(IPC_EVENTS.removeTrackFromPlaylistResponse, callback);
     },
     // save playlist via dialog window
     savePlaylistRequest(payload: types.Track[]) {

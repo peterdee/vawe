@@ -25,6 +25,7 @@ type ExtendedCustomAudioMetadata = types.CustomAudioMetadata & {
 const extendedWindow = window as types.ExtendedWindow;
 
 function TrackDetails(): React.JSX.Element {
+  const [isRemoved, setIsRemoved] = useState<boolean>(false);
   const [metadata, setMetadata] = useState<ExtendedCustomAudioMetadata | null>(null);
   const [metadataLoadingError, setMetadataLoadingError] = useState<boolean>(false);
 
@@ -72,7 +73,8 @@ function TrackDetails(): React.JSX.Element {
 
   const handleRemoveTrack = useCallback(
     () => {
-      if (metadata) {
+      if (metadata && !isRemoved) {
+        setIsRemoved(true);
         extendedWindow.backend.removeTrackFromPlaylistRequest(metadata.id);
       }
     },
@@ -148,17 +150,19 @@ function TrackDetails(): React.JSX.Element {
             Track details
           </h2>
         </div>
-        <LinkButton
-          onClick={handleRemoveTrack}
-          styles={{
-            border: `${UNIT / 16}px solid ${COLORS.error}`,
-            borderRadius: `${UNIT / 4}px`,
-            color: COLORS.error,
-            padding: `${UNIT / 4}px`,
-          }}
-        >
-          Remove track from playlist
-        </LinkButton>
+        { !metadataLoadingError && !isRemoved && (
+          <LinkButton
+            onClick={handleRemoveTrack}
+            styles={{
+              border: `${UNIT / 16}px solid ${COLORS.error}`,
+              borderRadius: `${UNIT / 4}px`,
+              color: COLORS.error,
+              padding: `${UNIT / 4}px`,
+            }}
+          >
+            Remove track from playlist
+          </LinkButton>
+        ) }
       </div>
       { metadataLoadingError && (
         <div className="f ai-center j-center ns data-loading-error">
