@@ -10,7 +10,7 @@ import { readdir, stat } from 'node:fs/promises';
 import type * as types from 'types';
 
 import formatTrackName from '../utilities/format-track-name';
-import { FORMATS, IPC_EVENTS } from '../../constants';
+import { FORMATS, IPC_EVENTS } from '../../../constants';
 
 async function handleFile(
   filePath: string,

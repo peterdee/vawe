@@ -2,7 +2,7 @@ import { type BrowserWindow, dialog } from 'electron';
 import { decode } from 'strencojs';
 import { readFile } from 'node:fs/promises';
 
-import { IPC_EVENTS } from '../../constants';
+import { IPC_EVENTS } from '../../../constants';
 import type * as types from 'types';
 
 export default async function openPlaylist(browserWindow: BrowserWindow): Promise<void> {

@@ -5,7 +5,7 @@ import {
   shell,
 } from 'electron';
 
-import { EXTERNAL_LINKS, IPC_EVENTS } from '../constants';
+import { EXTERNAL_LINKS, IPC_EVENTS } from '../../constants';
 import menuAddFiles from './handlers/menu-add-files';
 import openPlaylist from './handlers/open-playlist';
 

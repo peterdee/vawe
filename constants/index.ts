@@ -32,3 +32,17 @@ export const IPC_EVENTS = {
   savePlaylistResponse: 'savePlaylistResponse',
   updateDefaultPlaylistRequest: 'updateDefaultPlaylistRequest',
 };
+
+export const SERVER = {
+  connectTimeoutMS: 30000, // 30 seconds
+  maxDisconnectionDurationMS: 300000, // 5 minutes
+  port: 5077,
+};
+
+export const WS_EVENTS = {
+  addTrack: 'ADD_TRACK',
+  onTimeUpdate: 'ON_TIME_UPDATE',
+  loadPlaylist: 'LOAD_PLAYLIST',
+  removeTrack: 'REMOVE_TRACK',
+  updatePlaybackState: 'UPDATE_PLAYBACK_STATE',
+};

@@ -1,8 +1,10 @@
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
+import { io, type Socket } from 'socket.io-client';
 import { useSelector, useDispatch } from 'react-redux';
 
 import {
@@ -40,6 +42,7 @@ import TrackInfo from './components/TrackInfo';
 import type * as types from 'types';
 import VolumeControls from './components/VolumeControls';
 import WavesurferPlayer from './components/WavesurferPlayer';
+import { WS_EVENTS } from '../../../constants';
 import './styles.css';
 
 const extendedWindow = window as types.ExtendedWindow;
@@ -81,6 +84,28 @@ function Player(): React.JSX.Element {
   );
   const volume = useSelector<RootState, number>(
     (state) => state.volumeSettings.volume,
+  );
+
+  const connection = useMemo<Socket>(
+    () => io(
+      'localhost:5077',
+      {
+        autoConnect: false,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1,
+        reconnectionDelayMax: 10,
+      },
+    ),
+    [],
+  );
+
+  useEffect(
+    () => {
+      connection.connect();
+
+      connection.on('connect', () => console.log('socket connected'));
+    },
+    [],
   );
 
   useEffect(
@@ -166,6 +191,9 @@ function Player(): React.JSX.Element {
             playlist,
           } = payload;
           if (!errorMessage && playlist) {
+            if (connection.connected) {
+              connection.emit(WS_EVENTS.loadPlaylist, playlist);
+            }
             dispatch(loadPlaylist(playlist));
           } else {
             if (errorMessage === 'cancelled') {

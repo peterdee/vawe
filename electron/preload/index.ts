@@ -4,7 +4,7 @@ import {
   type IpcRendererEvent,
 } from 'electron';
 
-import { IPC_EVENTS } from '../constants';
+import { IPC_EVENTS } from '../../constants';
 import type * as types from 'types';
 
 // VAWE

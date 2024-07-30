@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import {
   DEFAULT_PLAYLIST_NAME,
   IPC_EVENTS,
-} from '../../constants';
+} from '../../../constants';
 import type * as types from 'types';
 
 export default async function loadDefaultPlaylist(browserWindow: BrowserWindow) {

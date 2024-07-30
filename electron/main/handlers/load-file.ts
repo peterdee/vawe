@@ -2,7 +2,7 @@ import type { BrowserWindow } from 'electron';
 import { parseFile } from 'music-metadata';
 import { readFile } from 'node:fs/promises';
 
-import { IPC_EVENTS } from '../../constants';
+import { IPC_EVENTS } from '../../../constants';
 import type * as types from 'types';
 
 export default async function loadFile(

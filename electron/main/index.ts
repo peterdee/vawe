@@ -10,7 +10,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 import createMenuTemplate from './menu';
-import { IPC_EVENTS } from '../constants';
+import createWebsocketsServer from './websockets/server';
+import { IPC_EVENTS, SERVER } from '../../constants';
 import loadDefaultPlaylist from './handlers/load-default-playlist';
 import loadFile from './handlers/load-file';
 import loadMetadata from './handlers/load-metadata';
@@ -143,6 +144,9 @@ app.whenReady().then(() => {
   );
 
   createWindow();
+
+  const websocketsServer = createWebsocketsServer();
+  websocketsServer.listen(SERVER.port, () => console.log('launched server'));
 });
 
 app.on('window-all-closed', () => {

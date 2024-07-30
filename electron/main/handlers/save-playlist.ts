@@ -2,7 +2,7 @@ import { type BrowserWindow, dialog } from 'electron';
 import { encode } from 'strencojs';
 import { writeFile } from 'node:fs/promises';
 
-import { IPC_EVENTS } from '../../constants';
+import { IPC_EVENTS } from '../../../constants';
 import type * as types from 'types';
 
 export default async function savePlaylist(
