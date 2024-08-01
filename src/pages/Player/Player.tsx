@@ -141,7 +141,12 @@ function Player(): React.JSX.Element {
       dispatch(changeCurrentTrackObjectURL(''));
 
       extendedWindow.backend.addFilesResponse(
-        (_, value: types.Track) => dispatch(addTrack(value)),
+        (_, value: types.Track) => {
+          if (connection.connected) {
+            connection.emit(WS_EVENTS.addTrack, value);
+          }
+          dispatch(addTrack(value));
+        }
       );
 
       extendedWindow.backend.loadDefaultPlaylistRequest();
