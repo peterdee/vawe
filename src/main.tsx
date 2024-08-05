@@ -7,13 +7,16 @@ import 'common-styles/styles.css';
 
 import { persistor, store } from './store';
 import router from './router';
+import SocketProvider from './contexts/socket';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <div className="f d-col wrap">
     <Provider store={store}>
       <PersistGate persistor={persistor}>
-        <RouterProvider router={router} />
+        <SocketProvider>
+          <RouterProvider router={router} />
+        </SocketProvider>
       </PersistGate>
     </Provider>
   </div>,

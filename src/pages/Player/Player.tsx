@@ -1,10 +1,9 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
-import { io, type Socket } from 'socket.io-client';
 import { useSelector, useDispatch } from 'react-redux';
 
 import {
@@ -38,6 +37,7 @@ import IconPlaylistSettings from '@/components/IconPlaylistSettings';
 import PlaybackControls from './components/PlaybackControls';
 import Playlist from './components/Playlist';
 import PlaylistSettingsModal from './components/PlaylistSettingsModal';
+import { SocketContext } from '../../contexts/socket';
 import TrackInfo from './components/TrackInfo';
 import type * as types from 'types';
 import VolumeControls from './components/VolumeControls';
@@ -67,6 +67,9 @@ function Player(): React.JSX.Element {
   const queue = useSelector<RootState, string[]>(
     (state) => state.tracklist.queue,
   );
+  const remoteEnabled = useSelector<RootState, boolean>(
+    (state) => state.appSettings.remoteEnabled,
+  );
   const selectedTrackId = useSelector<RootState, string>(
     (state) => state.tracklist.selectedTrackId,
   );
@@ -86,26 +89,18 @@ function Player(): React.JSX.Element {
     (state) => state.volumeSettings.volume,
   );
 
-  const connection = useMemo<Socket>(
-    () => io(
-      'localhost:5077',
-      {
-        autoConnect: false,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1,
-        reconnectionDelayMax: 10,
-      },
-    ),
-    [],
-  );
+  const { connection, createConnection } = useContext(SocketContext);
 
   useEffect(
     () => {
-      connection.connect();
-
-      connection.on('connect', () => console.log('socket connected'));
+      if (remoteEnabled && createConnection) {
+        createConnection();
+      }
     },
-    [],
+    [
+      createConnection,
+      remoteEnabled,
+    ],
   );
 
   useEffect(
@@ -142,7 +137,7 @@ function Player(): React.JSX.Element {
 
       extendedWindow.backend.addFilesResponse(
         (_, value: types.Track) => {
-          if (connection.connected) {
+          if (connection && connection.connected) {
             connection.emit(WS_EVENTS.addTrack, value);
           }
           dispatch(addTrack(value));
@@ -196,7 +191,7 @@ function Player(): React.JSX.Element {
             playlist,
           } = payload;
           if (!errorMessage && playlist) {
-            if (connection.connected) {
+            if (connection && connection.connected) {
               connection.emit(WS_EVENTS.loadPlaylist, playlist);
             }
             dispatch(loadPlaylist(playlist));

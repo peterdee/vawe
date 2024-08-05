@@ -1,5 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { setItem } from '@/utilities/local-storage';
 import shuffleArray from '@/utilities/shuffle-array';

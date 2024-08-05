@@ -1,6 +1,7 @@
 import type { IAudioMetadata } from 'music-metadata';
 import type { IpcRendererEvent } from 'electron';
 import type WaveSurfer from 'wavesurfer.js';
+import { Socket } from 'socket.io';
 
 export interface BaseIconProps {
   height?: number;
@@ -31,13 +32,17 @@ export type CustomAudioMetadata = Pick<IAudioMetadata, 'common' | 'format'> & {
   covers?: CoverData[];
 };
 
+export type ExtendedSocket = Socket & {
+  clientType: Target;
+};
+
 export type ExtendedWindow = BaseWindow & {
   backend: {
     addFilesRequest: (payload: string[]) => void;
     addFilesResponse: (callback: Callback<Track>) => void;
     loadDefaultPlaylistRequest: () => void;
     loadDefaultPlaylistResponse: (callback: Callback<LoadDefaultPlaylistResponsePayload>) => void;
-    loadFileRequest: (payload: LoadFileRequestPayload) => void;
+    loadFileRequest: (paylosad: LoadFileRequestPayload) => void;
     loadFileResponse: (callback: Callback<LoadFileResponsePayload>) => void;
     loadMetadataRequest: (payload: LoadMetadataRequestPayload) => void;
     loadMetadataResponse: (callback: Callback<LoadMetadataResponsePayload>) => void;
@@ -90,6 +95,20 @@ export interface LocalStorageValue<T> {
 export interface OpenPlaylistResponsePayload {
   errorMessage: '' | 'cancelled' | 'emptyFile' | 'internalError' | 'invalidFormat';
   playlist: Track[] | null;
+}
+
+export interface PlaybackStatePayload {
+  currentTrackElapsedTime: number;
+  isMuted: boolean;
+  isPlaying: boolean;
+  volume: number;
+}
+
+export type Target = 'player' | 'remote' | 'server';
+
+export interface SocketMessage<T = null> {
+  payload: T;
+  target: Target;
 }
 
 export interface Track {

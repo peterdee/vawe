@@ -4,6 +4,8 @@ import {
 } from 'node:http';
 import { Server } from 'socket.io';
 
+import log from './log';
+import router from './router';
 import { SERVER, WS_EVENTS } from '../../../constants';
 import type * as types from 'types';
 
@@ -26,23 +28,19 @@ export default function createWebsocketsServer(): HTTPServer {
   );
   
   websocketsServer.on(
-    'connection',
-    (socket) => {
-      console.log('connected', socket.id);
+    WS_EVENTS.connectToServer,
+    (connection: types.ExtendedSocket) => {
+      log('client connected:', connection.id);
 
-      socket.on(WS_EVENTS.addTrack, (track: types.Track) => {
-        console.log('added track', track);
-      });
+      // TODO: set correct client type
+      connection.clientType = 'remote';
 
-      socket.on(WS_EVENTS.loadPlaylist, (playlist: types.Track[]) => {
-        console.log('playlist loaded', playlist.length);
-      });
+      router(connection);
 
-      socket.on(WS_EVENTS.removeTrack, (id: string) => {
-        console.log('removed track id', id);
-      });
-
-      socket.on('disconnect', () => console.log('disconnected', socket.id));
+      connection.on(
+        WS_EVENTS.disconnectFromServer,
+        () => log('client disconnected: ', connection.id),
+      );
     },
   );
   

@@ -1,4 +1,10 @@
+import type * as types from 'types';
+
+export const CURRENT_TARGET_TYPE: types.Target = 'server';
+
 export const DEFAULT_PLAYLIST_NAME = 'vawe-default.va';
+
+export const DEFAULT_SERVER_ADDRESS = 'http://localhost:5077';
 
 export const EXTERNAL_LINKS = {
   menuReportIssue: 'https://github.com/peterdee/vawe/issues',
@@ -41,11 +47,19 @@ export const SERVER = {
 
 export const WS_EVENTS = {
   addTrack: 'ADD_TRACK',
-  onTimeUpdate: 'ON_TIME_UPDATE',
+  changeCurrentTrack: 'CHANGE_CURRENT_TRACK',
+  changeCurrentTrackElapsedTime: 'CHANGE_CURRENT_TRACK_ELAPSED_TIME',
+  changeIsMuted: 'CHANGE_IS_MUTED',
+  changeIsPlaying: 'CHANGE_IS_PLAYING',
+  changeVolume: 'CHANGE_VOLUME',
+  clearTracklist: 'CLEAR_TRACKLIST',
+  connectClient: 'connect',
+  connectToServer: 'connection',
+  disconnectFromServer: 'disconnect',
   loadPlaylist: 'LOAD_PLAYLIST',
+  removeIdFromQueue: 'REMOVE_ID_FROM_QUEUE',
   removeTrack: 'REMOVE_TRACK',
   requestCurrentTrack: 'REQUEST_CURRENT_TRACK',
   requestPlaybackState: 'REQUEST_PLAYBACK_STATE',
-  requestPlaylist: 'REQUEST_PLAYLIST',
-  updatePlaybackState: 'UPDATE_PLAYBACK_STATE',
+  requestTracklist: 'REQUEST_TRACKLIST',
 };
