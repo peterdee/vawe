@@ -1,6 +1,6 @@
 import type * as types from 'types';
 
-export const CURRENT_TARGET_TYPE: types.Target = 'server';
+export const CLIENT_TYPE: types.Target = 'player';
 
 export const DEFAULT_PLAYLIST_NAME = 'vawe-default.va';
 

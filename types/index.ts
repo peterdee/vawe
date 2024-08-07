@@ -1,7 +1,8 @@
+import type { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import type { IAudioMetadata } from 'music-metadata';
 import type { IpcRendererEvent } from 'electron';
+import type { RemoteSocket, Socket } from 'socket.io';
 import type WaveSurfer from 'wavesurfer.js';
-import { Socket } from 'socket.io';
 
 export interface BaseIconProps {
   height?: number;
@@ -35,6 +36,10 @@ export type CustomAudioMetadata = Pick<IAudioMetadata, 'common' | 'format'> & {
 export type ExtendedSocket = Socket & {
   clientType: Target;
 };
+
+export type ExtendedRemoteSocket = RemoteSocket<DefaultEventsMap, unknown> & {
+  clientType: Target;
+}
 
 export type ExtendedWindow = BaseWindow & {
   backend: {

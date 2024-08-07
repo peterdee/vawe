@@ -32,10 +32,10 @@ export default function createWebsocketsServer(): HTTPServer {
     (connection: types.ExtendedSocket) => {
       log('client connected:', connection.id);
 
-      // TODO: set correct client type
-      connection.clientType = 'remote';
+      connection.clientType = (connection.handshake.query?.clientType
+        || 'player') as types.Target;
 
-      router(connection);
+      router(connection, websocketsServer);
 
       connection.on(
         WS_EVENTS.disconnectFromServer,
