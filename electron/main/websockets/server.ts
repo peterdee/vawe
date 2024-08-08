@@ -33,7 +33,7 @@ export default function createWebsocketsServer(): HTTPServer {
       log('client connected:', connection.id);
 
       connection.clientType = (connection.handshake.query?.clientType
-        || 'player') as types.Target;
+        || 'player') as types.ClientType;
 
       router(connection, websocketsServer);
 

@@ -15,6 +15,8 @@ export interface BaseIconProps {
 
 export type ChangeTrackTo = 'current' | 'next' | 'previous';
 
+export type ClientType = 'player' | 'remote' | 'server';
+
 export type CurrentTrack = Track | null;
 
 type BaseWindow = Window & typeof globalThis;
@@ -34,11 +36,11 @@ export type CustomAudioMetadata = Pick<IAudioMetadata, 'common' | 'format'> & {
 };
 
 export type ExtendedSocket = Socket & {
-  clientType: Target;
+  clientType: ClientType;
 };
 
 export type ExtendedRemoteSocket = RemoteSocket<DefaultEventsMap, unknown> & {
-  clientType: Target;
+  clientType: ClientType;
 }
 
 export type ExtendedWindow = BaseWindow & {
@@ -109,11 +111,9 @@ export interface PlaybackStatePayload {
   volume: number;
 }
 
-export type Target = 'player' | 'remote' | 'server';
-
 export interface SocketMessage<T = null> {
   payload: T;
-  target: Target;
+  target: ClientType;
 }
 
 export interface Track {

@@ -25,9 +25,12 @@ const defaultContextValue: SocketContextData = {
 export const SocketContext = createContext(defaultContextValue);
 
 const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
-  const dispatch = useDispatch<AppDispatch>();
   const [connection, setConnection] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  console.log('SocketProvider called');
 
   const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
@@ -99,10 +102,7 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
             payload: currentTrack,
             target: 'remote',
           };
-          connection.emit(
-            WS_EVENTS.loadPlaylist,
-            message,
-          );
+          connection.emit(WS_EVENTS.requestCurrentTrack, message);
         }
       };
 
@@ -117,24 +117,18 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
             },
             target: 'remote',
           };
-          connection.emit(
-            WS_EVENTS.loadPlaylist,
-            message,
-          );
+          connection.emit(WS_EVENTS.requestPlaybackState, message);
         }
       };
 
       const requestTracklistHandler = () => {
-        console.log('request tracklist fired');
         if (connection && connection.connected) {
+          console.log('request tracklist fired');
           const message: types.SocketMessage<types.Track[]> = {
             payload: tracklist,
             target: 'remote',
           };
-          connection.emit(
-            WS_EVENTS.loadPlaylist,
-            message,
-          );
+          connection.emit(WS_EVENTS.requestTracklist, message);
         }
       };
 
