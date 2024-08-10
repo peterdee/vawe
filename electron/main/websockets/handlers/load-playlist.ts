@@ -15,8 +15,8 @@ export default async function loadPlaylist(
   const target: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[]).filter(
     (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === targetClientType,
   )[0];
-  console.log(`load playlist emitted by ${connection.clientType}`);
   if (target) {
-    server.to(target.id).emit(WS_EVENTS.loadPlaylist, message);
+    console.log(`load playlist emitted by ${connection.clientType}`, message);
+    connection.to(target.id).emit(WS_EVENTS.loadPlaylist, message);
   }
 }

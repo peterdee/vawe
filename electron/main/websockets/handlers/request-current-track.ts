@@ -16,7 +16,7 @@ export default async function requestCurrentTrack(
     (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === targetClientType,
   )[0];
   if (target) {
-    console.log(`request ct emitted by ${connection.clientType}`);
+    console.log(`request ct emitted by ${connection.clientType}`, message);
     connection.to(target.id).emit(WS_EVENTS.requestCurrentTrack, message);
   }
 }

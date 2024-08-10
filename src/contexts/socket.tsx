@@ -117,13 +117,14 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
             },
             target: 'remote',
           };
+          log('request playback state', message);
           connection.emit(WS_EVENTS.requestPlaybackState, message);
         }
       };
 
       const requestTracklistHandler = () => {
         if (connection && connection.connected) {
-          console.log('request tracklist fired');
+          console.log('request tracklist fired', tracklist);
           const message: types.SocketMessage<types.Track[]> = {
             payload: tracklist,
             target: 'remote',
@@ -135,7 +136,7 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
       if (connection && connection.connected) {
         log('register event listeners');
         connection.on(WS_EVENTS.requestCurrentTrack, requestCurrentTrackHandler);
-        connection.on(WS_EVENTS.requestCurrentTrack, requestPlaybackStateHandler);
+        connection.on(WS_EVENTS.requestPlaybackState, requestPlaybackStateHandler);
         connection.on(WS_EVENTS.requestTracklist, requestTracklistHandler);
       }
 
@@ -143,7 +144,7 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
         if (connection && connection.connected) {
           log('remove event listeners');
           connection.off(WS_EVENTS.requestCurrentTrack, requestCurrentTrackHandler);
-          connection.off(WS_EVENTS.requestCurrentTrack, requestPlaybackStateHandler);
+          connection.off(WS_EVENTS.requestPlaybackState, requestPlaybackStateHandler);
           connection.off(WS_EVENTS.requestTracklist, requestTracklistHandler);
         }
       }
