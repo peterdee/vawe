@@ -15,8 +15,13 @@ export default async function requestCurrentTrack(
   const target: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[]).filter(
     (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === targetClientType,
   )[0];
+  console.log('request current track', `${connection.clientType} -> ${targetClientType}`);
   if (target) {
-    console.log(`request ct emitted by ${connection.clientType}`, message);
+    console.log(
+      `request ct emitted by ${connection.clientType}`,
+      message,
+      JSON.stringify(message),
+    );
     connection.to(target.id).emit(WS_EVENTS.requestCurrentTrack, message);
   }
 }

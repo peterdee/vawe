@@ -15,8 +15,13 @@ export default async function requestPlaybackState(
   const target: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[]).filter(
     (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === targetClientType,
   )[0];
+  console.log('request playback state', `${connection.clientType} -> ${targetClientType}`);
   if (target) {
-    console.log(`request playback emitted by ${connection.clientType}`, message);
+    console.log(
+      `request playback state emitted by ${connection.clientType}`,
+      message,
+      JSON.stringify(message),
+    );
     connection.to(target.id).emit(WS_EVENTS.requestPlaybackState, message);
   }
 }
