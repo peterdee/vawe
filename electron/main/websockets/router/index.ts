@@ -30,6 +30,7 @@ export default function router(connection: types.ExtendedSocket, server: Server)
     WS_EVENTS.requestTracklist,
     (
       message?: types.SocketMessage<types.Track[]>,
-    ) => requestTracklist(connection, server, message),
+      callback?: (payload: types.Track[]) => void,
+    ) => requestTracklist(connection, server, message, callback),
   );
 }

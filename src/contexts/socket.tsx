@@ -123,14 +123,13 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
         }
       };
 
-      const requestTracklistHandler = () => {
+      const requestTracklistHandler = (
+        _: types.SocketMessage,
+        callback: (payload: types.Track[],
+      ) => void) => {
         if (connection && connection.connected) {
-          const message: types.SocketMessage<types.Track[]> = {
-            payload: tracklist,
-            target: 'remote',
-          };
-          log(WS_EVENTS.requestTracklist, message);
-          connection.emit(WS_EVENTS.requestTracklist, message);
+          log(WS_EVENTS.requestTracklist);
+          callback(tracklist);
         }
       };
 
