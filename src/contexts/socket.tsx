@@ -30,13 +30,8 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  console.log('SocketProvider called');
-
   const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
-  );
-  const currentTrackElapsedTime = useSelector<RootState, number>(
-    (state) => state.tracklist.currentTrackElapsedTime,
   );
   const isMuted = useSelector<RootState, boolean>(
     (state) => state.volumeSettings.isMuted,
@@ -96,42 +91,30 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
 
   useEffect(
     () => {
-      const requestCurrentTrackHandler = () => {
-        if (connection && connection.connected) {
-          const message: types.SocketMessage<types.Track | null> = {
-            payload: currentTrack,
-            target: 'remote',
-          };
-          log(WS_EVENTS.requestCurrentTrack, message);
-          connection.emit(WS_EVENTS.requestCurrentTrack, message);
-        }
-      };
-
-      const requestPlaybackStateHandler = () => {
-        if (connection && connection.connected) {
-          const message: types.SocketMessage<types.PlaybackStatePayload> = {
-            payload: {
-              currentTrackElapsedTime,
-              isMuted,
-              isPlaying,
-              volume,
-            },
-            target: 'remote',
-          };
-          log(WS_EVENTS.requestPlaybackState, message);
-          connection.emit(WS_EVENTS.requestPlaybackState, message);
-        }
-      };
-
+      const requestCurrentTrackHandler = (
+        callback: (payload: types.SocketResponse<string>) => void,
+      ) => callback({
+        event: WS_EVENTS.requestCurrentTrack,
+        payload: currentTrack && currentTrack.id || '',
+      });
+    
+      const requestPlaybackStateHandler = (
+        callback: (payload: types.SocketResponse<types.PlaybackStatePayload>) => void,
+      ) => callback({
+        event: WS_EVENTS.requestPlaybackState,
+        payload: {
+          isMuted,
+          isPlaying,
+          volume,
+        },
+      });
+    
       const requestTracklistHandler = (
-        _: types.SocketMessage,
-        callback: (payload: types.Track[],
-      ) => void) => {
-        if (connection && connection.connected) {
-          log(WS_EVENTS.requestTracklist);
-          callback(tracklist);
-        }
-      };
+        callback: (payload: types.SocketResponse<types.Track[]>) => void,
+      ) => callback({
+        event: WS_EVENTS.requestTracklist,
+        payload: tracklist,
+      });
 
       if (connection && connection.connected) {
         log('register event listeners');
@@ -151,7 +134,12 @@ const SocketProvider = (props: React.PropsWithChildren): React.JSX.Element => {
     },
     [
       connection,
+      currentTrack,
       dispatch,
+      isMuted,
+      isPlaying,
+      tracklist,
+      volume,
     ],
   );
 

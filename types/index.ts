@@ -105,7 +105,6 @@ export interface OpenPlaylistResponsePayload {
 }
 
 export interface PlaybackStatePayload {
-  currentTrackElapsedTime: number;
   isMuted: boolean;
   isPlaying: boolean;
   volume: number;
@@ -114,6 +113,12 @@ export interface PlaybackStatePayload {
 export interface SocketMessage<T = null> {
   payload: T;
   target: ClientType;
+}
+
+export interface SocketResponse<T = null> {
+  error?: Error;
+  event: string;
+  payload?: T;
 }
 
 export interface Track {

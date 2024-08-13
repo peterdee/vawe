@@ -6,6 +6,8 @@ export const DEFAULT_PLAYLIST_NAME = 'vawe-default.va';
 
 export const DEFAULT_SERVER_ADDRESS = 'http://localhost:5077';
 
+export const DEFAULT_TIMEOUT = 5000;
+
 export const EXTERNAL_LINKS = {
   menuReportIssue: 'https://github.com/peterdee/vawe/issues',
   menuSourceCode: 'https://github.com/peterdee/vawe',

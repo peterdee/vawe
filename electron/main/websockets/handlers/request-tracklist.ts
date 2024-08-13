@@ -1,44 +1,34 @@
 import type { Server } from 'socket.io';
 
+import { DEFAULT_TIMEOUT, WS_EVENTS } from '../../../../constants';
 import type * as types from 'types';
-import { WS_EVENTS } from '../../../../constants';
+
+const EVENT = WS_EVENTS.requestTracklist;
 
 export default async function requestTracklist(
   connection: types.ExtendedSocket,
   server: Server,
-  message?: types.SocketMessage<types.Track[]>,
-  callback?: (payload: types.Track[]) => void,
+  callback: (payload: types.SocketResponse<types.Track[]>) => void,
 ) {
-  if (connection.clientType === 'remote' && callback) {
+  if (connection.clientType === 'remote') {
     const sockets = await server.sockets.fetchSockets();
-    const player: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[]).filter(
-      (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === 'player',
-    )[0];
+    const player: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[])
+      .filter(
+        (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === 'player',
+      )[0];
     if (player) {
-      console.log(
-        `request tracks by remote`,
-        message,
-        JSON.stringify(message),
-      );
-      const response: types.Track[] = await connection.timeout(5000).to(player.id).emitWithAck(
-        WS_EVENTS.requestTracklist,
-        message,
-      );
-      console.log('received response', response);
-      callback(response);
+      try {
+        const response: types.SocketResponse<types.Track[]> = await connection
+          .timeout(DEFAULT_TIMEOUT)
+          .to(player.id)
+          .emitWithAck(EVENT);
+        callback(response);
+      } catch (error) {
+        callback({
+          error: error as Error,
+          event: EVENT,
+        });
+      }
     }
   }
-
-  // const target: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[]).filter(
-  //   (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === targetClientType,
-  // )[0];
-  // console.log('request tracklist', `${connection.clientType} -> ${targetClientType}`);
-  // if (target) {
-  //   console.log(
-  //     `request tracks emitted by ${connection.clientType}`,
-  //     message,
-  //     JSON.stringify(message),
-  //   );
-  //   connection.to(target.id).emit(WS_EVENTS.requestTracklist, message);
-  // }
 }

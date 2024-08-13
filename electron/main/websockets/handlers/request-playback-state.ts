@@ -1,27 +1,34 @@
 import type { Server } from 'socket.io';
 
+import { DEFAULT_TIMEOUT, WS_EVENTS } from '../../../../constants';
 import type * as types from 'types';
-import { WS_EVENTS } from '../../../../constants';
+
+const EVENT = WS_EVENTS.requestPlaybackState;
 
 export default async function requestPlaybackState(
   connection: types.ExtendedSocket,
   server: Server,
-  message?: types.SocketMessage<types.PlaybackStatePayload>,
+  callback: (payload: types.SocketResponse<types.PlaybackStatePayload>) => void,
 ) {
-  const sockets = await server.sockets.fetchSockets();
-  const targetClientType: types.ClientType = connection.clientType === 'player'
-    ? 'remote'
-    : 'player';
-  const target: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[]).filter(
-    (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === targetClientType,
-  )[0];
-  console.log('request playback state', `${connection.clientType} -> ${targetClientType}`);
-  if (target) {
-    console.log(
-      `request playback state emitted by ${connection.clientType}`,
-      message,
-      JSON.stringify(message),
-    );
-    connection.to(target.id).emit(WS_EVENTS.requestPlaybackState, message);
+  if (connection.clientType === 'remote') {
+    const sockets = await server.sockets.fetchSockets();
+    const player: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[])
+      .filter(
+        (remoteSocket: types.ExtendedRemoteSocket) => remoteSocket.clientType === 'player',
+      )[0];
+    if (player) {
+      try {
+        const response: types.SocketResponse<types.PlaybackStatePayload> = await connection
+          .timeout(DEFAULT_TIMEOUT)
+          .to(player.id)
+          .emitWithAck(EVENT);
+        callback(response);
+      } catch (error) {
+        callback({
+          error: error as Error,
+          event: EVENT,
+        });
+      }
+    }
   }
 }

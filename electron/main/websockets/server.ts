@@ -30,16 +30,23 @@ export default function createWebsocketsServer(): HTTPServer {
   websocketsServer.on(
     WS_EVENTS.connectToServer,
     (connection: types.ExtendedSocket) => {
-      log('client connected:', connection.id);
-
       connection.clientType = (connection.handshake.query?.clientType
         || 'player') as types.ClientType;
 
+      log(
+        'client connected:',
+        connection.id,
+        `[${connection.clientType.toUpperCase()}]`,
+      );
       router(connection, websocketsServer);
 
       connection.on(
         WS_EVENTS.disconnectFromServer,
-        () => log('client disconnected: ', connection.id),
+        () => log(
+          'client disconnected:',
+          connection.id,
+          `[${connection.clientType.toUpperCase()}]`,
+        ),
       );
     },
   );
