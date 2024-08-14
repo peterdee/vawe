@@ -5,13 +5,13 @@ import { WS_EVENTS } from '../../../../constants';
 
 const EVENT = WS_EVENTS.changeCurrentTrackElapsedTime;
 
-export default async function schangeCurrentTrackElapsedTime(
+export default async function changeCurrentTrackElapsedTime(
   connection: types.ExtendedSocket,
   server: Server,
   value: number,
 ) {
-  console.log('change elapsed');
   if (connection.clientType === 'player') {
+    console.log('change elapsed');
     const sockets = await server.sockets.fetchSockets();
     const remote: types.ExtendedRemoteSocket = (sockets as types.ExtendedRemoteSocket[])
       .filter(

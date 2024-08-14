@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import formatDuration from '@/utilities/format-duration';
 import type { RootState } from '@/store';
+import { SocketContext } from '@/contexts/socket';
 import type * as types from 'types';
+import { WS_EVENTS } from '../../../../constants';
 import '../styles.css';
 
 function ElapsedTime(): React.JSX.Element {
+  const { connection } = useContext(SocketContext);
+
+  const [previous, setPrevious] = useState<number>(0);
+
   const currentTrack = useSelector<RootState, types.Track | null>(
     (state) => state.tracklist.currentTrack,
   );
@@ -15,6 +21,20 @@ function ElapsedTime(): React.JSX.Element {
   );
   const elapsedTime = useSelector<RootState, number>(
     (state) => state.tracklist.currentTrackElapsedTime,
+  );
+
+  useEffect(
+    () => {
+      if (connection && connection.connected && elapsedTime - previous > 1) {
+        console.log('elapsed', elapsedTime);
+        connection.emit(
+          WS_EVENTS.changeCurrentTrackElapsedTime,
+          elapsedTime,
+        );
+        setPrevious(elapsedTime)
+      }
+    },
+    [elapsedTime, previous],
   );
 
   return (
